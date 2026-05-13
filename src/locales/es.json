@@ -1,1 +1,34 @@
-{}
+{
+  "common": {
+    "save":   "Guardar",
+    "cancel": "Cancelar"
+  },
+  "errors": {
+    "occurred": "Ocurrió un error"
+  },
+  "orders": {
+    "title":                 "Gestión de Pedidos",
+    "new":                   "Nuevo Pedido",
+    "new-title":             "Nuevo Pedido",
+    "edit-title":            "Editar Pedido",
+    "tracking-title":        "Seguimiento de Pedido",
+    "id":                    "ID del Pedido",
+    "project":               "Proyecto",
+    "client":                "Cliente",
+    "wood":                  "Madera",
+    "finish":                "Acabado",
+    "description":           "Descripción",
+    "status":                "Estado",
+    "actions":               "Acciones",
+    "start-date":            "Fecha de inicio",
+    "end-date":              "Fecha de entrega",
+    "not-found":             "Pedido no encontrado",
+    "status-pending":           "Pendiente",
+    "status-in-progress":       "En proceso",
+    "status-waiting-materials": "Esperando materiales",
+    "status-delivered":         "Entregado",
+    "status-cancelled":         "Cancelado",
+    "confirm-cancel":        "¿Cancelar el pedido \"{project}\"?",
+    "cancel-header":         "Cancelar pedido"
+  }
+}
