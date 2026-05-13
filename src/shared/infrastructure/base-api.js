@@ -1,16 +1,31 @@
 import axios from 'axios';
 
-/**
- * Centralized Axios instance for all API communication.
- *
- * All bounded context API clients (e.g. OrdersApi, InventoryApi) must extend
- * or use this instance — never create a raw axios instance elsewhere.
- *
- * @type {import('axios').AxiosInstance}
- */
-const http = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000',
-    headers: { 'Content-Type': 'application/json' }
-});
+const platformApi = import.meta.env.VITE_WOODROUTE_API_URL;
 
-export default http;
+/**
+ * Shared infrastructure API client factory for bounded contexts.
+ *
+ * @class BaseApi
+ */
+export class BaseApi {
+    #http;
+
+    /**
+     * Creates an Axios HTTP client configured for the platform API.
+     */
+    constructor() {
+        this.#http = axios.create({
+            baseURL: platformApi,
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            }
+        });
+    }
+
+    /**
+     * Low-level HTTP client used by infrastructure endpoints.
+     * @returns {import('axios').AxiosInstance} Axios client instance.
+     */
+    get http() { return this.#http; }
+}
