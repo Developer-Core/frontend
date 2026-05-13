@@ -1,1 +1,34 @@
-{}
+{
+  "common": {
+    "save":   "Save",
+    "cancel": "Cancel"
+  },
+  "errors": {
+    "occurred": "An error occurred"
+  },
+  "orders": {
+    "title":                 "Orders Management",
+    "new":                   "New Order",
+    "new-title":             "New Order",
+    "edit-title":            "Edit Order",
+    "tracking-title":        "Order Tracking",
+    "id":                    "Order ID",
+    "project":               "Project",
+    "client":                "Client",
+    "wood":                  "Wood",
+    "finish":                "Finish",
+    "description":           "Description",
+    "status":                "Status",
+    "actions":               "Actions",
+    "start-date":            "Start date",
+    "end-date":              "End date",
+    "not-found":             "Order not found",
+    "status-pending":           "Pending",
+    "status-in-progress":       "In progress",
+    "status-waiting-materials": "Waiting for materials",
+    "status-delivered":         "Delivered",
+    "status-cancelled":         "Cancelled",
+    "confirm-cancel":        "Cancel order \"{project}\"?",
+    "cancel-header":         "Cancel order"
+  }
+}

@@ -1,71 +1,61 @@
-import http from './base-api.js';
-
 /**
- * Base class for all context-specific API endpoints.
+ * Generic infrastructure endpoint abstraction for CRUD-like operations.
  *
- * Provides standard CRUD operations backed by the shared Axios instance.
- * Each bounded context creates its own endpoint by extending this class
- * and passing the resource path.
- *
- * @example
- * // src/orders/infrastructure/orders-api.js
- * import BaseEndpoint from '@/shared/infrastructure/base-endpoint.js';
- * export class OrdersApi extends BaseEndpoint {
- *   constructor() { super('/orders'); }
- * }
+ * @template TResource
+ * @class BaseEndpoint
  */
-class BaseEndpoint {
+export class BaseEndpoint {
     /**
-     * @param {string} resourcePath - The API resource path (e.g. '/orders').
+     * @param {import('./base-api.js').BaseApi} baseApi - Infrastructure API client.
+     * @param {string} endpointPath - Relative endpoint path within the API.
      */
-    constructor(resourcePath) {
-        this.resourcePath = resourcePath;
+    constructor(baseApi, endpointPath) {
+        this.http         = baseApi.http;
+        this.endpointPath = endpointPath;
     }
 
     /**
-     * Fetches all resources.
-     * @returns {Promise<import('axios').AxiosResponse>}
+     * Requests all resources from the endpoint.
+     * @returns {Promise<import('axios').AxiosResponse<Array<TResource>|Object>>} HTTP response.
      */
     getAll() {
-        return http.get(this.resourcePath);
+        return this.http.get(this.endpointPath);
     }
 
     /**
-     * Fetches a single resource by ID.
-     * @param {number|string} id
-     * @returns {Promise<import('axios').AxiosResponse>}
+     * Requests one resource by identifier.
+     * @param {number|string} id - Resource identifier.
+     * @returns {Promise<import('axios').AxiosResponse<TResource|Object>>} HTTP response.
      */
     getById(id) {
-        return http.get(`${this.resourcePath}/${id}`);
+        return this.http.get(`${this.endpointPath}/${id}`);
     }
 
     /**
-     * Creates a new resource.
-     * @param {Object} resource
-     * @returns {Promise<import('axios').AxiosResponse>}
+     * Persists a new resource payload.
+     * @param {TResource|Object} resource - Resource payload to create.
+     * @returns {Promise<import('axios').AxiosResponse<TResource|Object>>} HTTP response.
      */
     create(resource) {
-        return http.post(this.resourcePath, resource);
+        return this.http.post(this.endpointPath, resource);
     }
 
     /**
-     * Updates an existing resource.
-     * @param {number|string} id
-     * @param {Object} resource
-     * @returns {Promise<import('axios').AxiosResponse>}
+     * Updates an existing resource payload.
+     * @param {number|string} id - Resource identifier.
+     * @param {TResource|Object} resource - Resource payload to update.
+     * @returns {Promise<import('axios').AxiosResponse<TResource|Object>>} HTTP response.
      */
     update(id, resource) {
-        return http.put(`${this.resourcePath}/${id}`, resource);
+        return this.http.put(`${this.endpointPath}/${id}`, resource);
     }
 
     /**
-     * Deletes a resource by ID.
-     * @param {number|string} id
-     * @returns {Promise<import('axios').AxiosResponse>}
+     * Deletes a resource by identifier.
+     * @param {number|string} id - Resource identifier.
+     * @returns {Promise<import('axios').AxiosResponse>} HTTP response.
      */
     delete(id) {
-        return http.delete(`${this.resourcePath}/${id}`);
+        return this.http.delete(`${this.endpointPath}/${id}`);
     }
 }
-
-export default BaseEndpoint;

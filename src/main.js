@@ -1,6 +1,6 @@
 import { createApp } from 'vue';
 import './style.css';
-import App from './App.vue';
+import App from './app.vue';
 import PrimeVue from 'primevue/config';
 import { definePreset } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
