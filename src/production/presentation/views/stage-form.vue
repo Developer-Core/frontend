@@ -13,8 +13,8 @@ const router = useRouter();
 const productionStore = useProductionStore();
 const ordersStore     = useOrdersStore();
 
-const { errors }       = toRefs(productionStore);
-const { orders }       = toRefs(ordersStore);
+const { errors } = toRefs(productionStore);
+const { orders } = toRefs(ordersStore);
 
 const { fetchStages, getStageById, addStage, updateStage } = productionStore;
 const { fetchOrders } = ordersStore;
@@ -55,8 +55,9 @@ const cancel = () => {
             {{ isEdit ? t('production.edit-stage') : t('production.new-stage-title') }}
         </h1>
 
-        <div class="flex flex-column gap-3" style="max-width: 40rem">
-            <pv-float-label>
+        <form @submit.prevent="submit" style="max-width: 40rem">
+            <div class="field mb-3">
+                <label for="orderId" class="block mb-1 font-medium">{{ t('production.order') }}</label>
                 <pv-select
                     id="orderId"
                     v-model="stage.orderId"
@@ -64,35 +65,35 @@ const cancel = () => {
                     option-label="projectName"
                     option-value="id"
                     :disabled="isEdit"
+                    :placeholder="t('production.select-order')"
                     class="w-full" />
-                <label for="orderId">{{ t('production.order') }}</label>
-            </pv-float-label>
-
-            <pv-float-label>
-                <pv-input-text id="name" v-model="stage.name" class="w-full" />
-                <label for="name">{{ t('production.name') }}</label>
-            </pv-float-label>
-
-            <pv-float-label>
-                <pv-input-number id="sequence" v-model="stage.sequence" :min="1" class="w-full" />
-                <label for="sequence">{{ t('production.sequence') }}</label>
-            </pv-float-label>
-
-            <pv-float-label>
-                <pv-input-number id="estimatedHours" v-model="stage.estimatedHours" :min="0" :max-fraction-digits="2" class="w-full" />
-                <label for="estimatedHours">{{ t('production.estimated-hours') }}</label>
-            </pv-float-label>
-
-            <pv-float-label v-if="isEdit">
-                <pv-input-number id="actualHours" v-model="stage.actualHours" :min="0" :max-fraction-digits="2" class="w-full" />
-                <label for="actualHours">{{ t('production.actual-hours') }}</label>
-            </pv-float-label>
-
-            <div class="flex gap-2 justify-content-end">
-                <pv-button :label="t('common.cancel')" severity="secondary" text @click="cancel" />
-                <pv-button :label="t('common.save')"   icon="pi pi-check"   @click="submit" />
             </div>
-        </div>
+
+            <div class="field mb-3">
+                <label for="name" class="block mb-1 font-medium">{{ t('production.name') }}</label>
+                <pv-input-text id="name" v-model="stage.name" required class="w-full" />
+            </div>
+
+            <div class="field mb-3">
+                <label for="sequence" class="block mb-1 font-medium">{{ t('production.sequence') }}</label>
+                <pv-input-number id="sequence" v-model="stage.sequence" :min="1" class="w-full" />
+            </div>
+
+            <div class="field mb-3">
+                <label for="estimatedHours" class="block mb-1 font-medium">{{ t('production.estimated-hours') }}</label>
+                <pv-input-number id="estimatedHours" v-model="stage.estimatedHours" :min="0" :max-fraction-digits="2" class="w-full" />
+            </div>
+
+            <div v-if="isEdit" class="field mb-3">
+                <label for="actualHours" class="block mb-1 font-medium">{{ t('production.actual-hours') }}</label>
+                <pv-input-number id="actualHours" v-model="stage.actualHours" :min="0" :max-fraction-digits="2" class="w-full" />
+            </div>
+
+            <div class="flex gap-2 justify-content-end mt-4">
+                <pv-button type="button" :label="t('common.cancel')" severity="secondary" text @click="cancel" />
+                <pv-button type="submit" :label="t('common.save')"   icon="pi pi-check" />
+            </div>
+        </form>
 
         <div v-if="errors.length" class="text-red-500 mt-3">
             {{ t('errors.occurred') }}: {{ errors.map(e => e.message).join(', ') }}
