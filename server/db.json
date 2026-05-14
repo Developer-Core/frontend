@@ -1,0 +1,70 @@
+{
+  "orders": [
+    {
+      "id": 1,
+      "projectName": "Mesa de Comedor",
+      "clientName": "Carlos Mendoza",
+      "woodType": "Roble",
+      "finish": "Barniz mate",
+      "description": "Mesa rectangular para 6 personas, 180x90 cm. Patas torneadas.",
+      "status": "in-progress",
+      "startDate": "2026-09-01",
+      "endDate": "2026-11-15"
+    },
+    {
+      "id": 2,
+      "projectName": "Librería Modular",
+      "clientName": "María López",
+      "woodType": "Nogal Americano",
+      "finish": "Aceite natural",
+      "description": "Librería de 5 cuerpos con estantes ajustables. Altura 240 cm.",
+      "status": "waiting-materials",
+      "startDate": "2026-10-05",
+      "endDate": "2026-12-20"
+    },
+    {
+      "id": 3,
+      "projectName": "Mostrador Recepción",
+      "clientName": "Estudio Núñez",
+      "woodType": "Pino Abeto",
+      "finish": "Lacado blanco",
+      "description": "Mostrador en L de 3 metros con cajonera lateral integrada.",
+      "status": "delivered",
+      "startDate": "2026-07-15",
+      "endDate": "2026-09-28"
+    },
+    {
+      "id": 4,
+      "projectName": "Escritorio Ejecutivo",
+      "clientName": "Andrea Fernández",
+      "woodType": "Roble Blanco",
+      "finish": "Tinte oscuro y barniz brillante",
+      "description": "Escritorio 160x80 cm con dos cajones y pasacables.",
+      "status": "pending",
+      "startDate": null,
+      "endDate": null
+    },
+    {
+      "id": 5,
+      "projectName": "Banco de Jardín",
+      "clientName": "Roberto Salas",
+      "woodType": "Arce",
+      "finish": "Lasure exterior",
+      "description": "Banco para exterior de 2 metros con respaldo curvo.",
+      "status": "pending",
+      "startDate": null,
+      "endDate": null
+    },
+    {
+      "id": 6,
+      "projectName": "Vitrina Empotrada",
+      "clientName": "Lucía Paredes",
+      "woodType": "Roble Francés",
+      "finish": "Barniz satinado",
+      "description": "Vitrina de pared con iluminación LED y puertas de vidrio.",
+      "status": "cancelled",
+      "startDate": null,
+      "endDate": null
+    }
+  ]
+}
