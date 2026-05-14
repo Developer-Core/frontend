@@ -1,4 +1,14 @@
 {
+  "shell": {
+    "brand":             "WoodRoute",
+    "role-default":      "Master Carpenter",
+    "footer":            "© 2026 WoodRoute",
+    "nav-orders":        "Orders",
+    "nav-production":    "Production",
+    "nav-inventory":     "Inventory",
+    "nav-quotes":        "Quotes",
+    "nav-communication": "Messages"
+  },
   "common": {
     "save":   "Save",
     "cancel": "Cancel",

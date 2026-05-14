@@ -7,6 +7,7 @@ import Aura from '@primeuix/themes/aura';
 import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import {
+    Breadcrumb,
     Button,
     Card,
     Checkbox,
@@ -113,6 +114,7 @@ createApp(App)
     .use(ConfirmationService)
     .use(DialogService)
     .use(ToastService)
+    .component('pv-breadcrumb',   Breadcrumb)
     .component('pv-button',       Button)
     .component('pv-card',         Card)
     .component('pv-checkbox',     Checkbox)
