@@ -3,6 +3,7 @@
  * It coordinates order use cases and keeps a UI-facing state.
  *
  * @module useOrdersStore
+ * @returns {Object} Store state and actions.
  */
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
@@ -12,41 +13,18 @@ import { Order } from '../domain/order.entity.js';
 
 const ordersApi = new OrdersApi();
 
-/**
- * Reactive store that exposes Orders commands and queries.
- *
- * @returns {Object} Store state and actions.
- */
 const useOrdersStore = defineStore('orders', () => {
-    /**
-     * List of order entities.
-     * @type {import('vue').Ref<Order[]>}
-     */
+    /** @type {import('vue').Ref<Array<import('../domain/order.entity.js').Order>>} List of order entities. */
     const orders = ref([]);
-    /**
-     * List of errors encountered during API operations.
-     * @type {import('vue').Ref<Error[]>}
-     */
+    /** @type {import('vue').Ref<Array<Error>>} Errors raised by Orders use-case execution. */
     const errors = ref([]);
-    /**
-     * Whether orders have been loaded from the API.
-     * @type {import('vue').Ref<boolean>}
-     */
+    /** @type {import('vue').Ref<boolean>} Flag indicating if orders have been loaded. */
     const ordersLoaded = ref(false);
-    /**
-     * Number of loaded orders.
-     * @type {import('vue').ComputedRef<number>}
-     */
+    /** @type {import('vue').ComputedRef<number>} Number of loaded orders. */
     const ordersCount = computed(() => ordersLoaded.value ? orders.value.length : 0);
-    /**
-     * Orders pending review by the carpenter.
-     * @type {import('vue').ComputedRef<Order[]>}
-     */
+    /** @type {import('vue').ComputedRef<Array<import('../domain/order.entity.js').Order>>} Orders pending review by the carpenter. */
     const pendingOrders = computed(() => orders.value.filter(order => order.status === 'pending'));
-    /**
-     * Orders currently in production.
-     * @type {import('vue').ComputedRef<Order[]>}
-     */
+    /** @type {import('vue').ComputedRef<Array<import('../domain/order.entity.js').Order>>} Orders currently in production. */
     const inProgressOrders = computed(() => orders.value.filter(order => order.status === 'in-progress'));
 
     /**
@@ -65,7 +43,7 @@ const useOrdersStore = defineStore('orders', () => {
     /**
      * Finds an order entity by identifier.
      * @param {number|string} id - Order identifier.
-     * @returns {Order|undefined} Matching order, if available.
+     * @returns {import('../domain/order.entity.js').Order|undefined} Matching order, if available.
      */
     function getOrderById(id) {
         let idNum = parseInt(id);
@@ -74,7 +52,7 @@ const useOrdersStore = defineStore('orders', () => {
 
     /**
      * Creates an order through infrastructure and appends it to the local state.
-     * @param {Order} order - Order entity to persist.
+     * @param {import('../domain/order.entity.js').Order} order - Order entity to persist.
      * @returns {void}
      */
     function addOrder(order) {
@@ -89,7 +67,7 @@ const useOrdersStore = defineStore('orders', () => {
 
     /**
      * Updates an existing order and synchronizes local state.
-     * @param {Order} order - Order entity with updated data.
+     * @param {import('../domain/order.entity.js').Order} order - Order entity with updated data.
      * @returns {void}
      */
     function updateOrder(order) {
@@ -105,7 +83,7 @@ const useOrdersStore = defineStore('orders', () => {
 
     /**
      * Deletes an order and removes it from the local state.
-     * @param {Order} order - Order entity to remove.
+     * @param {import('../domain/order.entity.js').Order} order - Order entity to remove.
      * @returns {void}
      */
     function deleteOrder(order) {
@@ -119,7 +97,7 @@ const useOrdersStore = defineStore('orders', () => {
 
     /**
      * Applies a carpenter review decision to a pending order.
-     * @param {Order} order - Order entity under review.
+     * @param {import('../domain/order.entity.js').Order} order - Order entity under review.
      * @param {('accepted'|'rejected')} decision - Carpenter decision.
      * @returns {void}
      */
@@ -130,7 +108,7 @@ const useOrdersStore = defineStore('orders', () => {
 
     /**
      * Cancels an active order on behalf of the client.
-     * @param {Order} order - Order entity to cancel.
+     * @param {import('../domain/order.entity.js').Order} order - Order entity to cancel.
      * @returns {void}
      */
     function cancelOrder(order) {

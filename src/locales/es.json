@@ -14,7 +14,13 @@
     "quotes-new":                   "Nueva Cotización",
     "communication":                "Mensajes",
     "communication-thread":         "Conversación",
-    "public-tracking":              "Seguimiento del Pedido"
+    "public-tracking":              "Seguimiento del Pedido",
+    "not-found":                    "No encontrado"
+  },
+  "not-found": {
+    "title":   "Página no encontrada",
+    "message": "La página que buscas no existe o fue movida.",
+    "action":  "Ir al inicio"
   },
   "shell": {
     "brand":             "WoodRoute",

@@ -3,6 +3,7 @@
  * It coordinates material use cases and keeps a UI-facing state.
  *
  * @module useInventoryStore
+ * @returns {Object} Store state and actions.
  */
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
@@ -12,36 +13,16 @@ import { Material } from '../domain/material.entity.js';
 
 const inventoryApi = new InventoryApi();
 
-/**
- * Reactive store that exposes Inventory commands and queries.
- *
- * @returns {Object} Store state and actions.
- */
 const useInventoryStore = defineStore('inventory', () => {
-    /**
-     * List of material entities.
-     * @type {import('vue').Ref<Material[]>}
-     */
+    /** @type {import('vue').Ref<Array<import('../domain/material.entity.js').Material>>} List of material entities. */
     const materials = ref([]);
-    /**
-     * List of errors encountered during API operations.
-     * @type {import('vue').Ref<Error[]>}
-     */
+    /** @type {import('vue').Ref<Array<Error>>} Errors raised by Inventory use-case execution. */
     const errors = ref([]);
-    /**
-     * Whether materials have been loaded from the API.
-     * @type {import('vue').Ref<boolean>}
-     */
+    /** @type {import('vue').Ref<boolean>} Flag indicating if materials have been loaded. */
     const materialsLoaded = ref(false);
-    /**
-     * Number of loaded materials.
-     * @type {import('vue').ComputedRef<number>}
-     */
+    /** @type {import('vue').ComputedRef<number>} Number of loaded materials. */
     const materialsCount = computed(() => materialsLoaded.value ? materials.value.length : 0);
-    /**
-     * Materials whose current stock is at or below the configured minimum threshold.
-     * @type {import('vue').ComputedRef<Material[]>}
-     */
+    /** @type {import('vue').ComputedRef<Array<import('../domain/material.entity.js').Material>>} Materials at or below the configured minimum threshold. */
     const lowStockMaterials = computed(() =>
         materials.value.filter(material => material.stockQuantity <= material.minQuantity)
     );
@@ -62,7 +43,7 @@ const useInventoryStore = defineStore('inventory', () => {
     /**
      * Finds a material entity by identifier.
      * @param {number|string} id - Material identifier.
-     * @returns {Material|undefined} Matching material, if available.
+     * @returns {import('../domain/material.entity.js').Material|undefined} Matching material, if available.
      */
     function getMaterialById(id) {
         const idNum = parseInt(id);
@@ -71,7 +52,7 @@ const useInventoryStore = defineStore('inventory', () => {
 
     /**
      * Creates a material through infrastructure and appends it to the local state.
-     * @param {Material} material - Material entity to persist.
+     * @param {import('../domain/material.entity.js').Material} material - Material entity to persist.
      * @returns {void}
      */
     function addMaterial(material) {
@@ -85,7 +66,7 @@ const useInventoryStore = defineStore('inventory', () => {
 
     /**
      * Updates an existing material and synchronizes local state.
-     * @param {Material} material - Material entity with updated data.
+     * @param {import('../domain/material.entity.js').Material} material - Material entity with updated data.
      * @returns {void}
      */
     function updateMaterial(material) {
@@ -100,7 +81,7 @@ const useInventoryStore = defineStore('inventory', () => {
 
     /**
      * Deletes a material and removes it from the local state.
-     * @param {Material} material - Material entity to remove.
+     * @param {import('../domain/material.entity.js').Material} material - Material entity to remove.
      * @returns {void}
      */
     function deleteMaterial(material) {
@@ -114,7 +95,7 @@ const useInventoryStore = defineStore('inventory', () => {
 
     /**
      * Adjusts the stock of a material by a signed delta (positive restocks, negative consumes).
-     * @param {Material} material - Material entity whose stock is being adjusted.
+     * @param {import('../domain/material.entity.js').Material} material - Material entity whose stock is being adjusted.
      * @param {number} delta - Signed quantity to apply.
      * @returns {void}
      */

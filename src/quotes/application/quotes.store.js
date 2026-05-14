@@ -3,47 +3,26 @@
  * It coordinates quote and quote-item use cases and exposes profitability calculations.
  *
  * @module useQuotesStore
+ * @returns {Object} Store state and actions.
  */
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { QuotesApi } from '../infrastructure/quotes-api.js';
 import { QuoteAssembler } from '../infrastructure/quote.assembler.js';
 import { QuoteItemAssembler } from '../infrastructure/quote-item.assembler.js';
-import { Quote } from '../domain/quote.entity.js';
-import { QuoteItem } from '../domain/quote-item.entity.js';
 
 const quotesApi = new QuotesApi();
 
-/**
- * Reactive store that exposes Quotes commands and queries.
- *
- * @returns {Object} Store state and actions.
- */
 const useQuotesStore = defineStore('quotes', () => {
-    /**
-     * List of quote entities.
-     * @type {import('vue').Ref<Quote[]>}
-     */
+    /** @type {import('vue').Ref<Array<import('../domain/quote.entity.js').Quote>>} List of quote entities. */
     const quotes = ref([]);
-    /**
-     * List of quote-item entities.
-     * @type {import('vue').Ref<QuoteItem[]>}
-     */
+    /** @type {import('vue').Ref<Array<import('../domain/quote-item.entity.js').QuoteItem>>} List of quote-item entities. */
     const quoteItems = ref([]);
-    /**
-     * List of errors encountered during API operations.
-     * @type {import('vue').Ref<Error[]>}
-     */
+    /** @type {import('vue').Ref<Array<Error>>} Errors raised by Quotes use-case execution. */
     const errors = ref([]);
-    /**
-     * Whether quotes have been loaded from the API.
-     * @type {import('vue').Ref<boolean>}
-     */
+    /** @type {import('vue').Ref<boolean>} Flag indicating if quotes have been loaded. */
     const quotesLoaded = ref(false);
-    /**
-     * Whether quote items have been loaded from the API.
-     * @type {import('vue').Ref<boolean>}
-     */
+    /** @type {import('vue').Ref<boolean>} Flag indicating if quote items have been loaded. */
     const quoteItemsLoaded = ref(false);
 
     /**
@@ -75,7 +54,7 @@ const useQuotesStore = defineStore('quotes', () => {
     /**
      * Finds a quote entity by identifier.
      * @param {number|string} id - Quote identifier.
-     * @returns {Quote|undefined} Matching quote, if available.
+     * @returns {import('../domain/quote.entity.js').Quote|undefined} Matching quote, if available.
      */
     function getQuoteById(id) {
         const idNum = parseInt(id);
@@ -85,7 +64,7 @@ const useQuotesStore = defineStore('quotes', () => {
     /**
      * Returns the items that belong to a quote.
      * @param {number} quoteId - Quote identifier.
-     * @returns {QuoteItem[]} Items related to the quote.
+     * @returns {Array<import('../domain/quote-item.entity.js').QuoteItem>} Items related to the quote.
      */
     function getItemsByQuoteId(quoteId) {
         return quoteItems.value.filter(item => item.quoteId === quoteId);
@@ -93,9 +72,9 @@ const useQuotesStore = defineStore('quotes', () => {
 
     /**
      * Creates a quote and its line items in a single workflow.
-     * @param {Quote} quote - Quote entity to persist.
-     * @param {QuoteItem[]} items - Line items to persist for the quote.
-     * @returns {Promise<Quote|undefined>} The persisted quote, or undefined when persistence fails.
+     * @param {import('../domain/quote.entity.js').Quote} quote - Quote entity to persist.
+     * @param {Array<import('../domain/quote-item.entity.js').QuoteItem>} items - Line items to persist for the quote.
+     * @returns {Promise<import('../domain/quote.entity.js').Quote|undefined>} The persisted quote, or undefined when persistence fails.
      */
     async function addQuote(quote, items) {
         try {
@@ -117,7 +96,7 @@ const useQuotesStore = defineStore('quotes', () => {
 
     /**
      * Updates an existing quote and synchronizes local state.
-     * @param {Quote} quote - Quote entity with updated data.
+     * @param {import('../domain/quote.entity.js').Quote} quote - Quote entity with updated data.
      * @returns {void}
      */
     function updateQuote(quote) {
@@ -132,7 +111,7 @@ const useQuotesStore = defineStore('quotes', () => {
 
     /**
      * Deletes a quote and removes it from the local state.
-     * @param {Quote} quote - Quote entity to remove.
+     * @param {import('../domain/quote.entity.js').Quote} quote - Quote entity to remove.
      * @returns {void}
      */
     function deleteQuote(quote) {
@@ -147,7 +126,7 @@ const useQuotesStore = defineStore('quotes', () => {
 
     /**
      * Computes the materials cost from a list of items.
-     * @param {QuoteItem[]} items - Items to aggregate.
+     * @param {Array<import('../domain/quote-item.entity.js').QuoteItem>} items - Items to aggregate.
      * @returns {number} Sum of quantity × unitCost across all items.
      */
     function materialsCostOf(items) {
@@ -156,7 +135,7 @@ const useQuotesStore = defineStore('quotes', () => {
 
     /**
      * Computes the labor cost for a quote.
-     * @param {Quote} quote - Quote whose labor cost is required.
+     * @param {import('../domain/quote.entity.js').Quote} quote - Quote whose labor cost is required.
      * @returns {number} laborHours × hourlyRate.
      */
     function laborCostOf(quote) {
@@ -165,8 +144,8 @@ const useQuotesStore = defineStore('quotes', () => {
 
     /**
      * Computes the full profitability breakdown for a quote and its items.
-     * @param {Quote} quote - Quote being evaluated.
-     * @param {QuoteItem[]} items - Items associated with the quote.
+     * @param {import('../domain/quote.entity.js').Quote} quote - Quote being evaluated.
+     * @param {Array<import('../domain/quote-item.entity.js').QuoteItem>} items - Items associated with the quote.
      * @returns {{materialsCost: number, laborCost: number, subtotal: number, profit: number, totalCost: number, marginPercent: number}} Cost breakdown.
      */
     function profitabilityOf(quote, items) {
