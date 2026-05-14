@@ -78,5 +78,17 @@
     { "id": 8,  "orderId": 3, "name": "Corte",    "sequence": 1, "status": "completed",   "estimatedHours": 6,  "actualHours": 6  },
     { "id": 9,  "orderId": 3, "name": "Lijado",   "sequence": 2, "status": "completed",   "estimatedHours": 4,  "actualHours": 4  },
     { "id": 10, "orderId": 3, "name": "Lacado",   "sequence": 3, "status": "completed",   "estimatedHours": 8,  "actualHours": 9  }
+  ],
+  "materials": [
+    { "id": 1,  "name": "Roble",            "type": "wood",       "unit": "m2",    "stockQuantity": 18,   "minQuantity": 10,  "unitCost": 95  },
+    { "id": 2,  "name": "Nogal Americano",  "type": "wood",       "unit": "m2",    "stockQuantity": 6,    "minQuantity": 8,   "unitCost": 140 },
+    { "id": 3,  "name": "Pino Abeto",       "type": "wood",       "unit": "m2",    "stockQuantity": 32,   "minQuantity": 15,  "unitCost": 55  },
+    { "id": 4,  "name": "Arce",             "type": "wood",       "unit": "m2",    "stockQuantity": 12,   "minQuantity": 5,   "unitCost": 110 },
+    { "id": 5,  "name": "Bisagras 90°",     "type": "hardware",   "unit": "units", "stockQuantity": 120,  "minQuantity": 50,  "unitCost": 3.5 },
+    { "id": 6,  "name": "Tornillos 4x40",   "type": "hardware",   "unit": "units", "stockQuantity": 24,   "minQuantity": 100, "unitCost": 0.2 },
+    { "id": 7,  "name": "Tiradores acero",  "type": "hardware",   "unit": "units", "stockQuantity": 40,   "minQuantity": 20,  "unitCost": 8   },
+    { "id": 8,  "name": "Barniz mate",      "type": "finish",     "unit": "l",     "stockQuantity": 9,    "minQuantity": 5,   "unitCost": 65  },
+    { "id": 9,  "name": "Aceite natural",   "type": "finish",     "unit": "l",     "stockQuantity": 2,    "minQuantity": 4,   "unitCost": 75  },
+    { "id": 10, "name": "Lijas grano 120",  "type": "consumable", "unit": "units", "stockQuantity": 80,   "minQuantity": 40,  "unitCost": 1.5 }
   ]
 }
