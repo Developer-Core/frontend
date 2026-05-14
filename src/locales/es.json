@@ -2,7 +2,8 @@
   "common": {
     "save":   "Guardar",
     "cancel": "Cancelar",
-    "back":   "Volver"
+    "back":   "Volver",
+    "next":   "Siguiente"
   },
   "errors": {
     "occurred": "Ocurrió un error"
@@ -89,5 +90,42 @@
     "actions-delete":    "Eliminar material",
     "confirm-delete":    "¿Eliminar el material \"{name}\"?",
     "delete-header":     "Eliminar material"
+  },
+  "quotes": {
+    "title":             "Cotizaciones",
+    "wizard-title":      "Nueva Cotización",
+    "new":               "Nueva cotización",
+    "id":                "ID",
+    "order":             "Pedido",
+    "client":            "Cliente",
+    "status":            "Estado",
+    "total":             "Total",
+    "profit":            "Utilidad",
+    "subtotal":          "Subtotal",
+    "actions":           "Acciones",
+    "step-order":        "Pedido",
+    "step-materials":    "Materiales",
+    "step-summary":      "Mano de obra y resumen",
+    "select-order":      "Selecciona un pedido",
+    "select-material":   "Selecciona un material",
+    "material":          "Material",
+    "quantity":          "Cantidad",
+    "unit-cost":         "Costo unitario",
+    "line-total":        "Subtotal línea",
+    "add":               "Agregar",
+    "materials-cost":    "Costo de materiales",
+    "labor-hours":       "Horas de mano de obra",
+    "hourly-rate":       "Costo por hora",
+    "labor-cost":        "Costo de mano de obra",
+    "margin-percent":    "Margen %",
+    "save":              "Guardar cotización",
+    "status-draft":      "Borrador",
+    "status-sent":       "Enviada",
+    "status-accepted":   "Aceptada",
+    "status-rejected":   "Rechazada",
+    "actions-delete":    "Eliminar cotización",
+    "actions-remove-item": "Quitar ítem",
+    "confirm-delete":    "¿Eliminar la cotización #{id}?",
+    "delete-header":     "Eliminar cotización"
   }
 }
