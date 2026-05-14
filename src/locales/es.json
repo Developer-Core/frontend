@@ -1,4 +1,14 @@
 {
+  "shell": {
+    "brand":             "WoodRoute",
+    "role-default":      "Maestro Carpintero",
+    "footer":            "© 2026 WoodRoute",
+    "nav-orders":        "Pedidos",
+    "nav-production":    "Producción",
+    "nav-inventory":     "Inventario",
+    "nav-quotes":        "Cotizaciones",
+    "nav-communication": "Mensajes"
+  },
   "common": {
     "save":   "Guardar",
     "cancel": "Cancelar",
