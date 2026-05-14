@@ -90,5 +90,16 @@
     { "id": 8,  "name": "Barniz mate",      "type": "finish",     "unit": "l",     "stockQuantity": 9,    "minQuantity": 5,   "unitCost": 65  },
     { "id": 9,  "name": "Aceite natural",   "type": "finish",     "unit": "l",     "stockQuantity": 2,    "minQuantity": 4,   "unitCost": 75  },
     { "id": 10, "name": "Lijas grano 120",  "type": "consumable", "unit": "units", "stockQuantity": 80,   "minQuantity": 40,  "unitCost": 1.5 }
+  ],
+  "quotes": [
+    { "id": 1, "orderId": 1, "status": "accepted", "laborHours": 31, "hourlyRate": 50, "marginPercent": 25, "createdAt": "2026-08-15T10:00:00Z" },
+    { "id": 2, "orderId": 3, "status": "accepted", "laborHours": 18, "hourlyRate": 45, "marginPercent": 20, "createdAt": "2026-07-02T11:30:00Z" }
+  ],
+  "quoteItems": [
+    { "id": 1, "quoteId": 1, "materialId": 1, "quantity": 4,  "unitCost": 95  },
+    { "id": 2, "quoteId": 1, "materialId": 5, "quantity": 8,  "unitCost": 3.5 },
+    { "id": 3, "quoteId": 1, "materialId": 8, "quantity": 2,  "unitCost": 65  },
+    { "id": 4, "quoteId": 2, "materialId": 3, "quantity": 6,  "unitCost": 55  },
+    { "id": 5, "quoteId": 2, "materialId": 7, "quantity": 2,  "unitCost": 8   }
   ]
 }

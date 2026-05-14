@@ -2,7 +2,8 @@
   "common": {
     "save":   "Save",
     "cancel": "Cancel",
-    "back":   "Back"
+    "back":   "Back",
+    "next":   "Next"
   },
   "errors": {
     "occurred": "An error occurred"
@@ -89,5 +90,42 @@
     "actions-delete":    "Delete material",
     "confirm-delete":    "Delete material \"{name}\"?",
     "delete-header":     "Delete material"
+  },
+  "quotes": {
+    "title":             "Quotes",
+    "wizard-title":      "New Quote",
+    "new":               "New quote",
+    "id":                "ID",
+    "order":             "Order",
+    "client":            "Client",
+    "status":            "Status",
+    "total":             "Total",
+    "profit":            "Profit",
+    "subtotal":          "Subtotal",
+    "actions":           "Actions",
+    "step-order":        "Order",
+    "step-materials":    "Materials",
+    "step-summary":      "Labor & Summary",
+    "select-order":      "Select an order",
+    "select-material":   "Select a material",
+    "material":          "Material",
+    "quantity":          "Quantity",
+    "unit-cost":         "Unit cost",
+    "line-total":        "Line total",
+    "add":               "Add",
+    "materials-cost":    "Materials cost",
+    "labor-hours":       "Labor hours",
+    "hourly-rate":       "Hourly rate",
+    "labor-cost":        "Labor cost",
+    "margin-percent":    "Margin %",
+    "save":              "Save quote",
+    "status-draft":      "Draft",
+    "status-sent":       "Sent",
+    "status-accepted":   "Accepted",
+    "status-rejected":   "Rejected",
+    "actions-delete":    "Delete quote",
+    "actions-remove-item": "Remove item",
+    "confirm-delete":    "Delete quote #{id}?",
+    "delete-header":     "Delete quote"
   }
 }
