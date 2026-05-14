@@ -18,20 +18,20 @@ const home = {
 
 /**
  * Breadcrumb items derived from the matched routes hierarchy.
- * Only matched routes that declare a `meta.title` contribute a step;
+ * Each matched route that declares a `meta.titleKey` contributes a translated step;
  * consecutive duplicates are collapsed to avoid the section showing twice.
  * @type {import('vue').ComputedRef<Array<{label: string, command: Function}>>}
  */
 const items = computed(() => {
     const seen = new Set();
     return route.matched
-        .filter(record => record.meta?.title)
+        .filter(record => record.meta?.titleKey)
         .reduce((acc, record) => {
-            const label = record.meta.title;
-            if (seen.has(label)) return acc;
-            seen.add(label);
+            const key = record.meta.titleKey;
+            if (seen.has(key)) return acc;
+            seen.add(key);
             acc.push({
-                label,
+                label: t(key),
                 command: () => {
                     if (record.name) router.push({ name: record.name, params: route.params });
                 }

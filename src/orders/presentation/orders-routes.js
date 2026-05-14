@@ -8,10 +8,10 @@ const orderTracking = () => import('./views/order-tracking.vue');
  * @type {import('vue-router').RouteRecordRaw[]}
  */
 const ordersRoutes = [
-    { path: '',              name: 'orders-list',     component: orderList,     meta: { title: 'Orders' } },
-    { path: 'new',           name: 'orders-new',      component: orderForm,     meta: { title: 'New Order' } },
-    { path: ':id/edit',      name: 'orders-edit',     component: orderForm,     meta: { title: 'Edit Order' } },
-    { path: ':id/tracking',  name: 'orders-tracking', component: orderTracking, meta: { title: 'Order Tracking' } }
+    { path: '',             name: 'orders-list',     component: orderList,     meta: { titleKey: 'breadcrumb.orders' } },
+    { path: 'new',          name: 'orders-new',      component: orderForm,     meta: { titleKey: 'breadcrumb.orders-new' } },
+    { path: ':id/edit',     name: 'orders-edit',     component: orderForm,     meta: { titleKey: 'breadcrumb.orders-edit' } },
+    { path: ':id/tracking', name: 'orders-tracking', component: orderTracking, meta: { titleKey: 'breadcrumb.orders-tracking' } }
 ];
 
 export default ordersRoutes;

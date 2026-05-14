@@ -7,9 +7,9 @@ const stageForm          = () => import('./views/stage-form.vue');
  * @type {import('vue-router').RouteRecordRaw[]}
  */
 const productionRoutes = [
-    { path: '',                          name: 'production-timeline',  component: productionTimeline, meta: { title: 'Production' } },
-    { path: 'orders/:orderId/stages/new', name: 'production-stage-new', component: stageForm,         meta: { title: 'New Stage' } },
-    { path: 'stages/:id/edit',           name: 'production-stage-edit', component: stageForm,         meta: { title: 'Edit Stage' } }
+    { path: '',                           name: 'production-timeline',   component: productionTimeline, meta: { titleKey: 'breadcrumb.production' } },
+    { path: 'orders/:orderId/stages/new', name: 'production-stage-new',  component: stageForm,          meta: { titleKey: 'breadcrumb.production-stage-new' } },
+    { path: 'stages/:id/edit',            name: 'production-stage-edit', component: stageForm,          meta: { titleKey: 'breadcrumb.production-stage-edit' } }
 ];
 
 export default productionRoutes;

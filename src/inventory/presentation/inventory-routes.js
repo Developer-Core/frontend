@@ -7,9 +7,9 @@ const materialForm = () => import('./views/material-form.vue');
  * @type {import('vue-router').RouteRecordRaw[]}
  */
 const inventoryRoutes = [
-    { path: '',         name: 'inventory-list',          component: materialList, meta: { title: 'Inventory' } },
-    { path: 'new',      name: 'inventory-material-new',  component: materialForm, meta: { title: 'New Material' } },
-    { path: ':id/edit', name: 'inventory-material-edit', component: materialForm, meta: { title: 'Edit Material' } }
+    { path: '',         name: 'inventory-list',          component: materialList, meta: { titleKey: 'breadcrumb.inventory' } },
+    { path: 'new',      name: 'inventory-material-new',  component: materialForm, meta: { titleKey: 'breadcrumb.inventory-material-new' } },
+    { path: ':id/edit', name: 'inventory-material-edit', component: materialForm, meta: { titleKey: 'breadcrumb.inventory-material-edit' } }
 ];
 
 export default inventoryRoutes;

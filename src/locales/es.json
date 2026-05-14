@@ -1,4 +1,21 @@
 {
+  "breadcrumb": {
+    "orders":                       "Pedidos",
+    "orders-new":                   "Nuevo Pedido",
+    "orders-edit":                  "Editar Pedido",
+    "orders-tracking":              "Seguimiento",
+    "production":                   "Producción",
+    "production-stage-new":         "Nueva Etapa",
+    "production-stage-edit":        "Editar Etapa",
+    "inventory":                    "Inventario",
+    "inventory-material-new":       "Nuevo Material",
+    "inventory-material-edit":      "Editar Material",
+    "quotes":                       "Cotizaciones",
+    "quotes-new":                   "Nueva Cotización",
+    "communication":                "Mensajes",
+    "communication-thread":         "Conversación",
+    "public-tracking":              "Seguimiento del Pedido"
+  },
   "shell": {
     "brand":             "WoodRoute",
     "role-default":      "Maestro Carpintero",
