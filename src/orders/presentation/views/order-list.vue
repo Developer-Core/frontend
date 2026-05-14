@@ -103,11 +103,11 @@ const applyReview = (order, decision) => {
             </pv-column>
             <pv-column :header="t('orders.actions')">
                 <template #body="slotProps">
-                    <pv-button icon="pi pi-eye"    text rounded @click="navigateToTracking(slotProps.data.id)" />
-                    <pv-button v-if="slotProps.data.status === 'pending'" icon="pi pi-pencil"      text rounded @click="navigateToEdit(slotProps.data.id)" />
-                    <pv-button v-if="slotProps.data.status === 'pending'" icon="pi pi-check"       text rounded severity="success" @click="applyReview(slotProps.data, 'accepted')" />
-                    <pv-button v-if="slotProps.data.status === 'pending'" icon="pi pi-times"       text rounded severity="danger"  @click="applyReview(slotProps.data, 'rejected')" />
-                    <pv-button v-if="slotProps.data.status === 'pending'" icon="pi pi-ban"         text rounded severity="warn"    @click="confirmCancel(slotProps.data)" />
+                    <pv-button icon="pi pi-eye"    text rounded :aria-label="t('orders.actions-tracking')" v-tooltip.top="t('orders.actions-tracking')" @click="navigateToTracking(slotProps.data.id)" />
+                    <pv-button v-if="slotProps.data.status === 'pending'" icon="pi pi-pencil" text rounded :aria-label="t('orders.actions-edit')"   v-tooltip.top="t('orders.actions-edit')"   @click="navigateToEdit(slotProps.data.id)" />
+                    <pv-button v-if="slotProps.data.status === 'pending'" icon="pi pi-check"  text rounded severity="success" :aria-label="t('orders.actions-accept')" v-tooltip.top="t('orders.actions-accept')" @click="applyReview(slotProps.data, 'accepted')" />
+                    <pv-button v-if="slotProps.data.status === 'pending'" icon="pi pi-times"  text rounded severity="danger"  :aria-label="t('orders.actions-reject')" v-tooltip.top="t('orders.actions-reject')" @click="applyReview(slotProps.data, 'rejected')" />
+                    <pv-button v-if="slotProps.data.status === 'pending'" icon="pi pi-ban"    text rounded severity="warn"    :aria-label="t('orders.actions-cancel')" v-tooltip.top="t('orders.actions-cancel')" @click="confirmCancel(slotProps.data)" />
                 </template>
             </pv-column>
         </pv-data-table>
