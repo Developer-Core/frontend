@@ -14,7 +14,13 @@
     "quotes-new":                   "New Quote",
     "communication":                "Messages",
     "communication-thread":         "Conversation",
-    "public-tracking":              "Order Tracking"
+    "public-tracking":              "Order Tracking",
+    "not-found":                    "Not Found"
+  },
+  "not-found": {
+    "title":   "Page not found",
+    "message": "The page you are looking for does not exist or has been moved.",
+    "action":  "Go to home"
   },
   "shell": {
     "brand":             "WoodRoute",
