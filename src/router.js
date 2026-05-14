@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import AppLayout from './shared/presentation/layouts/app-layout.vue';
+import i18n from './i18n.js';
 import ordersRoutes from './orders/presentation/orders-routes.js';
 import productionRoutes from './production/presentation/production-routes.js';
 import inventoryRoutes from './inventory/presentation/inventory-routes.js';
@@ -14,14 +15,14 @@ const routes = [
         component: AppLayout,
         children: [
             { path: '',              redirect: '/orders' },
-            { path: 'orders',        name: 'orders',        meta: { title: 'Orders' },        children: ordersRoutes },
-            { path: 'production',    name: 'production',    meta: { title: 'Production' },    children: productionRoutes },
-            { path: 'inventory',     name: 'inventory',     meta: { title: 'Inventory' },     children: inventoryRoutes },
-            { path: 'quotes',        name: 'quotes',        meta: { title: 'Quotes' },        children: quotesRoutes },
-            { path: 'communication', name: 'communication', meta: { title: 'Messages' },      children: communicationRoutes }
+            { path: 'orders',        name: 'orders',        meta: { titleKey: 'breadcrumb.orders' },        children: ordersRoutes },
+            { path: 'production',    name: 'production',    meta: { titleKey: 'breadcrumb.production' },    children: productionRoutes },
+            { path: 'inventory',     name: 'inventory',     meta: { titleKey: 'breadcrumb.inventory' },     children: inventoryRoutes },
+            { path: 'quotes',        name: 'quotes',        meta: { titleKey: 'breadcrumb.quotes' },        children: quotesRoutes },
+            { path: 'communication', name: 'communication', meta: { titleKey: 'breadcrumb.communication' }, children: communicationRoutes }
         ]
     },
-    { path: '/track/:id', name: 'public-tracking', component: publicTracking, meta: { title: 'Order Tracking' } }
+    { path: '/track/:id', name: 'public-tracking', component: publicTracking, meta: { titleKey: 'breadcrumb.public-tracking' } }
 ];
 
 const router = createRouter({
@@ -30,7 +31,7 @@ const router = createRouter({
 });
 
 /**
- * Global navigation guard that updates the document title.
+ * Global navigation guard that updates the document title from the route's translation key.
  *
  * @param {import('vue-router').RouteLocationNormalized} to - Target route.
  * @param {import('vue-router').RouteLocationNormalized} from - Previous route.
@@ -39,7 +40,9 @@ const router = createRouter({
  */
 router.beforeEach((to, from, next) => {
     const baseTitle = 'WoodRoute';
-    document.title  = to.meta['title'] ? `${baseTitle} - ${to.meta['title']}` : baseTitle;
+    const key       = to.meta['titleKey'];
+    const section   = key ? i18n.global.t(key) : null;
+    document.title  = section ? `${baseTitle} - ${section}` : baseTitle;
     return next();
 });
 

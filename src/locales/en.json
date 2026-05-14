@@ -1,4 +1,21 @@
 {
+  "breadcrumb": {
+    "orders":                       "Orders",
+    "orders-new":                   "New Order",
+    "orders-edit":                  "Edit Order",
+    "orders-tracking":              "Order Tracking",
+    "production":                   "Production",
+    "production-stage-new":         "New Stage",
+    "production-stage-edit":        "Edit Stage",
+    "inventory":                    "Inventory",
+    "inventory-material-new":       "New Material",
+    "inventory-material-edit":      "Edit Material",
+    "quotes":                       "Quotes",
+    "quotes-new":                   "New Quote",
+    "communication":                "Messages",
+    "communication-thread":         "Conversation",
+    "public-tracking":              "Order Tracking"
+  },
   "shell": {
     "brand":             "WoodRoute",
     "role-default":      "Master Carpenter",
@@ -7,7 +24,10 @@
     "nav-production":    "Production",
     "nav-inventory":     "Inventory",
     "nav-quotes":        "Quotes",
-    "nav-communication": "Messages"
+    "nav-communication": "Messages",
+    "language-label":    "Language",
+    "language-en":       "English",
+    "language-es":       "Español"
   },
   "common": {
     "save":   "Save",

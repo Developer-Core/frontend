@@ -7,8 +7,8 @@ const conversationThread = () => import('./views/conversation-thread.vue');
  * @type {import('vue-router').RouteRecordRaw[]}
  */
 const communicationRoutes = [
-    { path: '',    name: 'communication-list',   component: conversationList,   meta: { title: 'Messages' } },
-    { path: ':id', name: 'communication-thread', component: conversationThread, meta: { title: 'Conversation' } }
+    { path: '',    name: 'communication-list',   component: conversationList,   meta: { titleKey: 'breadcrumb.communication' } },
+    { path: ':id', name: 'communication-thread', component: conversationThread, meta: { titleKey: 'breadcrumb.communication-thread' } }
 ];
 
 export default communicationRoutes;

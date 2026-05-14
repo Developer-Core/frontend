@@ -7,8 +7,8 @@ const quoteWizard = () => import('./views/quote-wizard.vue');
  * @type {import('vue-router').RouteRecordRaw[]}
  */
 const quotesRoutes = [
-    { path: '',    name: 'quotes-list', component: quoteList,   meta: { title: 'Quotes' } },
-    { path: 'new', name: 'quotes-new',  component: quoteWizard, meta: { title: 'New Quote' } }
+    { path: '',    name: 'quotes-list', component: quoteList,   meta: { titleKey: 'breadcrumb.quotes' } },
+    { path: 'new', name: 'quotes-new',  component: quoteWizard, meta: { titleKey: 'breadcrumb.quotes-new' } }
 ];
 
 export default quotesRoutes;
