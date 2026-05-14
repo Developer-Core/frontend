@@ -3,6 +3,7 @@
  * It coordinates conversation and message use cases and keeps a UI-facing state.
  *
  * @module useCommunicationStore
+ * @returns {Object} Store state and actions.
  */
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
@@ -10,40 +11,19 @@ import { CommunicationApi } from '../infrastructure/communication-api.js';
 import { ConversationAssembler } from '../infrastructure/conversation.assembler.js';
 import { MessageAssembler } from '../infrastructure/message.assembler.js';
 import { Conversation } from '../domain/conversation.entity.js';
-import { Message } from '../domain/message.entity.js';
 
 const communicationApi = new CommunicationApi();
 
-/**
- * Reactive store that exposes Communication commands and queries.
- *
- * @returns {Object} Store state and actions.
- */
 const useCommunicationStore = defineStore('communication', () => {
-    /**
-     * List of conversation entities.
-     * @type {import('vue').Ref<Conversation[]>}
-     */
+    /** @type {import('vue').Ref<Array<import('../domain/conversation.entity.js').Conversation>>} List of conversation entities. */
     const conversations = ref([]);
-    /**
-     * List of message entities.
-     * @type {import('vue').Ref<Message[]>}
-     */
+    /** @type {import('vue').Ref<Array<import('../domain/message.entity.js').Message>>} List of message entities. */
     const messages = ref([]);
-    /**
-     * List of errors encountered during API operations.
-     * @type {import('vue').Ref<Error[]>}
-     */
+    /** @type {import('vue').Ref<Array<Error>>} Errors raised by Communication use-case execution. */
     const errors = ref([]);
-    /**
-     * Whether conversations have been loaded from the API.
-     * @type {import('vue').Ref<boolean>}
-     */
+    /** @type {import('vue').Ref<boolean>} Flag indicating if conversations have been loaded. */
     const conversationsLoaded = ref(false);
-    /**
-     * Whether messages have been loaded from the API.
-     * @type {import('vue').Ref<boolean>}
-     */
+    /** @type {import('vue').Ref<boolean>} Flag indicating if messages have been loaded. */
     const messagesLoaded = ref(false);
 
     /**
@@ -75,7 +55,7 @@ const useCommunicationStore = defineStore('communication', () => {
     /**
      * Returns the conversation that belongs to a given order, if any.
      * @param {number|string} orderId - Order identifier.
-     * @returns {Conversation|undefined} Matching conversation, if available.
+     * @returns {import('../domain/conversation.entity.js').Conversation|undefined} Matching conversation, if available.
      */
     function getConversationByOrderId(orderId) {
         const idNum = parseInt(orderId);
@@ -85,7 +65,7 @@ const useCommunicationStore = defineStore('communication', () => {
     /**
      * Finds a conversation entity by identifier.
      * @param {number|string} id - Conversation identifier.
-     * @returns {Conversation|undefined} Matching conversation, if available.
+     * @returns {import('../domain/conversation.entity.js').Conversation|undefined} Matching conversation, if available.
      */
     function getConversationById(id) {
         const idNum = parseInt(id);
@@ -95,7 +75,7 @@ const useCommunicationStore = defineStore('communication', () => {
     /**
      * Returns the messages that belong to a conversation, sorted chronologically.
      * @param {number} conversationId - Conversation identifier.
-     * @returns {Message[]} Messages of the conversation.
+     * @returns {Array<import('../domain/message.entity.js').Message>} Messages of the conversation.
      */
     function getMessagesByConversationId(conversationId) {
         return messages.value
@@ -106,7 +86,7 @@ const useCommunicationStore = defineStore('communication', () => {
     /**
      * Ensures a conversation exists for an order, creating it on the fly when needed.
      * @param {number} orderId - Order identifier.
-     * @returns {Promise<Conversation|undefined>} The conversation associated with the order.
+     * @returns {Promise<import('../domain/conversation.entity.js').Conversation|undefined>} The conversation associated with the order.
      */
     async function ensureConversationForOrder(orderId) {
         const existing = getConversationByOrderId(orderId);
@@ -128,7 +108,7 @@ const useCommunicationStore = defineStore('communication', () => {
     /**
      * Persists a new message and refreshes the parent conversation timestamp.
      * @param {import('../domain/send-message.command.js').SendMessageCommand} command - Send-message command.
-     * @returns {Promise<Message|undefined>} The persisted message.
+     * @returns {Promise<import('../domain/message.entity.js').Message|undefined>} The persisted message.
      */
     async function sendMessage(command) {
         try {

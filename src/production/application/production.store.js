@@ -3,6 +3,7 @@
  * It coordinates stage use cases and keeps a UI-facing state.
  *
  * @module useProductionStore
+ * @returns {Object} Store state and actions.
  */
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
@@ -12,31 +13,14 @@ import { Stage } from '../domain/stage.entity.js';
 
 const productionApi = new ProductionApi();
 
-/**
- * Reactive store that exposes Production commands and queries.
- *
- * @returns {Object} Store state and actions.
- */
 const useProductionStore = defineStore('production', () => {
-    /**
-     * List of stage entities.
-     * @type {import('vue').Ref<Stage[]>}
-     */
+    /** @type {import('vue').Ref<Array<import('../domain/stage.entity.js').Stage>>} List of stage entities. */
     const stages = ref([]);
-    /**
-     * List of errors encountered during API operations.
-     * @type {import('vue').Ref<Error[]>}
-     */
+    /** @type {import('vue').Ref<Array<Error>>} Errors raised by Production use-case execution. */
     const errors = ref([]);
-    /**
-     * Whether stages have been loaded from the API.
-     * @type {import('vue').Ref<boolean>}
-     */
+    /** @type {import('vue').Ref<boolean>} Flag indicating if stages have been loaded. */
     const stagesLoaded = ref(false);
-    /**
-     * Number of loaded stages.
-     * @type {import('vue').ComputedRef<number>}
-     */
+    /** @type {import('vue').ComputedRef<number>} Number of loaded stages. */
     const stagesCount = computed(() => stagesLoaded.value ? stages.value.length : 0);
 
     /**
@@ -55,7 +39,7 @@ const useProductionStore = defineStore('production', () => {
     /**
      * Returns the stages associated with a specific order, sorted by sequence.
      * @param {number|string} orderId - Order identifier.
-     * @returns {Stage[]} Stages that belong to the order.
+     * @returns {Array<import('../domain/stage.entity.js').Stage>} Stages that belong to the order.
      */
     function getStagesByOrderId(orderId) {
         const idNum = parseInt(orderId);
@@ -67,7 +51,7 @@ const useProductionStore = defineStore('production', () => {
     /**
      * Finds a stage entity by identifier.
      * @param {number|string} id - Stage identifier.
-     * @returns {Stage|undefined} Matching stage, if available.
+     * @returns {import('../domain/stage.entity.js').Stage|undefined} Matching stage, if available.
      */
     function getStageById(id) {
         const idNum = parseInt(id);
@@ -76,7 +60,7 @@ const useProductionStore = defineStore('production', () => {
 
     /**
      * Creates a stage through infrastructure and appends it to the local state.
-     * @param {Stage} stage - Stage entity to persist.
+     * @param {import('../domain/stage.entity.js').Stage} stage - Stage entity to persist.
      * @returns {void}
      */
     function addStage(stage) {
@@ -90,7 +74,7 @@ const useProductionStore = defineStore('production', () => {
 
     /**
      * Updates an existing stage and synchronizes local state.
-     * @param {Stage} stage - Stage entity with updated data.
+     * @param {import('../domain/stage.entity.js').Stage} stage - Stage entity with updated data.
      * @returns {void}
      */
     function updateStage(stage) {
@@ -105,7 +89,7 @@ const useProductionStore = defineStore('production', () => {
 
     /**
      * Deletes a stage and removes it from the local state.
-     * @param {Stage} stage - Stage entity to remove.
+     * @param {import('../domain/stage.entity.js').Stage} stage - Stage entity to remove.
      * @returns {void}
      */
     function deleteStage(stage) {
@@ -119,7 +103,7 @@ const useProductionStore = defineStore('production', () => {
 
     /**
      * Advances a stage to a new status and records actual hours when provided.
-     * @param {Stage} stage - Stage entity being advanced.
+     * @param {import('../domain/stage.entity.js').Stage} stage - Stage entity being advanced.
      * @param {('pending'|'in-progress'|'completed')} status - New stage status.
      * @param {number} [actualHours] - Hours actually spent on the stage so far.
      * @returns {void}
