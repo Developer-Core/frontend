@@ -146,8 +146,8 @@ const canAdvanceStep2 = computed(() => items.value.length > 0);
         <pv-card v-else-if="step === 2">
             <template #title>{{ t('quotes.step-materials') }}</template>
             <template #content>
-                <div class="flex align-items-end gap-2 mb-3">
-                    <div class="field mb-0 flex-grow-1">
+                <div class="flex flex-wrap gap-3 mb-3 align-items-end">
+                    <div class="field mb-0" style="flex: 1 1 20rem; min-width: 0">
                         <label for="material" class="block mb-1 font-medium">{{ t('quotes.material') }}</label>
                         <pv-select
                             id="material"
@@ -158,11 +158,16 @@ const canAdvanceStep2 = computed(() => items.value.length > 0);
                             :placeholder="t('quotes.select-material')"
                             class="w-full" />
                     </div>
-                    <div class="field mb-0" style="width: 8rem">
+                    <div class="field mb-0" style="flex: 0 0 9rem">
                         <label for="quantity" class="block mb-1 font-medium">{{ t('quotes.quantity') }}</label>
                         <pv-input-number id="quantity" v-model="draftQuantity" :min="0" :max-fraction-digits="2" class="w-full" />
                     </div>
-                    <pv-button :label="t('quotes.add')" icon="pi pi-plus" :disabled="!selectedMaterialId" @click="addItem" />
+                    <pv-button
+                        :label="t('quotes.add')"
+                        icon="pi pi-plus"
+                        :disabled="!selectedMaterialId"
+                        class="flex-shrink-0"
+                        @click="addItem" />
                 </div>
 
                 <pv-data-table :value="items" striped-rows>
