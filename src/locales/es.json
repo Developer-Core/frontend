@@ -36,5 +36,28 @@
     "status-cancelled":         "Cancelado",
     "confirm-cancel":        "¿Cancelar el pedido \"{project}\"?",
     "cancel-header":         "Cancelar pedido"
+  },
+  "production": {
+    "title":                "Planificación de Producción",
+    "loading":              "Cargando datos de producción…",
+    "empty":                "Aún no hay etapas definidas",
+    "new-stage":            "Agregar etapa",
+    "new-stage-title":      "Nueva Etapa",
+    "edit-stage":           "Editar Etapa",
+    "order":                "Pedido",
+    "sequence":             "Paso",
+    "name":                 "Etapa",
+    "status":               "Estado",
+    "estimated-hours":      "Horas estimadas",
+    "actual-hours":         "Horas reales",
+    "actions":              "Acciones",
+    "actions-advance":      "Avanzar al siguiente estado",
+    "actions-edit":         "Editar etapa",
+    "actions-delete":       "Eliminar etapa",
+    "status-pending":       "Pendiente",
+    "status-in-progress":   "En proceso",
+    "status-completed":     "Completada",
+    "confirm-delete":       "¿Eliminar la etapa \"{name}\"?",
+    "delete-header":        "Eliminar etapa"
   }
 }
