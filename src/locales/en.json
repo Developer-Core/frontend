@@ -128,6 +128,16 @@
     "confirm-delete":    "Delete quote #{id}?",
     "delete-header":     "Delete quote"
   },
+  "communication": {
+    "title":               "Messages",
+    "loading":             "Loading conversations…",
+    "empty":               "No conversations yet",
+    "no-messages":         "No messages yet",
+    "unknown-order":       "Unknown order",
+    "thread-not-found":    "Conversation not found",
+    "send":                "Send",
+    "compose-placeholder": "Write a message…"
+  },
   "public-tracking": {
     "brand":     "WoodRoute",
     "subtitle":  "Follow your custom furniture from the workshop",

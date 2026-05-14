@@ -101,5 +101,18 @@
     { "id": 3, "quoteId": 1, "materialId": 8, "quantity": 2,  "unitCost": 65  },
     { "id": 4, "quoteId": 2, "materialId": 3, "quantity": 6,  "unitCost": 55  },
     { "id": 5, "quoteId": 2, "materialId": 7, "quantity": 2,  "unitCost": 8   }
+  ],
+  "conversations": [
+    { "id": 1, "orderId": 1, "lastMessageAt": "2026-10-12T16:20:00Z" },
+    { "id": 2, "orderId": 2, "lastMessageAt": "2026-10-08T09:45:00Z" },
+    { "id": 3, "orderId": 4, "lastMessageAt": "2026-10-14T11:05:00Z" }
+  ],
+  "messages": [
+    { "id": 1, "conversationId": 1, "senderName": "Carlos Mendoza", "senderRole": "client",    "content": "Hola, ¿cómo va el ensamble de la mesa?",        "sentAt": "2026-10-12T10:00:00Z" },
+    { "id": 2, "conversationId": 1, "senderName": "Taller",         "senderRole": "carpenter", "content": "Buenas. Avanzando bien, ya estamos en la fase de ensamble.", "sentAt": "2026-10-12T11:15:00Z" },
+    { "id": 3, "conversationId": 1, "senderName": "Carlos Mendoza", "senderRole": "client",    "content": "Perfecto, gracias por la actualización.",      "sentAt": "2026-10-12T16:20:00Z" },
+    { "id": 4, "conversationId": 2, "senderName": "María López",    "senderRole": "client",    "content": "¿Ya llegó la madera de nogal?",                 "sentAt": "2026-10-08T08:30:00Z" },
+    { "id": 5, "conversationId": 2, "senderName": "Taller",         "senderRole": "carpenter", "content": "Aún no, llega la próxima semana. Te aviso apenas tengamos stock.", "sentAt": "2026-10-08T09:45:00Z" },
+    { "id": 6, "conversationId": 3, "senderName": "Taller",         "senderRole": "carpenter", "content": "Hola Andrea, recibimos tu pedido. Esta semana te enviamos la cotización.", "sentAt": "2026-10-14T11:05:00Z" }
   ]
 }

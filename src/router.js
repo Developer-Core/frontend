@@ -3,16 +3,18 @@ import ordersRoutes from './orders/presentation/orders-routes.js';
 import productionRoutes from './production/presentation/production-routes.js';
 import inventoryRoutes from './inventory/presentation/inventory-routes.js';
 import quotesRoutes from './quotes/presentation/quotes-routes.js';
+import communicationRoutes from './communication/presentation/communication-routes.js';
 
 const publicTracking = () => import('./orders/presentation/views/public-tracking.vue');
 
 const routes = [
-    { path: '/',           redirect: '/orders' },
-    { path: '/orders',     name: 'orders',     children: ordersRoutes },
-    { path: '/production', name: 'production', children: productionRoutes },
-    { path: '/inventory',  name: 'inventory',  children: inventoryRoutes },
-    { path: '/quotes',     name: 'quotes',     children: quotesRoutes },
-    { path: '/track/:id',  name: 'public-tracking', component: publicTracking, meta: { title: 'Order Tracking' } }
+    { path: '/',              redirect: '/orders' },
+    { path: '/orders',        name: 'orders',        children: ordersRoutes },
+    { path: '/production',    name: 'production',    children: productionRoutes },
+    { path: '/inventory',     name: 'inventory',     children: inventoryRoutes },
+    { path: '/quotes',        name: 'quotes',        children: quotesRoutes },
+    { path: '/communication', name: 'communication', children: communicationRoutes },
+    { path: '/track/:id',     name: 'public-tracking', component: publicTracking, meta: { title: 'Order Tracking' } }
 ];
 
 const router = createRouter({
