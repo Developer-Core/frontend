@@ -1,7 +1,8 @@
 {
   "common": {
     "save":   "Save",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "back":   "Back"
   },
   "errors": {
     "occurred": "An error occurred"
@@ -20,6 +21,11 @@
     "description":           "Description",
     "status":                "Status",
     "actions":               "Actions",
+    "actions-tracking":      "View tracking",
+    "actions-edit":          "Edit order",
+    "actions-accept":        "Accept order",
+    "actions-reject":        "Reject order",
+    "actions-cancel":        "Cancel order",
     "start-date":            "Start date",
     "end-date":              "End date",
     "not-found":             "Order not found",

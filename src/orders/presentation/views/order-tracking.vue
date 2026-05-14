@@ -46,7 +46,7 @@ const back = () => {
 <template>
     <div class="p-4">
         <div class="flex align-items-center gap-2 mb-3">
-            <pv-button icon="pi pi-arrow-left" text rounded @click="back" />
+            <pv-button icon="pi pi-arrow-left" text rounded :aria-label="t('common.back')" v-tooltip.top="t('common.back')" @click="back" />
             <h1 class="text-2xl font-semibold">{{ t('orders.tracking-title') }}</h1>
         </div>
 
