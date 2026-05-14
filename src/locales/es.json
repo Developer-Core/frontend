@@ -127,5 +127,15 @@
     "actions-remove-item": "Quitar ítem",
     "confirm-delete":    "¿Eliminar la cotización #{id}?",
     "delete-header":     "Eliminar cotización"
+  },
+  "public-tracking": {
+    "brand":     "WoodRoute",
+    "subtitle":  "Sigue tu mueble personalizado desde el taller",
+    "order-id":  "Pedido #{id}",
+    "progress":  "Progreso",
+    "no-stages": "Aún no se han definido las etapas de producción.",
+    "not-found": "No encontramos este pedido. Verifica el enlace.",
+    "loading":   "Cargando pedido…",
+    "footer":    "Este enlace fue generado por el taller para tu uso privado."
   }
 }
