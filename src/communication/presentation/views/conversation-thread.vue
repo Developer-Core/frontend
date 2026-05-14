@@ -131,15 +131,13 @@ const back = () => router.push({ name: 'communication-list' });
                 </div>
             </div>
 
-            <form class="flex gap-2 align-items-end" @submit.prevent="send">
-                <div class="flex-1" style="min-width: 0">
-                    <pv-textarea
-                        v-model="draft"
-                        :placeholder="t('communication.compose-placeholder')"
-                        rows="2"
-                        auto-resize
-                        class="w-full" />
-                </div>
+            <form class="flex gap-2 align-items-stretch" @submit.prevent="send">
+                <pv-input-text
+                    v-model="draft"
+                    :placeholder="t('communication.compose-placeholder')"
+                    class="flex-1"
+                    style="min-width: 0"
+                    @keydown.enter.prevent="send" />
                 <pv-button type="submit" icon="pi pi-send" :label="t('communication.send')" :disabled="!draft.trim()" />
             </form>
         </div>
