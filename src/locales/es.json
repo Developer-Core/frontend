@@ -128,6 +128,16 @@
     "confirm-delete":    "¿Eliminar la cotización #{id}?",
     "delete-header":     "Eliminar cotización"
   },
+  "communication": {
+    "title":               "Mensajes",
+    "loading":             "Cargando conversaciones…",
+    "empty":               "Aún no hay conversaciones",
+    "no-messages":         "Aún no hay mensajes",
+    "unknown-order":       "Pedido desconocido",
+    "thread-not-found":    "Conversación no encontrada",
+    "send":                "Enviar",
+    "compose-placeholder": "Escribe un mensaje…"
+  },
   "public-tracking": {
     "brand":     "WoodRoute",
     "subtitle":  "Sigue tu mueble personalizado desde el taller",
