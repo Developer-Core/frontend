@@ -7,7 +7,10 @@
     "nav-production":    "Producción",
     "nav-inventory":     "Inventario",
     "nav-quotes":        "Cotizaciones",
-    "nav-communication": "Mensajes"
+    "nav-communication": "Mensajes",
+    "language-label":    "Idioma",
+    "language-en":       "English",
+    "language-es":       "Español"
   },
   "common": {
     "save":   "Guardar",

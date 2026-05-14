@@ -1,6 +1,7 @@
 <script setup>
 import AppSidebar from '../components/app-sidebar.vue';
 import AppBreadcrumb from '../components/app-breadcrumb.vue';
+import LanguageSwitcher from '../components/language-switcher.vue';
 </script>
 
 <template>
@@ -9,9 +10,10 @@ import AppBreadcrumb from '../components/app-breadcrumb.vue';
 
         <div style="margin-left: 16rem;">
             <header
-                class="flex align-items-center px-4"
+                class="flex justify-content-between align-items-center px-4 gap-3"
                 style="height: 3.5rem; background: var(--p-surface-0); border-bottom: 1px solid var(--p-surface-200); position: sticky; top: 0; z-index: 10;">
                 <AppBreadcrumb />
+                <LanguageSwitcher />
             </header>
 
             <main>

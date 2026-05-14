@@ -7,7 +7,10 @@
     "nav-production":    "Production",
     "nav-inventory":     "Inventory",
     "nav-quotes":        "Quotes",
-    "nav-communication": "Messages"
+    "nav-communication": "Messages",
+    "language-label":    "Language",
+    "language-en":       "English",
+    "language-es":       "Español"
   },
   "common": {
     "save":   "Save",
