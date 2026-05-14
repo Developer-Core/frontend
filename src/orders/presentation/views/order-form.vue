@@ -9,7 +9,7 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const store = useOrdersStore();
-const { ordersLoaded, errors } = toRefs(store);
+const { errors } = toRefs(store);
 const { fetchOrders, getOrderById, addOrder, updateOrder } = store;
 
 const isEdit = computed(() => Boolean(route.params.id));
@@ -49,37 +49,37 @@ const cancel = () => {
             {{ isEdit ? t('orders.edit-title') : t('orders.new-title') }}
         </h1>
 
-        <div class="flex flex-column gap-3" style="max-width: 40rem">
-            <pv-float-label>
-                <pv-input-text id="projectName" v-model="order.projectName" class="w-full" />
-                <label for="projectName">{{ t('orders.project') }}</label>
-            </pv-float-label>
-
-            <pv-float-label>
-                <pv-input-text id="clientName" v-model="order.clientName" class="w-full" :disabled="isEdit" />
-                <label for="clientName">{{ t('orders.client') }}</label>
-            </pv-float-label>
-
-            <pv-float-label>
-                <pv-input-text id="woodType" v-model="order.woodType" class="w-full" />
-                <label for="woodType">{{ t('orders.wood') }}</label>
-            </pv-float-label>
-
-            <pv-float-label>
-                <pv-input-text id="finish" v-model="order.finish" class="w-full" />
-                <label for="finish">{{ t('orders.finish') }}</label>
-            </pv-float-label>
-
-            <pv-float-label>
-                <pv-textarea id="description" v-model="order.description" rows="4" class="w-full" />
-                <label for="description">{{ t('orders.description') }}</label>
-            </pv-float-label>
-
-            <div class="flex gap-2 justify-content-end">
-                <pv-button :label="t('common.cancel')" severity="secondary" text @click="cancel" />
-                <pv-button :label="t('common.save')"   icon="pi pi-check" @click="submit" />
+        <form @submit.prevent="submit" style="max-width: 40rem">
+            <div class="field mb-3">
+                <label for="projectName" class="block mb-1 font-medium">{{ t('orders.project') }}</label>
+                <pv-input-text id="projectName" v-model="order.projectName" required class="w-full" />
             </div>
-        </div>
+
+            <div class="field mb-3">
+                <label for="clientName" class="block mb-1 font-medium">{{ t('orders.client') }}</label>
+                <pv-input-text id="clientName" v-model="order.clientName" :disabled="isEdit" required class="w-full" />
+            </div>
+
+            <div class="field mb-3">
+                <label for="woodType" class="block mb-1 font-medium">{{ t('orders.wood') }}</label>
+                <pv-input-text id="woodType" v-model="order.woodType" required class="w-full" />
+            </div>
+
+            <div class="field mb-3">
+                <label for="finish" class="block mb-1 font-medium">{{ t('orders.finish') }}</label>
+                <pv-input-text id="finish" v-model="order.finish" required class="w-full" />
+            </div>
+
+            <div class="field mb-3">
+                <label for="description" class="block mb-1 font-medium">{{ t('orders.description') }}</label>
+                <pv-textarea id="description" v-model="order.description" rows="4" class="w-full" />
+            </div>
+
+            <div class="flex gap-2 justify-content-end mt-4">
+                <pv-button type="button" :label="t('common.cancel')" severity="secondary" text @click="cancel" />
+                <pv-button type="submit" :label="t('common.save')"   icon="pi pi-check" />
+            </div>
+        </form>
 
         <div v-if="errors.length" class="text-red-500 mt-3">
             {{ t('errors.occurred') }}: {{ errors.map(e => e.message).join(', ') }}

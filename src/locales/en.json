@@ -45,6 +45,7 @@
     "new-stage-title":      "New Stage",
     "edit-stage":           "Edit Stage",
     "order":                "Order",
+    "select-order":         "Select an order",
     "sequence":             "Step",
     "name":                 "Stage",
     "status":               "Status",
