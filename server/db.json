@@ -66,5 +66,17 @@
       "startDate": null,
       "endDate": null
     }
+  ],
+  "stages": [
+    { "id": 1,  "orderId": 1, "name": "Corte",    "sequence": 1, "status": "completed",   "estimatedHours": 8,  "actualHours": 7  },
+    { "id": 2,  "orderId": 1, "name": "Lijado",   "sequence": 2, "status": "completed",   "estimatedHours": 6,  "actualHours": 6  },
+    { "id": 3,  "orderId": 1, "name": "Ensamble", "sequence": 3, "status": "in-progress", "estimatedHours": 12, "actualHours": 4  },
+    { "id": 4,  "orderId": 1, "name": "Acabado",  "sequence": 4, "status": "pending",     "estimatedHours": 5,  "actualHours": 0  },
+    { "id": 5,  "orderId": 2, "name": "Corte",    "sequence": 1, "status": "completed",   "estimatedHours": 10, "actualHours": 11 },
+    { "id": 6,  "orderId": 2, "name": "Lijado",   "sequence": 2, "status": "pending",     "estimatedHours": 8,  "actualHours": 0  },
+    { "id": 7,  "orderId": 2, "name": "Ensamble", "sequence": 3, "status": "pending",     "estimatedHours": 14, "actualHours": 0  },
+    { "id": 8,  "orderId": 3, "name": "Corte",    "sequence": 1, "status": "completed",   "estimatedHours": 6,  "actualHours": 6  },
+    { "id": 9,  "orderId": 3, "name": "Lijado",   "sequence": 2, "status": "completed",   "estimatedHours": 4,  "actualHours": 4  },
+    { "id": 10, "orderId": 3, "name": "Lacado",   "sequence": 3, "status": "completed",   "estimatedHours": 8,  "actualHours": 9  }
   ]
 }

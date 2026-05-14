@@ -36,5 +36,28 @@
     "status-cancelled":         "Cancelled",
     "confirm-cancel":        "Cancel order \"{project}\"?",
     "cancel-header":         "Cancel order"
+  },
+  "production": {
+    "title":                "Production Timeline",
+    "loading":              "Loading production data…",
+    "empty":                "No stages defined yet",
+    "new-stage":            "Add stage",
+    "new-stage-title":      "New Stage",
+    "edit-stage":           "Edit Stage",
+    "order":                "Order",
+    "sequence":             "Step",
+    "name":                 "Stage",
+    "status":               "Status",
+    "estimated-hours":      "Estimated hours",
+    "actual-hours":         "Actual hours",
+    "actions":              "Actions",
+    "actions-advance":      "Advance to next status",
+    "actions-edit":         "Edit stage",
+    "actions-delete":       "Delete stage",
+    "status-pending":       "Pending",
+    "status-in-progress":   "In progress",
+    "status-completed":     "Completed",
+    "confirm-delete":       "Delete stage \"{name}\"?",
+    "delete-header":        "Delete stage"
   }
 }

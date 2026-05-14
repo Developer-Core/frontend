@@ -1,9 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import ordersRoutes from './orders/presentation/orders-routes.js';
+import productionRoutes from './production/presentation/production-routes.js';
 
 const routes = [
-    { path: '/',         redirect: '/orders' },
-    { path: '/orders',   name: 'orders', children: ordersRoutes }
+    { path: '/',           redirect: '/orders' },
+    { path: '/orders',     name: 'orders',     children: ordersRoutes },
+    { path: '/production', name: 'production', children: productionRoutes }
 ];
 
 const router = createRouter({
