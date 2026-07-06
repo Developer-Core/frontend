@@ -23,7 +23,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <div class="flex align-items-center gap-3">
+    <div class="flex align-items-center gap-3 min-w-0">
         <div
             class="border-circle flex align-items-center justify-content-center flex-shrink-0"
             style="width: 3rem; height: 3rem; background: var(--p-primary-100); color: var(--p-primary-color); border: 1px solid var(--p-surface-300); overflow: hidden;">
@@ -31,8 +31,18 @@ const props = defineProps({
             <i v-else class="pi pi-user text-xl" />
         </div>
         <div class="flex flex-column" style="min-width: 0">
-            <strong class="text-color">{{ props.name }}</strong>
-            <small class="text-color-secondary">{{ props.role || t('shell.role-default') }}</small>
+            <strong class="text-color account-summary__text">{{ props.name }}</strong>
+            <small class="text-color-secondary account-summary__text">{{ props.role || t('shell.role-default') }}</small>
         </div>
     </div>
 </template>
+
+<style scoped>
+.account-summary__text {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+</style>
