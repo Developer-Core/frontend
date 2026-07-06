@@ -1,22 +1,21 @@
 import { Order } from '../domain/order.entity.js';
 
 /**
- * Maps order resources into domain entities.
+ * Maps order resources (the nested backend `OrderResource`) into domain entities.
  *
  * @class OrderAssembler
  */
 export class OrderAssembler {
     /**
-     * @param {Object} resource - Order resource payload.
+     * @param {Object} resource - Order resource payload (id, customerId, carpenterId, status, details, quote, payments).
      * @returns {Order} Order entity.
      */
     static toEntityFromResource(resource) {
-        return new Order({ ...resource });
+        return new Order(resource);
     }
 
     /**
-     * Parses order resources from a response and maps them into entities.
-     *
+     * Parses a list of order resources from a response into entities.
      * @param {import('axios').AxiosResponse<Array<Object>|Object>} response - HTTP response with order resources.
      * @returns {Order[]} Order entities.
      */
@@ -25,8 +24,7 @@ export class OrderAssembler {
             console.error(`${response.status}, ${response.statusText}`);
             return [];
         }
-        let resources = response.data instanceof Array ? response.data : response.data['orders'];
-
+        const resources = Array.isArray(response.data) ? response.data : (response.data.orders ?? []);
         return resources.map(resource => this.toEntityFromResource(resource));
     }
 }
