@@ -23,9 +23,21 @@ const paymentTypeOptions = computed(() => [
     { label: t('orders.final-payment'), value: PaymentType.FINAL_PAYMENT }
 ]);
 
+const normalizeQuoteStatus = (status) => String(status ?? '').trim().toLowerCase();
+
+const quoteSeverity = (status) => {
+    switch (normalizeQuoteStatus(status)) {
+        case 'draft': return 'secondary';
+        case 'sent': return 'info';
+        case 'accepted': return 'success';
+        case 'rejected': return 'danger';
+        default: return 'contrast';
+    }
+};
+
 onMounted(() => store.fetchOrderById(route.params.id));
 
-const canAcceptQuote = computed(() => order.value?.quote && order.value.quote.status !== 'Accepted');
+const canAcceptQuote = computed(() => order.value?.quote && normalizeQuoteStatus(order.value.quote.status) !== 'accepted');
 
 /** Generates the quote from the mini-form. */
 function submitQuote() {
@@ -97,7 +109,9 @@ const back = () => router.push({ name: 'orders-list' });
                         <div class="col-6 md:col-3"><small class="text-color-secondary block">{{ t('orders.total') }}</small><strong>{{ order.quote.total }}</strong></div>
                         <div class="col-6 md:col-3"><small class="text-color-secondary block">{{ t('orders.production-days') }}</small>{{ order.quote.estimatedProductionDays }}</div>
                         <div class="col-12 mt-2 flex align-items-center gap-2">
-                            <pv-tag :value="order.quote.status" severity="info" />
+                            <pv-tag
+                                :value="t(`quotes.status-${normalizeQuoteStatus(order.quote.status)}`)"
+                                :severity="quoteSeverity(order.quote.status)" />
                             <pv-button v-if="canAcceptQuote" size="small" :label="t('orders.accept-quote')"
                                        icon="pi pi-check" @click="store.acceptQuote(order.id)" />
                         </div>
