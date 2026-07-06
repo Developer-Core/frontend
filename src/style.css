@@ -105,3 +105,49 @@ h1, h2, h3, h4, h5, h6 {
   line-height: var(--leading-snug);
   color: var(--color-foreground);
 }
+
+.app-confirm-dialog .p-dialog {
+  border-radius: 1rem;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-subtle);
+  overflow: hidden;
+}
+
+.app-confirm-dialog .p-dialog-header {
+  padding: 1.25rem 1.25rem 0.75rem;
+}
+
+.app-confirm-dialog .p-dialog-title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.app-confirm-dialog .p-confirmdialog-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  padding: 0.75rem;
+  color: var(--color-primary);
+  background: var(--color-brand-subtle);
+  margin-right: 0.875rem;
+}
+
+.app-confirm-dialog .p-dialog-content {
+  padding: 0 1.25rem 1rem;
+  color: var(--color-muted-foreground);
+  line-height: var(--leading-relaxed);
+}
+
+.app-confirm-dialog .p-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem 1.25rem;
+  border-top: 1px solid var(--color-brand-light);
+  background: rgba(248, 242, 236, 0.45);
+}
+
+.app-confirm-dialog .p-dialog-footer .p-button {
+  min-width: 9rem;
+}

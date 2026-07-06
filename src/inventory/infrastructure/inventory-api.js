@@ -1,64 +1,49 @@
 import { BaseApi } from '../../shared/infrastructure/base-api.js';
-import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js';
 
-const materialsEndpointPath = import.meta.env.VITE_MATERIALS_ENDPOINT_PATH;
+const inventoryPath = import.meta.env.VITE_MATERIALS_ENDPOINT_PATH;
 
 /**
- * Infrastructure service gateway for the Inventory bounded-context endpoints.
+ * Infrastructure gateway for the Inventory bounded-context endpoints (`/inventory`).
+ * The backend exposes create, list, get-by-id and a PATCH that updates only the
+ * stock levels; there is no delete — so it talks to the raw HTTP client.
  *
  * @class InventoryApi
  * @extends BaseApi
  */
 export class InventoryApi extends BaseApi {
-    #materialsEndpoint;
-
-    /** Creates the endpoint client for materials. */
-    constructor() {
-        super();
-        this.#materialsEndpoint = new BaseEndpoint(this, materialsEndpointPath);
-    }
-
     /**
-     * Fetches all material resources.
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the materials response.
+     * Fetches all materials.
+     * @returns {Promise<import('axios').AxiosResponse>} Materials response.
      */
     getMaterials() {
-        return this.#materialsEndpoint.getAll();
+        return this.http.get(inventoryPath);
     }
 
     /**
-     * Fetches one material resource by identifier.
+     * Fetches one material by identifier.
      * @param {number|string} id - Material identifier.
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the material response.
+     * @returns {Promise<import('axios').AxiosResponse>} Material response.
      */
     getMaterialById(id) {
-        return this.#materialsEndpoint.getById(id);
+        return this.http.get(`${inventoryPath}/${id}`);
     }
 
     /**
-     * Creates a material resource.
-     * @param {Object} resource - Material resource payload.
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the created material response.
+     * Creates a material.
+     * @param {Object} resource - CreateInventoryMaterialResource ({ materialType, quantity, unit, minStock }).
+     * @returns {Promise<import('axios').AxiosResponse>} Created material response.
      */
     createMaterial(resource) {
-        return this.#materialsEndpoint.create(resource);
+        return this.http.post(inventoryPath, resource);
     }
 
     /**
-     * Updates a material resource.
-     * @param {Object} resource - Material resource payload (must include id).
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the updated material response.
-     */
-    updateMaterial(resource) {
-        return this.#materialsEndpoint.update(resource.id, resource);
-    }
-
-    /**
-     * Deletes a material resource by identifier.
+     * Updates the stock levels of a material (PATCH).
      * @param {number|string} id - Material identifier.
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the delete response.
+     * @param {Object} resource - UpdateInventoryMaterialResource ({ quantity, minStock }).
+     * @returns {Promise<import('axios').AxiosResponse>} Updated material response.
      */
-    deleteMaterial(id) {
-        return this.#materialsEndpoint.delete(id);
+    updateMaterial(id, resource) {
+        return this.http.patch(`${inventoryPath}/${id}`, resource);
     }
 }

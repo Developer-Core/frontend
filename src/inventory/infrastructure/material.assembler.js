@@ -1,22 +1,21 @@
 import { Material } from '../domain/material.entity.js';
 
 /**
- * Maps material resources into domain entities.
+ * Maps inventory material resources into domain entities.
  *
  * @class MaterialAssembler
  */
 export class MaterialAssembler {
     /**
-     * @param {Object} resource - Material resource payload.
+     * @param {Object} resource - Material resource payload ({ id, materialType, quantity, unit, minStock }).
      * @returns {Material} Material entity.
      */
     static toEntityFromResource(resource) {
-        return new Material({ ...resource });
+        return new Material(resource);
     }
 
     /**
-     * Parses material resources from a response and maps them into entities.
-     *
+     * Parses a list of material resources from a response into entities.
      * @param {import('axios').AxiosResponse<Array<Object>|Object>} response - HTTP response with material resources.
      * @returns {Material[]} Material entities.
      */
@@ -25,8 +24,7 @@ export class MaterialAssembler {
             console.error(`${response.status}, ${response.statusText}`);
             return [];
         }
-        let resources = response.data instanceof Array ? response.data : response.data['materials'];
-
+        const resources = Array.isArray(response.data) ? response.data : (response.data.materials ?? []);
         return resources.map(resource => this.toEntityFromResource(resource));
     }
 }

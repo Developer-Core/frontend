@@ -1,64 +1,98 @@
 import { BaseApi } from '../../shared/infrastructure/base-api.js';
-import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js';
 
-const ordersEndpointPath = import.meta.env.VITE_ORDERS_ENDPOINT_PATH;
+const ordersPath = import.meta.env.VITE_ORDERS_ENDPOINT_PATH;
 
 /**
- * Infrastructure service gateway for the Orders bounded-context endpoints.
+ * Infrastructure gateway for the Sales (Orders) bounded-context endpoints.
+ * Orders are the aggregate root; quote and payments are nested sub-resources,
+ * and lifecycle transitions are PATCH actions — so this gateway talks to the
+ * raw HTTP client instead of the generic CRUD BaseEndpoint.
  *
  * @class OrdersApi
  * @extends BaseApi
  */
 export class OrdersApi extends BaseApi {
-    #ordersEndpoint;
-
-    /** Creates the endpoint client for orders. */
-    constructor() {
-        super();
-        this.#ordersEndpoint = new BaseEndpoint(this, ordersEndpointPath);
-    }
-
     /**
-     * Fetches all order resources.
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the orders response.
+     * Fetches orders, optionally filtered by customer or carpenter (role-scoped view).
+     * @param {{ customerId?: number, carpenterId?: number }} [filter] - Optional single filter.
+     * @returns {Promise<import('axios').AxiosResponse>} Orders response.
      */
-    getOrders() {
-        return this.#ordersEndpoint.getAll();
+    getOrders(filter = {}) {
+        const params = {};
+        if (filter.customerId)  params.customerId  = filter.customerId;
+        if (filter.carpenterId) params.carpenterId = filter.carpenterId;
+        return this.http.get(ordersPath, { params });
     }
 
     /**
-     * Fetches one order resource by identifier.
+     * Fetches one order by identifier.
      * @param {number|string} id - Order identifier.
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the order response.
+     * @returns {Promise<import('axios').AxiosResponse>} Order response.
      */
     getOrderById(id) {
-        return this.#ordersEndpoint.getById(id);
+        return this.http.get(`${ordersPath}/${id}`);
     }
 
     /**
-     * Creates an order resource.
-     * @param {Object} resource - Order resource payload.
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the created order response.
+     * Creates an order. `resource` is a flat CreateOrderResource
+     * ({ customerId, carpenterId, furnitureType, width, height, depth, material, designNotes }).
+     * @param {Object} resource - Create-order payload.
+     * @returns {Promise<import('axios').AxiosResponse>} Created order response.
      */
     createOrder(resource) {
-        return this.#ordersEndpoint.create(resource);
+        return this.http.post(ordersPath, resource);
     }
 
     /**
-     * Updates an order resource.
-     * @param {Object} resource - Order resource payload (must include id).
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the updated order response.
-     */
-    updateOrder(resource) {
-        return this.#ordersEndpoint.update(resource.id, resource);
-    }
-
-    /**
-     * Deletes an order resource by identifier.
+     * Modifies the furniture details of a pending order (PATCH).
      * @param {number|string} id - Order identifier.
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the delete response.
+     * @param {Object} resource - UpdateOrderResource payload (furniture details).
+     * @returns {Promise<import('axios').AxiosResponse>} Updated order response.
      */
-    deleteOrder(id) {
-        return this.#ordersEndpoint.delete(id);
+    modifyOrder(id, resource) {
+        return this.http.patch(`${ordersPath}/${id}`, resource);
+    }
+
+    /** Accepts a pending order (carpenter). @param {number|string} id @returns {Promise} */
+    acceptOrder(id) { return this.http.patch(`${ordersPath}/${id}/accept`); }
+
+    /** Rejects a pending order (carpenter). @param {number|string} id @returns {Promise} */
+    rejectOrder(id) { return this.http.patch(`${ordersPath}/${id}/reject`); }
+
+    /** Cancels an order (customer). @param {number|string} id @returns {Promise} */
+    cancelOrder(id) { return this.http.patch(`${ordersPath}/${id}/cancel`); }
+
+    /**
+     * Generates the quote for a pending order.
+     * @param {number|string} id - Order identifier.
+     * @param {Object} resource - GenerateQuoteResource ({ materialsCost, laborCost, estimatedProductionDays }).
+     * @returns {Promise<import('axios').AxiosResponse>} Order response with the quote.
+     */
+    generateQuote(id, resource) {
+        return this.http.post(`${ordersPath}/${id}/quote`, resource);
+    }
+
+    /** Accepts the quote proposed for an order (customer). @param {number|string} id @returns {Promise} */
+    acceptQuote(id) { return this.http.patch(`${ordersPath}/${id}/quote/accept`); }
+
+    /**
+     * Registers a payment for an order.
+     * @param {number|string} id - Order identifier.
+     * @param {Object} resource - RegisterPaymentResource ({ type, amount, receiptReference }).
+     * @returns {Promise<import('axios').AxiosResponse>} Order response with the payment.
+     */
+    registerPayment(id, resource) {
+        return this.http.post(`${ordersPath}/${id}/payments`, resource);
+    }
+
+    /**
+     * Validates a payment receipt (carpenter).
+     * @param {number|string} id - Order identifier.
+     * @param {number|string} paymentId - Payment identifier.
+     * @param {Object} resource - ValidatePaymentResource ({ isApproved }).
+     * @returns {Promise<import('axios').AxiosResponse>} Updated order response.
+     */
+    validatePayment(id, paymentId, resource) {
+        return this.http.patch(`${ordersPath}/${id}/payments/${paymentId}/validate`, resource);
     }
 }

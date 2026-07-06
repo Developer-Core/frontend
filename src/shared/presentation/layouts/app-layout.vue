@@ -6,6 +6,7 @@ import LanguageSwitcher from '../components/language-switcher.vue';
 
 <template>
     <div style="min-height: 100vh; background: var(--p-surface-50);">
+        <pv-confirm-dialog class="app-confirm-dialog" />
         <AppSidebar />
 
         <div style="margin-left: 16rem;">
