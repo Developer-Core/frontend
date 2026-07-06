@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { iamInterceptor } from '../../iam/infrastructure/iam.interceptor.js';
 
 const platformApi = import.meta.env.VITE_WOODROUTE_API_URL;
 
@@ -18,6 +19,8 @@ export class BaseApi {
             baseURL: platformApi,
             headers: { 'Content-Type': 'application/json' }
         });
+        // Attach the IAM bearer token to every outbound request of this client.
+        this.#http.interceptors.request.use(iamInterceptor);
     }
 
     /**
