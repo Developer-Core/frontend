@@ -11,12 +11,12 @@ export class MessageAssembler {
      * @returns {Message} Message entity.
      */
     static toEntityFromResource(resource) {
-        return new Message({ ...resource });
+        return new Message(resource);
     }
 
     /**
-     * Parses message resources from a response and maps them into entities.
-     *
+     * Parses a message list from a response into entities, sorted chronologically
+     * (oldest first) for thread display — the backend returns them newest-first.
      * @param {import('axios').AxiosResponse<Array<Object>|Object>} response - HTTP response with message resources.
      * @returns {Message[]} Message entities.
      */
@@ -25,8 +25,9 @@ export class MessageAssembler {
             console.error(`${response.status}, ${response.statusText}`);
             return [];
         }
-        let resources = response.data instanceof Array ? response.data : response.data['messages'];
-
-        return resources.map(resource => this.toEntityFromResource(resource));
+        const resources = Array.isArray(response.data) ? response.data : (response.data.messages ?? []);
+        return resources
+            .map(resource => this.toEntityFromResource(resource))
+            .sort((a, b) => new Date(a.sentAt) - new Date(b.sentAt));
     }
 }
