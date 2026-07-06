@@ -10,14 +10,13 @@
     "inventory": "Inventario",
     "inventory-material-new": "Nuevo Material",
     "inventory-material-edit": "Editar Material",
-    "quotes": "Cotizaciones",
-    "quotes-new": "Nueva Cotización",
     "communication": "Mensajes",
     "communication-thread": "Conversación",
     "public-tracking": "Seguimiento del Pedido",
     "not-found": "No encontrado",
     "login": "Iniciar sesión",
-    "register": "Crear cuenta"
+    "register": "Crear cuenta",
+    "register-carpenter": "Registro de carpintero"
   },
   "not-found": {
     "title": "Página no encontrada",
@@ -32,7 +31,6 @@
     "nav-orders": "Pedidos",
     "nav-production": "Producción",
     "nav-inventory": "Inventario",
-    "nav-quotes": "Cotizaciones",
     "nav-communication": "Mensajes",
     "language-label": "Idioma",
     "language-en": "English",
@@ -66,7 +64,20 @@
     "first-name": "Nombre",
     "last-name": "Apellido",
     "first-name-required": "El nombre es obligatorio.",
-    "last-name-required": "El apellido es obligatorio."
+    "last-name-required": "El apellido es obligatorio.",
+    "register-carpenter-title": "Registro de carpintero",
+    "register-carpenter-subtitle": "Regístrate con el código de invitación de tu taller.",
+    "carpenter-sign-up": "Registrarme como carpintero",
+    "invitation-code": "Código de invitación",
+    "invitation-code-placeholder": "Ingresa tu código de invitación",
+    "invitation-code-hint": "Solicítalo al administrador de tu taller.",
+    "invitation-code-required": "El código de invitación es obligatorio.",
+    "invalid-invitation-code": "El código de invitación no es válido.",
+    "register-carpenter-failed": "No se pudo completar el registro. El correo podría ya estar en uso.",
+    "are-you-carpenter": "¿Eres carpintero?",
+    "go-register-carpenter": "Regístrate con tu código",
+    "not-carpenter": "¿No eres carpintero?",
+    "go-register-client": "Regístrate como cliente"
   },
   "common": {
     "save": "Guardar",
@@ -106,6 +117,10 @@
     "status-cancelled": "Cancelado",
     "confirm-cancel": "¿Cancelar el pedido #{id}?",
     "cancel-header": "Cancelar pedido",
+    "confirm-accept": "¿Aceptar el pedido #{id}?",
+    "accept-header": "Aceptar pedido",
+    "confirm-reject": "¿Rechazar el pedido #{id}?",
+    "reject-header": "Rechazar pedido",
     "customer": "Cliente",
     "carpenter": "Carpintero",
     "carpenter-required": "Ingresa el ID del carpintero.",
@@ -139,13 +154,26 @@
     "no-payments": "Aún no hay pagos registrados.",
     "deposit": "Anticipo",
     "final-payment": "Pago final",
+    "payment-type-deposit": "Anticipo",
+    "payment-type-final-payment": "Pago final",
+    "payment-status-pending-validation": "Pendiente de validación",
+    "payment-status-confirmed": "Confirmado",
+    "payment-status-rejected": "Rechazado",
     "form-subtitle": "Completa los detalles del mueble a solicitar.",
     "furniture-type-placeholder": "Ej: Mesa de comedor, Ropero, Escritorio",
     "dimensions-hint": "Ancho × Alto × Profundidad, en centímetros.",
     "material-placeholder": "Ej: Roble, MDF, Melamina",
     "design-notes-placeholder": "Detalles de acabado, color, diseño...",
     "carpenter-placeholder": "Selecciona un carpintero",
-    "carpenter-empty": "No hay carpinteros registrados"
+    "carpenter-empty": "No hay carpinteros registrados",
+    "confirmSaveEdit": "¿Guardar los cambios del pedido #{id}?",
+    "confirm-save-edit": "¿Guardar los cambios del pedido #{id}?",
+    "quote-unavailable": "La cotización no está disponible en este estado del pedido.",
+    "paid": "Pagado",
+    "remaining": "Falta",
+    "pending-validation-amount": "{amount} pendiente de validación",
+    "amount-exceeds-remaining": "El monto no puede superar el saldo ({amount}).",
+    "payment-unavailable": "Los pagos estarán disponibles cuando se acepte la cotización."
   },
   "production": {
     "title": "Planificación de Producción",
@@ -169,7 +197,19 @@
     "status-in-progress": "En proceso",
     "status-completed": "Completada",
     "confirm-delete": "¿Eliminar la etapa \"{name}\"?",
-    "delete-header": "Eliminar etapa"
+    "delete-header": "Eliminar etapa",
+    "confirmSaveEdit": "¿Guardar los cambios de la etapa \"{name}\"?",
+    "orders-title": "Pedidos en producción",
+    "no-orders": "No hay pedidos en producción.",
+    "stages-of": "Etapas del pedido #{id}",
+    "select-order-hint": "Selecciona un pedido para ver o definir sus etapas.",
+    "progress": "Progreso",
+    "days": "días",
+    "advance": "Avanzar etapa",
+    "no-stages": "Este pedido aún no tiene etapas definidas.",
+    "stage-name": "Nombre de la etapa",
+    "add-stage": "Agregar etapa",
+    "define-stages": "Definir etapas"
   },
   "inventory": {
     "title": "Inventario",
@@ -199,7 +239,9 @@
     "actions-delete": "Eliminar material",
     "confirm-delete": "¿Eliminar el material \"{name}\"?",
     "delete-header": "Eliminar material",
-    "material-type": "Tipo de material"
+    "material-type": "Tipo de material",
+    "confirmSaveEdit": "¿Guardar los cambios del material #{id}?",
+    "confirm-save-edit": "¿Guardar los cambios del material #{id}?"
   },
   "quotes": {
     "title": "Cotizaciones",
@@ -236,7 +278,8 @@
     "actions-delete": "Eliminar cotización",
     "actions-remove-item": "Quitar ítem",
     "confirm-delete": "¿Eliminar la cotización #{id}?",
-    "delete-header": "Eliminar cotización"
+    "delete-header": "Eliminar cotización",
+    "status-proposed": "Propuesta"
   },
   "communication": {
     "title": "Mensajes",
@@ -246,7 +289,12 @@
     "unknown-order": "Pedido desconocido",
     "thread-not-found": "Conversación no encontrada",
     "send": "Enviar",
-    "compose-placeholder": "Escribe un mensaje…"
+    "compose-placeholder": "Escribe un mensaje…",
+    "thread-title": "Mensajes · Pedido #{id}",
+    "order-label": "Pedido #{id}",
+    "yesterday": "Ayer",
+    "sender-workshop": "Taller",
+    "sender-client": "Cliente"
   },
   "public-tracking": {
     "brand": "WoodRoute",
@@ -257,6 +305,22 @@
     "not-found": "No encontramos este pedido. Verifica el enlace.",
     "loading": "Cargando pedido…",
     "footer": "Este enlace fue generado por el taller para tu uso privado.",
-    "tracking-code": "Código de seguimiento"
+    "tracking-code": "Código de seguimiento",
+    "status-title": "Estado de tu pedido",
+    "current-stage": "Etapa actual",
+    "estimated-delivery": "Entrega estimada",
+    "stage-n": "Etapa {n}",
+    "search-placeholder": "Pega aquí tu código de seguimiento",
+    "search-button": "Buscar",
+    "search-hint": "Ingresa el código de seguimiento de tu pedido para ver su estado.",
+    "stage-not-started": "Pedido recibido",
+    "stage-material-preparation": "Preparación de materiales",
+    "stage-cutting": "Corte",
+    "stage-assembly": "Ensamblado",
+    "stage-finishing": "Acabado",
+    "stage-quality-check": "Control de calidad",
+    "stage-completed": "Completado",
+    "in-progress": "En curso",
+    "to-be-confirmed": "Por confirmar"
   }
 }
