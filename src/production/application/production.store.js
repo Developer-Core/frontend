@@ -1,120 +1,91 @@
 /**
- * Application service store for the `Production` bounded context.
- * It coordinates stage use cases and keeps a UI-facing state.
+ * Application service store for the Production (Manufacturing) bounded context.
+ * Stages belong to a single order, so the store holds the stages of the order
+ * currently being viewed and coordinates the define / advance use cases.
  *
  * @module useProductionStore
- * @returns {Object} Store state and actions.
  */
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { ProductionApi } from '../infrastructure/production-api.js';
 import { StageAssembler } from '../infrastructure/stage.assembler.js';
-import { Stage } from '../domain/stage.entity.js';
+import { StageStatus } from '../domain/stage-status.js';
 
 const productionApi = new ProductionApi();
 
 const useProductionStore = defineStore('production', () => {
-    /** @type {import('vue').Ref<Array<import('../domain/stage.entity.js').Stage>>} List of stage entities. */
+    /** @type {import('vue').Ref<Array<import('../domain/stage.entity.js').Stage>>} Stages of the current order. */
     const stages = ref([]);
     /** @type {import('vue').Ref<Array<Error>>} Errors raised by Production use-case execution. */
     const errors = ref([]);
-    /** @type {import('vue').Ref<boolean>} Flag indicating if stages have been loaded. */
+    /** @type {import('vue').Ref<boolean>} Whether stages have been loaded for the current order. */
     const stagesLoaded = ref(false);
-    /** @type {import('vue').ComputedRef<number>} Number of loaded stages. */
-    const stagesCount = computed(() => stagesLoaded.value ? stages.value.length : 0);
+
+    const stagesCount = computed(() => stages.value.length);
+    /** @type {import('vue').ComputedRef<number>} Percentage of completed stages (0-100). */
+    const completedPercent = computed(() => {
+        if (stages.value.length === 0) return 0;
+        const done = stages.value.filter(s => s.status === StageStatus.COMPLETED).length;
+        return Math.round((done / stages.value.length) * 100);
+    });
 
     /**
-     * Loads stages from infrastructure and updates the application state.
-     * @returns {void}
-     */
-    function fetchStages() {
-        productionApi.getStages().then(response => {
-            stages.value = StageAssembler.toEntitiesFromResponse(response);
-            stagesLoaded.value = true;
-        }).catch(error => {
-            errors.value.push(error);
-        });
-    }
-
-    /**
-     * Returns the stages associated with a specific order, sorted by sequence.
+     * Loads the production stages of an order.
      * @param {number|string} orderId - Order identifier.
-     * @returns {Array<import('../domain/stage.entity.js').Stage>} Stages that belong to the order.
+     * @returns {Promise<void>}
      */
-    function getStagesByOrderId(orderId) {
-        const idNum = parseInt(orderId);
-        return stages.value
-            .filter(stage => stage.orderId === idNum)
-            .sort((a, b) => a.sequence - b.sequence);
+    function fetchStages(orderId) {
+        stagesLoaded.value = false;
+        return productionApi.getStages(orderId)
+            .then(response => {
+                stages.value = StageAssembler.toEntitiesFromResponse(response);
+                stagesLoaded.value = true;
+                errors.value = [];
+            })
+            .catch(error => { errors.value.push(error); });
     }
 
     /**
-     * Finds a stage entity by identifier.
-     * @param {number|string} id - Stage identifier.
-     * @returns {import('../domain/stage.entity.js').Stage|undefined} Matching stage, if available.
+     * Compatibility helper: returns the stages currently loaded (already scoped to one order).
+     * @returns {Array<import('../domain/stage.entity.js').Stage>} Loaded stages.
      */
-    function getStageById(id) {
-        const idNum = parseInt(id);
-        return stages.value.find(stage => stage.id === idNum);
+    function getStagesByOrderId() {
+        return stages.value;
     }
 
     /**
-     * Creates a stage through infrastructure and appends it to the local state.
-     * @param {import('../domain/stage.entity.js').Stage} stage - Stage entity to persist.
-     * @returns {void}
+     * Defines the ordered production stages for an accepted order.
+     * @param {number|string} orderId - Order identifier.
+     * @param {number} carpenterId - Id of the carpenter defining the plan.
+     * @param {Array<{ name: string, estimatedTimeInDays: number }>} stageList - Ordered stages.
+     * @returns {Promise<?Array>}
      */
-    function addStage(stage) {
-        productionApi.createStage(stage).then(response => {
-            const newStage = StageAssembler.toEntityFromResource(response.data);
-            stages.value.push(newStage);
-        }).catch(error => {
-            errors.value.push(error);
-        });
+    function defineStages(orderId, carpenterId, stageList) {
+        return productionApi.defineStages(orderId, { carpenterId, stages: stageList })
+            .then(response => {
+                stages.value = StageAssembler.toEntitiesFromResponse(response);
+                stagesLoaded.value = true;
+                return stages.value;
+            })
+            .catch(error => { errors.value.push(error); return null; });
     }
 
     /**
-     * Updates an existing stage and synchronizes local state.
-     * @param {import('../domain/stage.entity.js').Stage} stage - Stage entity with updated data.
-     * @returns {void}
+     * Advances a stage to a new status (carpenter action).
+     * @param {number|string} orderId - Order identifier.
+     * @param {number|string} stageId - Stage identifier.
+     * @param {string} status - New status (Pending | InProgress | Completed).
+     * @param {number} requestingUserId - Id of the acting carpenter (must own the order).
+     * @returns {Promise<void>}
      */
-    function updateStage(stage) {
-        productionApi.updateStage(stage).then(response => {
-            const updatedStage = StageAssembler.toEntityFromResource(response.data);
-            const index = stages.value.findIndex(s => s.id === updatedStage.id);
-            if (index !== -1) stages.value[index] = updatedStage;
-        }).catch(error => {
-            errors.value.push(error);
-        });
-    }
-
-    /**
-     * Deletes a stage and removes it from the local state.
-     * @param {import('../domain/stage.entity.js').Stage} stage - Stage entity to remove.
-     * @returns {void}
-     */
-    function deleteStage(stage) {
-        productionApi.deleteStage(stage.id).then(() => {
-            const index = stages.value.findIndex(s => s.id === stage.id);
-            if (index !== -1) stages.value.splice(index, 1);
-        }).catch(error => {
-            errors.value.push(error);
-        });
-    }
-
-    /**
-     * Advances a stage to a new status and records actual hours when provided.
-     * @param {import('../domain/stage.entity.js').Stage} stage - Stage entity being advanced.
-     * @param {('pending'|'in-progress'|'completed')} status - New stage status.
-     * @param {number} [actualHours] - Hours actually spent on the stage so far.
-     * @returns {void}
-     */
-    function changeStageStatus(stage, status, actualHours) {
-        const next = new Stage({
-            ...stage,
-            status,
-            actualHours: actualHours ?? stage.actualHours
-        });
-        updateStage(next);
+    function updateStageStatus(orderId, stageId, status, requestingUserId) {
+        return productionApi.updateStageStatus(orderId, stageId, { status, requestingUserId })
+            .then(response => {
+                const updated = StageAssembler.toEntityFromResource(response.data);
+                const index = stages.value.findIndex(s => s.id === updated.id);
+                if (index !== -1) stages.value[index] = updated;
+            })
+            .catch(error => { errors.value.push(error); });
     }
 
     return {
@@ -122,13 +93,11 @@ const useProductionStore = defineStore('production', () => {
         errors,
         stagesLoaded,
         stagesCount,
+        completedPercent,
         fetchStages,
         getStagesByOrderId,
-        getStageById,
-        addStage,
-        updateStage,
-        deleteStage,
-        changeStageStatus
+        defineStages,
+        updateStageStatus
     };
 });
 

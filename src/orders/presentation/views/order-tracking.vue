@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { computed, onMounted, reactive, ref, toRefs } from 'vue';
 import useOrdersStore from '../../application/orders.store.js';
 import { OrderStatus, orderStatusKey, orderStatusSeverity } from '../../domain/order-status.js';
-import { PaymentType } from '../../domain/payment.entity.js';
+import { PaymentType, paymentStatusKey, paymentStatusSeverity, paymentTypeKey } from '../../domain/payment.entity.js';
 
 const { t }  = useI18n();
 const route  = useRoute();
@@ -37,7 +37,33 @@ const quoteSeverity = (status) => {
 
 onMounted(() => store.fetchOrderById(route.params.id));
 
-const canAcceptQuote = computed(() => order.value?.quote && normalizeQuoteStatus(order.value.quote.status) !== 'accepted');
+/** A terminal order accepts no more quote/payment actions. */
+const isTerminal = computed(() => !!order.value &&
+    [OrderStatus.CANCELLED, OrderStatus.REJECTED, OrderStatus.COMPLETED].includes(order.value.status));
+
+const canAcceptQuote = computed(() => !isTerminal.value && order.value?.quote &&
+    normalizeQuoteStatus(order.value.quote.status) !== 'accepted');
+
+// --- Payment balance (computed on the client; the backend does not track it) ---
+const quoteTotal    = computed(() => Number(order.value?.quote?.total ?? 0));
+const quoteAccepted = computed(() => normalizeQuoteStatus(order.value?.quote?.status) === 'accepted');
+const totalPaid     = computed(() => (order.value?.payments ?? [])
+    .filter(p => p.status === 'Confirmed').reduce((sum, p) => sum + Number(p.amount || 0), 0));
+const totalPending  = computed(() => (order.value?.payments ?? [])
+    .filter(p => p.status === 'PendingValidation').reduce((sum, p) => sum + Number(p.amount || 0), 0));
+const remaining     = computed(() => Math.max(0, quoteTotal.value - totalPaid.value));
+
+/** Payments are only allowed once the quote is accepted and the order is in a payable state. */
+const isPayable = computed(() => !isTerminal.value && quoteAccepted.value &&
+    [OrderStatus.ACCEPTED, OrderStatus.IN_PROGRESS, OrderStatus.READY_FOR_DELIVERY].includes(order.value?.status));
+
+const amountExceedsRemaining = computed(() =>
+    quoteTotal.value > 0 && Number(paymentForm.amount) > remaining.value);
+const paymentValid = computed(() =>
+    Number(paymentForm.amount) > 0 && !!paymentForm.receiptReference && !amountExceedsRemaining.value);
+
+/** Formats an amount as Peruvian soles. */
+const money = (value) => new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(Number(value || 0));
 
 /** Generates the quote from the mini-form. */
 function submitQuote() {
@@ -49,9 +75,9 @@ function submitQuote() {
     });
 }
 
-/** Registers a payment from the mini-form. */
+/** Registers a payment from the mini-form (only when valid and within the remaining balance). */
 function submitPayment() {
-    if (!(paymentForm.amount > 0) || !paymentForm.receiptReference) return;
+    if (!isPayable.value || !paymentValid.value) return;
     store.registerPayment(route.params.id, {
         type:             paymentForm.type,
         amount:           Number(paymentForm.amount),
@@ -116,7 +142,7 @@ const back = () => router.push({ name: 'orders-list' });
                                        icon="pi pi-check" @click="store.acceptQuote(order.id)" />
                         </div>
                     </div>
-                    <form v-else class="formgrid grid p-fluid" @submit.prevent="submitQuote">
+                    <form v-else-if="order.status === OrderStatus.PENDING" class="formgrid grid p-fluid" @submit.prevent="submitQuote">
                         <p class="col-12 text-color-secondary m-0 mb-2">{{ t('orders.no-quote') }}</p>
                         <div class="field col-12 lg:col-4 order-tracking__field">
                             <label class="block mb-1 font-medium">{{ t('orders.materials-cost') }}</label>
@@ -134,6 +160,7 @@ const back = () => router.push({ name: 'orders-list' });
                             <pv-button type="submit" size="small" :label="t('orders.generate-quote')" icon="pi pi-file-edit" />
                         </div>
                     </form>
+                    <p v-else class="text-color-secondary m-0">{{ t('orders.quote-unavailable') }}</p>
                 </template>
             </pv-card>
 
@@ -141,15 +168,30 @@ const back = () => router.push({ name: 'orders-list' });
             <pv-card>
                 <template #title>{{ t('orders.payments-title') }}</template>
                 <template #content>
+                    <div v-if="order.quote" class="grid mb-3">
+                        <div class="col-4"><small class="text-color-secondary block">{{ t('orders.total') }}</small><strong>{{ money(quoteTotal) }}</strong></div>
+                        <div class="col-4"><small class="text-color-secondary block">{{ t('orders.paid') }}</small>{{ money(totalPaid) }}</div>
+                        <div class="col-4"><small class="text-color-secondary block">{{ t('orders.remaining') }}</small>
+                            <strong :style="remaining > 0 ? 'color: var(--p-primary-color);' : 'color: var(--p-green-600);'">{{ money(remaining) }}</strong>
+                        </div>
+                        <div v-if="totalPending > 0" class="col-12">
+                            <small class="text-color-secondary">{{ t('orders.pending-validation-amount', { amount: money(totalPending) }) }}</small>
+                        </div>
+                    </div>
+
                     <pv-data-table v-if="order.payments.length" :value="order.payments" class="mb-3">
                         <pv-column field="id" :header="t('orders.id')" />
                         <pv-column :header="t('orders.payment-type')">
-                            <template #body="{ data }">{{ data.type }}</template>
+                            <template #body="{ data }">{{ t(paymentTypeKey(data.type)) }}</template>
                         </pv-column>
                         <pv-column field="amount" :header="t('orders.amount')" />
                         <pv-column field="receiptReference" :header="t('orders.receipt-reference')" />
                         <pv-column :header="t('orders.status')">
-                            <template #body="{ data }"><pv-tag :value="data.status" /></template>
+                            <template #body="{ data }">
+                                <pv-tag
+                                    :value="t(paymentStatusKey(data.status))"
+                                    :severity="paymentStatusSeverity(data.status)" />
+                            </template>
                         </pv-column>
                         <pv-column :header="t('orders.actions')">
                             <template #body="{ data }">
@@ -166,7 +208,7 @@ const back = () => router.push({ name: 'orders-list' });
                     </pv-data-table>
                     <p v-else class="text-color-secondary mt-0">{{ t('orders.no-payments') }}</p>
 
-                    <form class="formgrid grid p-fluid mt-2" @submit.prevent="submitPayment">
+                    <form v-if="isPayable" class="formgrid grid p-fluid mt-2" @submit.prevent="submitPayment">
                         <div class="field col-12 lg:col-4 order-tracking__field">
                             <label class="block mb-1 font-medium">{{ t('orders.payment-type') }}</label>
                             <pv-select v-model="paymentForm.type" :options="paymentTypeOptions"
@@ -180,10 +222,16 @@ const back = () => router.push({ name: 'orders-list' });
                             <label class="block mb-1 font-medium">{{ t('orders.receipt-reference') }}</label>
                             <pv-input-text v-model="paymentForm.receiptReference" class="w-full" />
                         </div>
-                        <div class="col-12 flex justify-content-end">
-                            <pv-button type="submit" size="small" :label="t('orders.register-payment')" icon="pi pi-wallet" />
+                        <div class="col-12 flex justify-content-between align-items-center flex-wrap gap-2">
+                            <small v-if="amountExceedsRemaining" class="text-red-500">
+                                {{ t('orders.amount-exceeds-remaining', { amount: money(remaining) }) }}
+                            </small>
+                            <span v-else />
+                            <pv-button type="submit" size="small" :label="t('orders.register-payment')"
+                                       icon="pi pi-wallet" :disabled="!paymentValid" />
                         </div>
                     </form>
+                    <p v-else-if="!isTerminal" class="text-color-secondary m-0">{{ t('orders.payment-unavailable') }}</p>
                 </template>
             </pv-card>
         </template>

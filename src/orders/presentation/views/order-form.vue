@@ -2,12 +2,14 @@
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { computed, onMounted, reactive, ref, toRefs } from 'vue';
+import { useConfirm } from 'primevue';
 import useOrdersStore from '../../application/orders.store.js';
 import useIamStore from '../../../iam/application/iam.store.js';
 
 const { t }    = useI18n();
 const route    = useRoute();
 const router   = useRouter();
+const confirm  = useConfirm();
 const store    = useOrdersStore();
 const iamStore = useIamStore();
 const { errors } = toRefs(store);
@@ -74,13 +76,26 @@ const detailsPayload = () => ({
     designNotes:   form.designNotes
 });
 
+async function persist() {
+    const updated = await store.modifyOrder(route.params.id, detailsPayload());
+    if (updated) router.push({ name: 'orders-list' });
+}
+
 /** Validates and submits the order (create or modify), then returns to the list. */
 async function submit() {
     submitted.value = true;
     if (!detailsValid.value) return;
     if (isEdit.value) {
-        const updated = await store.modifyOrder(route.params.id, detailsPayload());
-        if (updated) router.push({ name: 'orders-list' });
+        confirm.require({
+            message: t('orders.confirmSaveEdit', { id: route.params.id }),
+            header: t('orders.edit-title'),
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: t('common.save'),
+            rejectLabel: t('common.cancel'),
+            acceptClass: 'p-button-primary',
+            rejectClass: 'p-button-outlined p-button-secondary',
+            accept: persist
+        });
     } else {
         if (!form.carpenterId) return;
         const created = await store.createOrder({

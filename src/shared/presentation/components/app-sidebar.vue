@@ -16,16 +16,25 @@ const footerRef = ref(null);
 
 /**
  * Navigation items rendered in the sidebar.
- * Each entry maps to a top-level bounded-context section.
- * @type {import('vue').ComputedRef<Array<{label: string, icon: string, to: string, match: string}>>}
+ * Each entry maps to a top-level bounded-context section and declares which
+ * roles may see it. `roles: null` means visible to every signed-in role.
+ * @type {import('vue').ComputedRef<Array<{label: string, icon: string, to: string, match: string, roles: ?string[]}>>}
  */
 const navItems = computed(() => [
-    { label: t('shell.nav-orders'),        icon: 'pi pi-receipt',  to: '/orders',        match: '/orders' },
-    { label: t('shell.nav-production'),    icon: 'pi pi-calendar', to: '/production',    match: '/production' },
-    { label: t('shell.nav-inventory'),     icon: 'pi pi-box',      to: '/inventory',     match: '/inventory' },
-    { label: t('shell.nav-quotes'),        icon: 'pi pi-calculator', to: '/quotes',      match: '/quotes' },
-    { label: t('shell.nav-communication'), icon: 'pi pi-comments', to: '/communication', match: '/communication' }
+    { label: t('shell.nav-orders'),        icon: 'pi pi-receipt',    to: '/orders',        match: '/orders',        roles: null },
+    { label: t('shell.nav-production'),    icon: 'pi pi-calendar',   to: '/production',    match: '/production',    roles: ['Carpenter'] },
+    { label: t('shell.nav-inventory'),     icon: 'pi pi-box',        to: '/inventory',     match: '/inventory',     roles: ['Carpenter'] },
+    { label: t('shell.nav-communication'), icon: 'pi pi-comments',   to: '/communication', match: '/communication', roles: null }
 ]);
+
+/**
+ * Navigation items visible to the signed-in user's role. Items with `roles: null`
+ * are shown to everyone; otherwise the current role must be listed.
+ * @type {import('vue').ComputedRef<Array<Object>>}
+ */
+const visibleNavItems = computed(() =>
+    navItems.value.filter(item => !item.roles || item.roles.includes(iamStore.currentRole))
+);
 
 /** Human-readable label for the signed-in user's role. */
 const roleLabel = computed(() => {
@@ -82,8 +91,6 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <pv-confirm-dialog />
-
     <aside
         class="sidebar flex flex-column fixed left-0 top-0 surface-card">
         <div class="sidebar__brand p-4">
@@ -100,7 +107,7 @@ onBeforeUnmount(() => {
 
         <nav class="sidebar__nav flex flex-column gap-1 p-2">
             <router-link
-                v-for="item in navItems"
+                v-for="item in visibleNavItems"
                 :key="item.to"
                 :to="item.to"
                 class="sidebar__link flex align-items-center gap-3 p-3 border-round no-underline"
