@@ -1,64 +1,46 @@
 import { BaseApi } from '../../shared/infrastructure/base-api.js';
-import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js';
 
-const stagesEndpointPath = import.meta.env.VITE_STAGES_ENDPOINT_PATH;
+const ordersPath = import.meta.env.VITE_ORDERS_ENDPOINT_PATH;
+
+/** Builds the nested stages path for an order. */
+const stagesPath = (orderId) => `${ordersPath}/${orderId}/stages`;
 
 /**
- * Infrastructure service gateway for the Production bounded-context endpoints.
+ * Infrastructure gateway for the Production (Manufacturing) endpoints. Stages are
+ * nested under an order (`/orders/{orderId}/stages`): defined as an ordered list,
+ * listed, and advanced by status. No delete — so it uses the raw HTTP client.
  *
  * @class ProductionApi
  * @extends BaseApi
  */
 export class ProductionApi extends BaseApi {
-    #stagesEndpoint;
-
-    /** Creates the endpoint client for production stages. */
-    constructor() {
-        super();
-        this.#stagesEndpoint = new BaseEndpoint(this, stagesEndpointPath);
+    /**
+     * Fetches the production stages of an order.
+     * @param {number|string} orderId - Order identifier.
+     * @returns {Promise<import('axios').AxiosResponse>} Stages response.
+     */
+    getStages(orderId) {
+        return this.http.get(stagesPath(orderId));
     }
 
     /**
-     * Fetches all stage resources.
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the stages response.
+     * Defines the ordered production stages for an accepted order.
+     * @param {number|string} orderId - Order identifier.
+     * @param {{ carpenterId: number, stages: Array<{ name: string, estimatedTimeInDays: number }> }} resource - Plan.
+     * @returns {Promise<import('axios').AxiosResponse>} Created stages response.
      */
-    getStages() {
-        return this.#stagesEndpoint.getAll();
+    defineStages(orderId, resource) {
+        return this.http.post(stagesPath(orderId), resource);
     }
 
     /**
-     * Fetches a stage resource by identifier.
-     * @param {number|string} id - Stage identifier.
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the stage response.
+     * Updates the status of a production stage.
+     * @param {number|string} orderId - Order identifier.
+     * @param {number|string} stageId - Stage identifier.
+     * @param {{ status: string, requestingUserId: number }} resource - New status + acting carpenter id.
+     * @returns {Promise<import('axios').AxiosResponse>} Updated stage response.
      */
-    getStageById(id) {
-        return this.#stagesEndpoint.getById(id);
-    }
-
-    /**
-     * Creates a stage resource.
-     * @param {Object} resource - Stage resource payload.
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the created stage response.
-     */
-    createStage(resource) {
-        return this.#stagesEndpoint.create(resource);
-    }
-
-    /**
-     * Updates a stage resource.
-     * @param {Object} resource - Stage resource payload (must include id).
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the updated stage response.
-     */
-    updateStage(resource) {
-        return this.#stagesEndpoint.update(resource.id, resource);
-    }
-
-    /**
-     * Deletes a stage resource by identifier.
-     * @param {number|string} id - Stage identifier.
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the delete response.
-     */
-    deleteStage(id) {
-        return this.#stagesEndpoint.delete(id);
+    updateStageStatus(orderId, stageId, resource) {
+        return this.http.patch(`${stagesPath(orderId)}/${stageId}`, resource);
     }
 }
