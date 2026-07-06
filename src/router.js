@@ -4,8 +4,9 @@ import i18n from './i18n.js';
 import ordersRoutes from './orders/presentation/orders-routes.js';
 import productionRoutes from './production/presentation/production-routes.js';
 import inventoryRoutes from './inventory/presentation/inventory-routes.js';
-import quotesRoutes from './quotes/presentation/quotes-routes.js';
 import communicationRoutes from './communication/presentation/communication-routes.js';
+import iamRoutes from './iam/presentation/iam-routes.js';
+import { authenticationGuard } from './iam/infrastructure/authentication.guard.js';
 
 const publicTracking = () => import('./orders/presentation/views/public-tracking.vue');
 const notFound       = () => import('./shared/presentation/views/not-found.vue');
@@ -15,16 +16,16 @@ const routes = [
         path: '/',
         component: AppLayout,
         children: [
-            { path: '',                   redirect: '/orders' },
-            { path: 'orders',             name: 'orders',        meta: { titleKey: 'breadcrumb.orders' },        children: ordersRoutes },
-            { path: 'production',         name: 'production',    meta: { titleKey: 'breadcrumb.production' },    children: productionRoutes },
-            { path: 'inventory',          name: 'inventory',     meta: { titleKey: 'breadcrumb.inventory' },     children: inventoryRoutes },
-            { path: 'quotes',             name: 'quotes',        meta: { titleKey: 'breadcrumb.quotes' },        children: quotesRoutes },
-            { path: 'communication',      name: 'communication', meta: { titleKey: 'breadcrumb.communication' }, children: communicationRoutes },
+            { path: '',                   redirect: { name: 'orders-list' } },
+            { path: 'orders',             name: 'orders',        meta: { titleKey: 'breadcrumb.orders' },                                    children: ordersRoutes },
+            { path: 'production',         name: 'production',    meta: { titleKey: 'breadcrumb.production', roles: ['Carpenter'] },          children: productionRoutes },
+            { path: 'inventory',          name: 'inventory',     meta: { titleKey: 'breadcrumb.inventory',  roles: ['Carpenter'] },          children: inventoryRoutes },
+            { path: 'communication',      name: 'communication', meta: { titleKey: 'breadcrumb.communication' },                             children: communicationRoutes },
             { path: ':pathMatch(.*)*',    name: 'not-found',     component: notFound,                            meta: { titleKey: 'breadcrumb.not-found' } }
         ]
     },
-    { path: '/track/:id', name: 'public-tracking', component: publicTracking, meta: { titleKey: 'breadcrumb.public-tracking' } }
+    ...iamRoutes,
+    { path: '/track/:id?', name: 'public-tracking', component: publicTracking, meta: { titleKey: 'breadcrumb.public-tracking', public: true } }
 ];
 
 const router = createRouter({
@@ -45,7 +46,7 @@ router.beforeEach((to, from, next) => {
     const key       = to.meta['titleKey'];
     const section   = key ? i18n.global.t(key) : null;
     document.title  = section ? `${baseTitle} - ${section}` : baseTitle;
-    return next();
+    return authenticationGuard(to, from, next);
 });
 
 export default router;
