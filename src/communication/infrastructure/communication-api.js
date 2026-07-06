@@ -1,66 +1,36 @@
 import { BaseApi } from '../../shared/infrastructure/base-api.js';
-import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js';
 
-const conversationsEndpointPath = import.meta.env.VITE_CONVERSATIONS_ENDPOINT_PATH;
-const messagesEndpointPath      = import.meta.env.VITE_MESSAGES_ENDPOINT_PATH;
+const ordersPath = import.meta.env.VITE_ORDERS_ENDPOINT_PATH;
+
+/** Builds the nested messages path for an order. */
+const messagesPath = (orderId) => `${ordersPath}/${orderId}/messages`;
 
 /**
- * Infrastructure service gateway for the Communication bounded-context endpoints.
+ * Infrastructure gateway for the Communication (Engagement) endpoints. Messages
+ * are nested under an order (`/orders/{orderId}/messages`) — there is no standalone
+ * conversation resource — so this gateway talks to the raw HTTP client.
  *
  * @class CommunicationApi
  * @extends BaseApi
  */
 export class CommunicationApi extends BaseApi {
-    #conversationsEndpoint;
-    #messagesEndpoint;
-
-    /** Creates the endpoint clients for conversations and messages. */
-    constructor() {
-        super();
-        this.#conversationsEndpoint = new BaseEndpoint(this, conversationsEndpointPath);
-        this.#messagesEndpoint      = new BaseEndpoint(this, messagesEndpointPath);
+    /**
+     * Fetches the message history of an order (backend returns newest-first).
+     * @param {number|string} orderId - Order identifier.
+     * @param {{ limit?: number, before?: string }} [params] - Optional pagination.
+     * @returns {Promise<import('axios').AxiosResponse>} Messages response.
+     */
+    getMessages(orderId, params = {}) {
+        return this.http.get(messagesPath(orderId), { params });
     }
 
     /**
-     * Fetches all conversation resources.
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the conversations response.
+     * Sends a message in an order's thread.
+     * @param {number|string} orderId - Order identifier.
+     * @param {{ content: string, senderType: string, senderId: number }} resource - Message payload.
+     * @returns {Promise<import('axios').AxiosResponse>} Created message response.
      */
-    getConversations() {
-        return this.#conversationsEndpoint.getAll();
-    }
-
-    /**
-     * Creates a conversation resource.
-     * @param {Object} resource - Conversation resource payload.
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the created conversation response.
-     */
-    createConversation(resource) {
-        return this.#conversationsEndpoint.create(resource);
-    }
-
-    /**
-     * Updates a conversation resource.
-     * @param {Object} resource - Conversation resource payload (must include id).
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the updated conversation response.
-     */
-    updateConversation(resource) {
-        return this.#conversationsEndpoint.update(resource.id, resource);
-    }
-
-    /**
-     * Fetches all message resources.
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the messages response.
-     */
-    getMessages() {
-        return this.#messagesEndpoint.getAll();
-    }
-
-    /**
-     * Creates a message resource.
-     * @param {Object} resource - Message resource payload.
-     * @returns {Promise<import('axios').AxiosResponse>} Promise resolving to the created message response.
-     */
-    createMessage(resource) {
-        return this.#messagesEndpoint.create(resource);
+    sendMessage(orderId, resource) {
+        return this.http.post(messagesPath(orderId), resource);
     }
 }

@@ -1,15 +1,14 @@
 const productionTimeline = () => import('./views/production-timeline.vue');
-const stageForm          = () => import('./views/stage-form.vue');
 
 /**
- * Child routes exposed by the Production presentation layer.
+ * Child routes exposed by the Production presentation layer. Stage management
+ * (define / advance) happens inline in the timeline board, so there is no
+ * separate stage form route.
  *
  * @type {import('vue-router').RouteRecordRaw[]}
  */
 const productionRoutes = [
-    { path: '',                           name: 'production-timeline',   component: productionTimeline, meta: { titleKey: 'breadcrumb.production' } },
-    { path: 'orders/:orderId/stages/new', name: 'production-stage-new',  component: stageForm,          meta: { titleKey: 'breadcrumb.production-stage-new' } },
-    { path: 'stages/:id/edit',            name: 'production-stage-edit', component: stageForm,          meta: { titleKey: 'breadcrumb.production-stage-edit' } }
+    { path: '', name: 'production-timeline', component: productionTimeline, meta: { titleKey: 'breadcrumb.production' } }
 ];
 
 export default productionRoutes;

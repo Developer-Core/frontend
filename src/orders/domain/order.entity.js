@@ -1,40 +1,52 @@
+import { FurnitureDetails } from './furniture-details.entity.js';
+import { Quote } from './quote.entity.js';
+import { Payment } from './payment.entity.js';
+import { OrderStatus } from './order-status.js';
+
 /**
- * Order aggregate root within the Orders bounded context.
+ * Order aggregate root within the Sales (Orders) bounded context.
+ * Mirrors the backend `OrderResource`: a customer/carpenter pair, the furniture
+ * details, and the optional quote and payment sub-resources.
  *
  * @class Order
  */
 export class Order {
     /**
-     * @param {Object} params - Entity attributes.
-     * @param {?number} [params.id=null] - Order identifier.
-     * @param {string} [params.projectName=''] - Name describing the furniture piece.
-     * @param {string} [params.clientName=''] - Client who requested the order.
-     * @param {string} [params.woodType=''] - Wood material selected for the piece.
-     * @param {string} [params.finish=''] - Surface finish requested by the client.
-     * @param {string} [params.description=''] - Detailed requirements provided by the client.
-     * @param {string} [params.status='pending'] - Order lifecycle status.
-     * @param {?string} [params.startDate=null] - Production start date as an ISO string.
-     * @param {?string} [params.endDate=null] - Expected delivery date as an ISO string.
+     * @param {Object} [params] - Entity attributes.
+     * @param {?number} [params.id] - Order identifier.
+     * @param {?string} [params.publicTrackingId] - Public tracking GUID.
+     * @param {?number} [params.customerId] - Customer (user) identifier.
+     * @param {?number} [params.carpenterId] - Carpenter (user) identifier.
+     * @param {string} [params.status] - Order status.
+     * @param {Object} [params.details] - Furniture details payload.
+     * @param {?Object} [params.quote] - Quote payload, if any.
+     * @param {Array<Object>} [params.payments] - Payment payloads.
      */
     constructor({
-        id          = null,
-        projectName = '',
-        clientName  = '',
-        woodType    = '',
-        finish      = '',
-        description = '',
-        status      = 'pending',
-        startDate   = null,
-        endDate     = null
+        id               = null,
+        publicTrackingId = null,
+        customerId       = null,
+        carpenterId      = null,
+        status           = OrderStatus.PENDING,
+        details          = {},
+        quote            = null,
+        payments         = []
     } = {}) {
-        this.id          = id;
-        this.projectName = projectName;
-        this.clientName  = clientName;
-        this.woodType    = woodType;
-        this.finish      = finish;
-        this.description = description;
-        this.status      = status;
-        this.startDate   = startDate;
-        this.endDate     = endDate;
+        this.id               = id;
+        this.publicTrackingId = publicTrackingId;
+        this.customerId       = customerId;
+        this.carpenterId      = carpenterId;
+        this.status           = status;
+        this.details          = new FurnitureDetails(details ?? {});
+        this.quote            = quote ? new Quote(quote) : null;
+        this.payments         = (payments ?? []).map(payment => new Payment(payment));
+    }
+
+    /** @returns {boolean} Whether the order is still pending review. */
+    get isPending() { return this.status === OrderStatus.PENDING; }
+
+    /** @returns {boolean} Whether the order can still be cancelled. */
+    get isCancellable() {
+        return ![OrderStatus.COMPLETED, OrderStatus.CANCELLED, OrderStatus.REJECTED].includes(this.status);
     }
 }

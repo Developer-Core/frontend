@@ -2,77 +2,105 @@
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useConfirm } from 'primevue';
+import { computed, onMounted, toRefs } from 'vue';
 import useOrdersStore from '../../application/orders.store.js';
-import { onMounted, toRefs } from 'vue';
+import useIamStore from '../../../iam/application/iam.store.js';
+import { OrderStatus, orderStatusKey, orderStatusSeverity } from '../../domain/order-status.js';
 
-const { t } = useI18n();
-const router = useRouter();
+const { t }   = useI18n();
+const router  = useRouter();
 const confirm = useConfirm();
-const store = useOrdersStore();
+const store   = useOrdersStore();
+const iamStore = useIamStore();
 const { orders, ordersLoaded, errors } = toRefs(store);
-const { fetchOrders, cancelOrder, reviewOrder } = store;
+const { fetchOrders, acceptOrder, rejectOrder, cancelOrder } = store;
 
 onMounted(() => {
     if (!store.ordersLoaded) fetchOrders();
+    iamStore.fetchUsers();
+    iamStore.fetchProfiles();
 });
 
-/**
- * Maps an order status to the PrimeVue tag severity.
- * @param {string} status - Order status value.
- * @returns {string} PrimeVue severity name.
- */
-const severityFor = (status) => {
-    switch (status) {
-        case 'pending':           return 'warn';
-        case 'in-progress':       return 'info';
-        case 'waiting-materials': return 'secondary';
-        case 'delivered':         return 'success';
-        case 'cancelled':         return 'danger';
-        default:                  return 'contrast';
+const profileByEmail = computed(() => {
+    const entries = iamStore.profiles.map(profile => [profile.email, profile]);
+    return new Map(entries);
+});
+
+const userById = computed(() => {
+    const entries = iamStore.users.map(user => [user.id, user]);
+    return new Map(entries);
+});
+
+const resolveUserName = (userId) => {
+    const user = userById.value.get(userId);
+    if (!user) return userId;
+    const profile = profileByEmail.value.get(user.email);
+    return profile?.fullName || user.email || userId;
+};
+
+const normalizeQuoteStatus = (status) => String(status ?? '').trim().toLowerCase();
+
+const quoteSeverity = (status) => {
+    switch (normalizeQuoteStatus(status)) {
+        case 'draft': return 'secondary';
+        case 'sent': return 'info';
+        case 'accepted': return 'success';
+        case 'rejected': return 'danger';
+        default: return 'contrast';
     }
 };
 
-/** Navigate to the new order creation page. */
-const navigateToNew = () => {
-    router.push({ name: 'orders-new' });
-};
+const isPending = (order) => order.status === OrderStatus.PENDING;
 
-/**
- * Navigate to the order editing page.
- * @param {number} id - Order identifier.
- */
-const navigateToEdit = (id) => {
-    router.push({ name: 'orders-edit', params: { id } });
-};
+const navigateToNew      = () => router.push({ name: 'orders-new' });
+const navigateToEdit     = (id) => router.push({ name: 'orders-edit', params: { id } });
+const navigateToTracking = (id) => router.push({ name: 'orders-tracking', params: { id } });
 
-/**
- * Navigate to the order tracking page.
- * @param {number} id - Order identifier.
- */
-const navigateToTracking = (id) => {
-    router.push({ name: 'orders-tracking', params: { id } });
-};
-
-/**
- * Confirm and cancel a pending order.
- * @param {Object} order - Order entity to cancel.
- */
-const confirmCancel = (order) => {
+const requireConfirmation = ({ message, header, acceptLabel, acceptClass, accept }) => {
     confirm.require({
-        message: t('orders.confirm-cancel', { project: order.projectName }),
-        header: t('orders.cancel-header'),
+        message,
+        header,
         icon: 'pi pi-exclamation-triangle',
-        accept: () => cancelOrder(order)
+        acceptLabel,
+        rejectLabel: t('common.cancel'),
+        acceptClass,
+        rejectClass: 'p-button-outlined p-button-secondary',
+        accept
+    });
+};
+
+const confirmAccept = (order) => {
+    requireConfirmation({
+        message: t('orders.confirm-accept', { id: order.id }),
+        header: t('orders.accept-header'),
+        acceptLabel: t('orders.actions-accept'),
+        acceptClass: 'p-button-primary',
+        accept: () => acceptOrder(order.id)
+    });
+};
+
+const confirmReject = (order) => {
+    requireConfirmation({
+        message: t('orders.confirm-reject', { id: order.id }),
+        header: t('orders.reject-header'),
+        acceptLabel: t('orders.actions-reject'),
+        acceptClass: 'p-button-danger',
+        accept: () => rejectOrder(order.id)
     });
 };
 
 /**
- * Apply a carpenter review decision to a pending order.
- * @param {Object} order - Order entity under review.
- * @param {('accepted'|'rejected')} decision - Carpenter decision.
+ * Confirms and cancels an order.
+ * @param {import('../../domain/order.entity.js').Order} order - Order to cancel.
  */
-const applyReview = (order, decision) => {
-    reviewOrder(order, decision);
+const confirmCancel = (order) => {
+    requireConfirmation({
+        message: t('orders.confirm-cancel', { id: order.id }),
+        header: t('orders.cancel-header'),
+        acceptLabel: t('orders.actions-cancel'),
+        acceptClass: 'p-button-danger',
+        accept: () => cancelOrder(order.id)
+    });
 };
 </script>
 
@@ -91,23 +119,48 @@ const applyReview = (order, decision) => {
             :rows="10"
             :rows-per-page-options="[10, 20, 50]"
             table-style="min-width: 60rem">
-            <pv-column field="id"          :header="t('orders.id')"          sortable />
-            <pv-column field="projectName" :header="t('orders.project')"     sortable />
-            <pv-column field="clientName"  :header="t('orders.client')"      sortable />
-            <pv-column field="woodType"    :header="t('orders.wood')" />
-            <pv-column field="finish"      :header="t('orders.finish')" />
-            <pv-column :header="t('orders.status')">
-                <template #body="slotProps">
-                    <pv-tag :value="t(`orders.status-${slotProps.data.status}`)" :severity="severityFor(slotProps.data.status)" />
+            <pv-column field="customerId" :header="t('orders.customer')" sortable>
+                <template #body="{ data }">{{ resolveUserName(data.customerId) }}</template>
+            </pv-column>
+            <pv-column field="carpenterId" :header="t('orders.carpenter')" sortable>
+                <template #body="{ data }">{{ resolveUserName(data.carpenterId) }}</template>
+            </pv-column>
+            <pv-column :header="t('orders.furniture-type')">
+                <template #body="{ data }">{{ data.details.furnitureType }}</template>
+            </pv-column>
+            <pv-column :header="t('orders.material')">
+                <template #body="{ data }">{{ data.details.material }}</template>
+            </pv-column>
+            <pv-column :header="t('orders.quote-title')">
+                <template #body="{ data }">
+                    <pv-tag
+                        v-if="data.quote"
+                        :value="t(`quotes.status-${normalizeQuoteStatus(data.quote.status)}`)"
+                        :severity="quoteSeverity(data.quote.status)" />
+                    <span v-else class="text-color-secondary">—</span>
+                </template>
+            </pv-column>
+            <pv-column :header="t('orders.status')" sortable field="status">
+                <template #body="{ data }">
+                    <pv-tag :value="t(orderStatusKey(data.status))" :severity="orderStatusSeverity(data.status)" />
                 </template>
             </pv-column>
             <pv-column :header="t('orders.actions')">
-                <template #body="slotProps">
-                    <pv-button icon="pi pi-eye"    text rounded :aria-label="t('orders.actions-tracking')" v-tooltip.top="t('orders.actions-tracking')" @click="navigateToTracking(slotProps.data.id)" />
-                    <pv-button v-if="slotProps.data.status === 'pending'" icon="pi pi-pencil" text rounded :aria-label="t('orders.actions-edit')"   v-tooltip.top="t('orders.actions-edit')"   @click="navigateToEdit(slotProps.data.id)" />
-                    <pv-button v-if="slotProps.data.status === 'pending'" icon="pi pi-check"  text rounded severity="success" :aria-label="t('orders.actions-accept')" v-tooltip.top="t('orders.actions-accept')" @click="applyReview(slotProps.data, 'accepted')" />
-                    <pv-button v-if="slotProps.data.status === 'pending'" icon="pi pi-times"  text rounded severity="danger"  :aria-label="t('orders.actions-reject')" v-tooltip.top="t('orders.actions-reject')" @click="applyReview(slotProps.data, 'rejected')" />
-                    <pv-button v-if="slotProps.data.status === 'pending'" icon="pi pi-ban"    text rounded severity="warn"    :aria-label="t('orders.actions-cancel')" v-tooltip.top="t('orders.actions-cancel')" @click="confirmCancel(slotProps.data)" />
+                <template #body="{ data }">
+                    <pv-button icon="pi pi-eye" text rounded v-tooltip.top="t('orders.actions-tracking')"
+                               :aria-label="t('orders.actions-tracking')" @click="navigateToTracking(data.id)" />
+                    <pv-button v-if="isPending(data)" icon="pi pi-pencil" text rounded
+                               v-tooltip.top="t('orders.actions-edit')" :aria-label="t('orders.actions-edit')"
+                               @click="navigateToEdit(data.id)" />
+                    <pv-button v-if="isPending(data)" icon="pi pi-check" text rounded severity="success"
+                               v-tooltip.top="t('orders.actions-accept')" :aria-label="t('orders.actions-accept')"
+                               @click="confirmAccept(data)" />
+                    <pv-button v-if="isPending(data)" icon="pi pi-times" text rounded severity="danger"
+                               v-tooltip.top="t('orders.actions-reject')" :aria-label="t('orders.actions-reject')"
+                               @click="confirmReject(data)" />
+                    <pv-button v-if="data.isCancellable" icon="pi pi-ban" text rounded severity="warn"
+                               v-tooltip.top="t('orders.actions-cancel')" :aria-label="t('orders.actions-cancel')"
+                               @click="confirmCancel(data)" />
                 </template>
             </pv-column>
         </pv-data-table>
@@ -115,7 +168,5 @@ const applyReview = (order, decision) => {
         <div v-if="errors.length" class="text-red-500 mt-3">
             {{ t('errors.occurred') }}: {{ errors.map(e => e.message).join(', ') }}
         </div>
-
-        <pv-confirm-dialog />
     </div>
 </template>
