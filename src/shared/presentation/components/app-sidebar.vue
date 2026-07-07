@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
 import AccountSummary from './account-summary.vue';
+import BrandLogo from './brand-logo.vue';
 import useIamStore from '../../../iam/application/iam.store.js';
 
 const { t }    = useI18n();
@@ -95,7 +96,7 @@ onBeforeUnmount(() => {
 
         <div class="sidebar__brand p-4">
             <div class="flex flex-column align-items-center min-w-0">
-                <img src="/brand/logo-woodroute.png" alt="WoodRoute" class="sidebar__brand-logo" />
+                <BrandLogo class="sidebar__brand-logo" />
             </div>
         </div>
 
