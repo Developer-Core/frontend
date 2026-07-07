@@ -34,8 +34,16 @@ export class OrdersApi extends BaseApi {
     }
 
     /**
-     * Creates an order. `resource` is a flat CreateOrderResource
-     * ({ customerId, carpenterId, furnitureType, width, height, depth, material, designNotes }).
+     * Fetches the unassigned order pool (Pending orders any carpenter can claim).
+     * @returns {Promise<import('axios').AxiosResponse>} Pool response.
+     */
+    getPool() {
+        return this.http.get(`${ordersPath}/pool`);
+    }
+
+    /**
+     * Creates an order. `resource` is the role-shaped payload already armed by the
+     * store: a client sends only furniture fields; a carpenter also sends `customerId`.
      * @param {Object} resource - Create-order payload.
      * @returns {Promise<import('axios').AxiosResponse>} Created order response.
      */
@@ -61,6 +69,15 @@ export class OrdersApi extends BaseApi {
 
     /** Cancels an order (customer). @param {number|string} id @returns {Promise} */
     cancelOrder(id) { return this.http.patch(`${ordersPath}/${id}/cancel`); }
+
+    /** Starts production of an accepted order (carpenter): Accepted → InProgress. @param {number|string} id @returns {Promise} */
+    startProduction(id) { return this.http.patch(`${ordersPath}/${id}/start`); }
+
+    /** Marks an in-progress order ready (carpenter): InProgress → ReadyForDelivery. @param {number|string} id @returns {Promise} */
+    markReady(id) { return this.http.patch(`${ordersPath}/${id}/ready`); }
+
+    /** Completes/delivers a ready order (carpenter): ReadyForDelivery → Completed. @param {number|string} id @returns {Promise} */
+    completeOrder(id) { return this.http.patch(`${ordersPath}/${id}/complete`); }
 
     /**
      * Generates the quote for a pending order.

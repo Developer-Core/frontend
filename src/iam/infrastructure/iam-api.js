@@ -49,6 +49,8 @@ export class IamApi extends BaseApi {
      */
     signUpCarpenter(command) {
         return this.http.post('/auth/sign-up-carpenter', {
+            firstName:      command.firstName,
+            lastName:       command.lastName,
             email:          command.email,
             password:       command.password,
             invitationCode: command.invitationCode
@@ -62,25 +64,5 @@ export class IamApi extends BaseApi {
      */
     getUsers(role = null) {
         return this.http.get('/users', { params: role ? { role } : {} });
-    }
-
-    /**
-     * Creates the personal profile for a freshly-registered user (`POST /profiles`).
-     * Runs right after registration, before the session is stored, so the just-issued
-     * token is passed explicitly for authorization.
-     * @param {{ firstName: string, lastName: string, email: string }} resource - Profile payload.
-     * @param {string} token - Bearer token issued by the registration response.
-     * @returns {Promise<import('axios').AxiosResponse<Object>>} Created profile response.
-     */
-    createProfile(resource, token) {
-        return this.http.post('/profiles', resource, { headers: { Authorization: `Bearer ${token}` } });
-    }
-
-    /**
-     * Fetches all profiles from `GET /profiles` (used to resolve user display names).
-     * @returns {Promise<import('axios').AxiosResponse<Array<Object>>>} HTTP response with profile resources.
-     */
-    getProfiles() {
-        return this.http.get('/profiles');
     }
 }
