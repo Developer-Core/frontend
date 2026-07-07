@@ -92,7 +92,8 @@ onBeforeUnmount(() => {
 
 <template>
     <aside
-        class="sidebar flex flex-column fixed left-0 top-0 surface-card">
+        class="sidebar flex flex-column fixed left-0 top-0"
+        style="background: var(--surface-card);">
         <div class="sidebar__brand p-4">
             <div class="flex align-items-center gap-3 min-w-0">
                 <div class="sidebar__brand-mark flex align-items-center justify-content-center flex-shrink-0">

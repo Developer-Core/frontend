@@ -37,7 +37,9 @@
     "language-es": "Español",
     "logout": "Sign out",
     "logout-confirm-title": "Sign out",
-    "logout-confirm-message": "Are you sure you want to sign out?"
+    "logout-confirm-message": "Are you sure you want to sign out?",
+    "theme-light": "Switch to light theme",
+    "theme-dark": "Switch to dark theme"
   },
   "iam": {
     "login-title": "Sign in",

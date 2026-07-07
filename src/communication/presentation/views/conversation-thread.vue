@@ -191,9 +191,9 @@ const back = () => router.push({ name: 'communication-list' });
     grid-template-rows: 1fr auto;
     gap: 1rem;
     padding: 1rem;
-    border: 1px solid var(--p-surface-200);
+    border: 1px solid var(--color-border);
     border-radius: 1rem;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(248, 242, 236, 0.72) 100%);
+    background: var(--surface-card);
     box-shadow: var(--shadow-subtle);
     overflow: hidden;
 }
@@ -234,8 +234,8 @@ const back = () => router.push({ name: 'communication-list' });
 }
 
 .conversation-thread__bubble--theirs {
-    background: var(--p-surface-0);
-    border: 1px solid var(--p-surface-200);
+    background: var(--surface-canvas);
+    border: 1px solid var(--color-border);
 }
 
 .conversation-thread__meta--mine {
