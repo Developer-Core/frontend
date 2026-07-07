@@ -24,13 +24,11 @@ const props = defineProps({
 
 <template>
     <div class="flex align-items-center gap-3 min-w-0">
-        <div
-            class="border-circle flex align-items-center justify-content-center flex-shrink-0"
-            style="width: 3rem; height: 3rem; background: var(--p-primary-100); color: var(--p-primary-color); border: 1px solid var(--p-surface-300); overflow: hidden;">
-            <img v-if="avatar" :src="avatar" :alt="name" style="width: 100%; height: 100%; object-fit: cover;" />
+        <div class="account-summary__avatar border-circle flex align-items-center justify-content-center flex-shrink-0">
+            <img v-if="avatar" :src="avatar" :alt="name" class="account-summary__avatar-image" />
             <i v-else class="pi pi-user text-xl" />
         </div>
-        <div class="flex flex-column" style="min-width: 0">
+        <div class="account-summary__body flex flex-column">
             <strong class="text-color account-summary__text">{{ props.name }}</strong>
             <small class="text-color-secondary account-summary__text">{{ props.role || t('shell.role-default') }}</small>
         </div>
@@ -38,6 +36,25 @@ const props = defineProps({
 </template>
 
 <style scoped>
+.account-summary__avatar {
+    width: 3rem;
+    height: 3rem;
+    background: var(--p-primary-100);
+    color: var(--p-primary-color);
+    border: 1px solid var(--p-surface-300);
+    overflow: hidden;
+}
+
+.account-summary__avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.account-summary__body {
+    min-width: 0;
+}
+
 .account-summary__text {
     display: block;
     min-width: 0;
