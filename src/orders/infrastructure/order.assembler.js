@@ -11,7 +11,11 @@ export class OrderAssembler {
      * @returns {Order} Order entity.
      */
     static toEntityFromResource(resource) {
-        return new Order(resource);
+        return new Order({
+            ...resource,
+            completedStages: resource.completedStages ?? 0,
+            totalStages: resource.totalStages ?? 0
+        });
     }
 
     /**

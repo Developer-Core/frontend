@@ -141,6 +141,13 @@ const confirmCancel = (order) => {
                     <pv-tag :value="t(orderStatusKey(data.status))" :severity="orderStatusSeverity(data.status)" />
                 </template>
             </pv-column>
+            <pv-column :header="t('orders.stages-progress')">
+                <template #body="{ data }">
+                    <pv-tag v-if="data.totalStages > 0" severity="info"
+                            :value="`${data.completedStages}/${data.totalStages}`" />
+                    <span v-else class="text-color-secondary">—</span>
+                </template>
+            </pv-column>
             <pv-column :header="t('orders.actions')">
                 <template #body="{ data }">
                     <pv-button icon="pi pi-eye" text rounded v-tooltip.top="t('orders.actions-tracking')"

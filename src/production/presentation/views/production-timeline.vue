@@ -50,7 +50,10 @@ const productionPhaseSeverity = (status) => {
 
 const selectedOrder = ref(null);
 
-/** Draft plan used when no stages exist yet. */
+/** Whether the plan form is shown to edit already-defined (but not started) stages. */
+const editing = ref(false);
+
+/** Draft plan used when no stages exist yet, or when editing the current plan. */
 const plan = reactive({ rows: [{ name: '', estimatedTimeInDays: 1 }] });
 
 onMounted(() => {
@@ -60,6 +63,7 @@ onMounted(() => {
 /** Selects an order and loads its stages. */
 function selectOrder(order) {
     selectedOrder.value = order;
+    editing.value = false;
     plan.rows = [{ name: '', estimatedTimeInDays: 1 }];
     production.fetchStages(order.id);
 }
@@ -69,11 +73,39 @@ const removeRow = (i) => plan.rows.splice(i, 1);
 
 const planValid = computed(() => plan.rows.length > 0 && plan.rows.every(r => r.name && r.estimatedTimeInDays > 0));
 
-/** Submits the stage plan for the selected order. */
-function submitPlan() {
+/**
+ * Whether the selected order's already-defined stages can still be edited: none of
+ * them has started and the order has not yet entered production.
+ */
+const canEditStages = computed(() =>
+    selectedOrder.value?.status === OrderStatus.ACCEPTED
+    && production.stages.length > 0
+    && production.stages.every(s => s.status === StageStatus.PENDING));
+
+/** Opens the plan form preloaded with the current stages, in edit mode. */
+function startEditing() {
+    plan.rows = production.stages.map(s => ({ name: s.name, estimatedTimeInDays: s.estimatedTimeInDays }));
+    editing.value = true;
+}
+
+/** Leaves edit mode without saving. */
+function cancelEditing() {
+    editing.value = false;
+}
+
+/** Submits the stage plan for the selected order (define, or redefine when editing). */
+async function submitPlan() {
     if (!planValid.value || !selectedOrder.value) return;
-    production.defineStages(selectedOrder.value.id,
-        plan.rows.map(r => ({ name: r.name, estimatedTimeInDays: Number(r.estimatedTimeInDays) })));
+    const stageList = plan.rows.map(r => ({ name: r.name, estimatedTimeInDays: Number(r.estimatedTimeInDays) }));
+    if (editing.value) {
+        const result = await production.updateStages(selectedOrder.value.id, stageList);
+        if (result) {
+            editing.value = false;
+            production.fetchStages(selectedOrder.value.id);
+        }
+        return;
+    }
+    production.defineStages(selectedOrder.value.id, stageList);
 }
 
 /** Advances a stage to the next status (Pending -> InProgress -> Completed). */
@@ -95,7 +127,7 @@ function refreshSelectedOrder() {
 
 /** Whether "Iniciar producción" can be shown: accepted order with stages already defined. */
 const canStartProduction = computed(() =>
-    selectedOrder.value?.status === OrderStatus.ACCEPTED && production.stages.length > 0);
+    !editing.value && selectedOrder.value?.status === OrderStatus.ACCEPTED && production.stages.length > 0);
 const canMarkReady = computed(() => selectedOrder.value?.status === OrderStatus.IN_PROGRESS);
 const canComplete  = computed(() => selectedOrder.value?.status === OrderStatus.READY_FOR_DELIVERY);
 
@@ -176,9 +208,13 @@ const progressStyle = computed(() => ({ width: `${production.completedPercent}%`
                         <div v-if="!selectedOrder" class="text-color-secondary">{{ t('production.select-order-hint') }}</div>
 
                         <!-- Existing stages timeline -->
-                        <div v-else-if="production.stages.length" class="flex flex-column gap-2">
+                        <div v-else-if="production.stages.length && !editing" class="flex flex-column gap-2">
                             <div class="flex justify-content-between align-items-center mb-2">
-                                <strong>{{ t('production.progress') }}</strong>
+                                <div class="flex align-items-center gap-2">
+                                    <strong>{{ t('production.progress') }}</strong>
+                                    <pv-button v-if="canEditStages" size="small" text icon="pi pi-pencil"
+                                               :label="t('production.edit-stages')" @click="startEditing" />
+                                </div>
                                 <span class="font-medium">{{ production.completedPercent }}%</span>
                             </div>
                             <div class="production-progress border-round overflow-hidden mb-3">
@@ -201,9 +237,9 @@ const progressStyle = computed(() => ({ width: `${production.completedPercent}%`
                             </div>
                         </div>
 
-                        <!-- Define plan (no stages yet) -->
+                        <!-- Define plan (no stages yet) or edit the existing plan -->
                         <form v-else class="flex flex-column gap-3" @submit.prevent="submitPlan">
-                            <p class="text-color-secondary m-0 mb-1">{{ t('production.no-stages') }}</p>
+                            <p class="text-color-secondary m-0 mb-1">{{ editing ? t('production.edit-stages-hint') : t('production.no-stages') }}</p>
                             <div
                                 v-for="(row, i) in plan.rows"
                                 :key="i"
@@ -230,8 +266,13 @@ const progressStyle = computed(() => ({ width: `${production.completedPercent}%`
                             <div class="flex flex-column-reverse sm:flex-row justify-content-between align-items-stretch sm:align-items-center gap-2 mt-1">
                                 <pv-button type="button" size="small" text icon="pi pi-plus"
                                            :label="t('production.add-stage')" @click="addRow" />
-                                <pv-button type="submit" size="small" icon="pi pi-check"
-                                           :label="t('production.define-stages')" :disabled="!planValid" />
+                                <div class="flex flex-column-reverse sm:flex-row gap-2">
+                                    <pv-button v-if="editing" type="button" size="small" text severity="secondary"
+                                               :label="t('common.cancel')" @click="cancelEditing" />
+                                    <pv-button type="submit" size="small" icon="pi pi-check"
+                                               :label="editing ? t('production.save-stages') : t('production.define-stages')"
+                                               :disabled="!planValid" />
+                                </div>
                             </div>
                         </form>
 

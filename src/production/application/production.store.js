@@ -73,6 +73,25 @@ const useProductionStore = defineStore('production', () => {
     }
 
     /**
+     * Re-defines the ordered production stages of an order while none has started.
+     * The acting carpenter is derived from the JWT server-side, so it is never sent
+     * from here.
+     * @param {number|string} orderId - Order identifier.
+     * @param {Array<{ name: string, estimatedTimeInDays: number }>} stageList - Ordered stages.
+     * @returns {Promise<?Array>}
+     */
+    function updateStages(orderId, stageList) {
+        return productionApi.updateStages(orderId, { stages: stageList })
+            .then(response => {
+                stages.value = StageAssembler.toEntitiesFromResponse(response);
+                stagesLoaded.value = true;
+                notifySuccess('toast.stages-defined');
+                return stages.value;
+            })
+            .catch(error => { errors.value.push(error); notifyError('toast.action-failed'); return null; });
+    }
+
+    /**
      * Advances a stage to a new status (carpenter action). The acting carpenter is
      * derived from the JWT server-side, so it is never sent from here.
      * @param {number|string} orderId - Order identifier.
@@ -100,6 +119,7 @@ const useProductionStore = defineStore('production', () => {
         fetchStages,
         getStagesByOrderId,
         defineStages,
+        updateStages,
         updateStageStatus
     };
 });
