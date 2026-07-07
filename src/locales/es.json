@@ -245,7 +245,9 @@
     "save-stages": "Guardar etapas",
     "phase-to-plan": "Por planificar",
     "phase-in-production": "En producción",
-    "phase-ready": "Listo para entrega"
+    "phase-ready": "Listo para entrega",
+    "start-to-advance": "Inicia la producción para avanzar las etapas.",
+    "awaiting-final-payment": "Falta el pago final para cerrar el pedido."
   },
   "inventory": {
     "title": "Inventario",

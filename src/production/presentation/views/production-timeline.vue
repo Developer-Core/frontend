@@ -109,14 +109,20 @@ async function submitPlan() {
 }
 
 /** Advances a stage to the next status (Pending -> InProgress -> Completed). */
-function advance(stage) {
+async function advance(stage) {
     const next = stage.status === StageStatus.PENDING ? StageStatus.IN_PROGRESS
         : stage.status === StageStatus.IN_PROGRESS ? StageStatus.COMPLETED : null;
     if (!next || !selectedOrder.value) return;
-    production.updateStageStatus(selectedOrder.value.id, stage.id, next);
+    await production.updateStageStatus(selectedOrder.value.id, stage.id, next);
+    // Stage progress lives on the order (completedStages/totalStages), so refresh the
+    // orders store to keep the orders list progress column in sync without a reload.
+    await ordersStore.fetchOrders();
+    refreshSelectedOrder();
 }
 
-const canAdvance = (stage) => stage.status !== StageStatus.COMPLETED;
+// Stages can only be advanced once production has started (order is in progress).
+const canAdvance = (stage) =>
+    selectedOrder.value?.status === OrderStatus.IN_PROGRESS && stage.status !== StageStatus.COMPLETED;
 
 /** Re-reads the selected order from the store so its phase and controls refresh. */
 function refreshSelectedOrder() {
@@ -129,7 +135,20 @@ function refreshSelectedOrder() {
 const canStartProduction = computed(() =>
     !editing.value && selectedOrder.value?.status === OrderStatus.ACCEPTED && production.stages.length > 0);
 const canMarkReady = computed(() => selectedOrder.value?.status === OrderStatus.IN_PROGRESS);
-const canComplete  = computed(() => selectedOrder.value?.status === OrderStatus.READY_FOR_DELIVERY);
+/** The order is closed only once fully paid: confirmed payments must cover the quote total. */
+const isFullyPaid = computed(() => {
+    const order = selectedOrder.value;
+    const total = Number(order?.quote?.total ?? 0);
+    if (!total) return false;
+    const paid = (order?.payments ?? [])
+        .filter(payment => payment.status === 'Confirmed')
+        .reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+    return paid >= total;
+});
+// The furniture can be ready, but the order closes only when it is fully paid.
+const canComplete       = computed(() => selectedOrder.value?.status === OrderStatus.READY_FOR_DELIVERY && isFullyPaid.value);
+const awaitingFinalPayment = computed(() =>
+    selectedOrder.value?.status === OrderStatus.READY_FOR_DELIVERY && !isFullyPaid.value);
 
 /** Starts production of the selected order, then refreshes its phase/controls. */
 async function startProduction() {
@@ -195,8 +214,11 @@ const progressStyle = computed(() => ({ width: `${production.completedPercent}%`
                     </template>
                     <template #content>
                         <div
-                            v-if="selectedOrder && isCarpenter && (canStartProduction || canMarkReady || canComplete)"
-                            class="flex flex-wrap justify-content-end gap-2 mb-3">
+                            v-if="selectedOrder && isCarpenter && (canStartProduction || canMarkReady || canComplete || awaitingFinalPayment)"
+                            class="flex flex-wrap justify-content-end align-items-center gap-2 mb-3">
+                            <small v-if="awaitingFinalPayment" class="text-color-secondary mr-auto">
+                                {{ t('production.awaiting-final-payment') }}
+                            </small>
                             <pv-button v-if="canStartProduction" size="small" icon="pi pi-play"
                                        :label="t('orders.actions-start')" @click="startProduction" />
                             <pv-button v-if="canMarkReady" size="small" icon="pi pi-check" severity="success"
@@ -220,6 +242,9 @@ const progressStyle = computed(() => ({ width: `${production.completedPercent}%`
                             <div class="production-progress border-round overflow-hidden mb-3">
                                 <div class="production-progress__fill" :style="progressStyle" />
                             </div>
+                            <small v-if="selectedOrder?.status === OrderStatus.ACCEPTED" class="text-color-secondary mb-2">
+                                {{ t('production.start-to-advance') }}
+                            </small>
                             <div
                                 v-for="stage in production.stages"
                                 :key="stage.id"
