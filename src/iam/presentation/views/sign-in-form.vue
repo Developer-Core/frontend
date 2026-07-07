@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import useIamStore from '../../application/iam.store.js';
 import { SignInCommand } from '../../domain/sign-in.command.js';
+import LanguageSwitcher from '../../../shared/presentation/components/language-switcher.vue';
 
 const { t }  = useI18n();
 const router = useRouter();
@@ -34,7 +35,12 @@ function performSignIn() {
 
 <template>
     <div class="auth-screen min-h-screen flex align-items-center justify-content-center p-4">
-        <pv-card class="auth-card w-full">
+        <div class="auth-shell w-full">
+            <div class="auth-shell__toolbar flex justify-content-end mb-4">
+                <language-switcher />
+            </div>
+
+            <pv-card class="auth-card w-full">
             <template #header>
                 <div class="flex align-items-center gap-3 px-4 pt-4">
                     <span class="brand-badge flex align-items-center justify-content-center">
@@ -85,9 +91,17 @@ function performSignIn() {
                         <span class="text-color-secondary">{{ t('iam.no-account') }}</span>
                         <router-link :to="{ name: 'register' }" class="text-primary no-underline ml-1 font-medium">{{ t('iam.go-register') }}</router-link>
                     </div>
+
+                    <div class="text-center text-sm">
+                        <span class="text-color-secondary">{{ t('iam.track-without-account') }}</span>
+                        <router-link :to="{ name: 'landing' }" class="text-primary no-underline ml-1 font-medium">
+                            {{ t('iam.go-track-public') }}
+                        </router-link>
+                    </div>
                 </form>
             </template>
-        </pv-card>
+            </pv-card>
+        </div>
     </div>
 </template>
 
@@ -98,8 +112,11 @@ function performSignIn() {
         var(--p-surface-50);
 }
 
-.auth-card {
+.auth-shell {
     max-width: 26rem;
+}
+
+.auth-card {
     border: 1px solid var(--p-surface-200);
     box-shadow: 0 10px 30px rgba(67, 15, 5, 0.08);
 }
