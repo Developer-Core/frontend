@@ -23,21 +23,14 @@ const home = {
  * @type {import('vue').ComputedRef<Array<{label: string, command: Function}>>}
  */
 const items = computed(() => {
-    const seen = new Set();
     return route.matched
         .filter(record => record.meta?.titleKey)
-        .reduce((acc, record) => {
-            const key = record.meta.titleKey;
-            if (seen.has(key)) return acc;
-            seen.add(key);
-            acc.push({
-                label: t(key),
-                command: () => {
-                    if (record.name) router.push({ name: record.name, params: route.params });
-                }
-            });
-            return acc;
-        }, []);
+        .map(record => ({
+            label: t(record.meta.titleKey),
+            command: () => {
+                if (record.name) router.push({ name: record.name, params: route.params });
+            }
+        }));
 });
 </script>
 

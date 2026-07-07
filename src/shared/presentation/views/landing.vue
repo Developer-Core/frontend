@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+import LanguageSwitcher from '../components/language-switcher.vue';
 
 const { t }  = useI18n();
 const router = useRouter();
@@ -17,14 +18,16 @@ function track() {
 </script>
 
 <template>
-    <div class="landing flex flex-column align-items-center justify-content-center p-4">
+    <div class="landing min-h-screen flex flex-column align-items-center justify-content-center p-4">
+        <div class="landing__toolbar w-full flex justify-content-end mb-4">
+            <language-switcher />
+        </div>
+
         <div class="landing__inner w-full flex flex-column align-items-center">
-            <span class="brand-badge flex align-items-center justify-content-center mb-4">
-                <i class="pi pi-box text-2xl" />
-            </span>
+            <img src="/brand/logo-woodroute.png" alt="WoodRoute" class="landing__brand-logo mb-4" />
 
             <h1 class="text-4xl font-bold text-center m-0">{{ t('landing.title') }}</h1>
-            <p class="text-color-secondary text-center mt-2 mb-5" style="max-width: 34rem;">
+            <p class="landing__copy text-color-secondary text-center mt-2 mb-5">
                 {{ t('landing.subtitle') }}
             </p>
 
@@ -44,7 +47,7 @@ function track() {
             </pv-card>
 
             <div class="text-center mt-5">
-                <router-link :to="{ name: 'login' }" class="landing__login no-underline font-medium">
+                <router-link :to="{ name: 'login' }" class="landing__login text-primary no-underline font-medium">
                     <i class="pi pi-sign-in mr-1" />
                     {{ t('landing.workshop-access') }}
                 </router-link>
@@ -59,7 +62,6 @@ function track() {
 
 <style scoped>
 .landing {
-    min-height: 100vh;
     background:
         radial-gradient(1200px 600px at 100% 0%, var(--p-primary-100) 0%, transparent 55%),
         radial-gradient(1000px 500px at 0% 100%, var(--p-primary-50) 0%, transparent 55%),
@@ -70,13 +72,17 @@ function track() {
     max-width: 40rem;
 }
 
-.brand-badge {
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 1rem;
-    background: var(--p-primary-color);
-    color: var(--p-primary-contrast-color);
-    box-shadow: 0 10px 30px rgba(67, 15, 5, 0.18);
+.landing__toolbar {
+    max-width: 40rem;
+}
+
+.landing__brand-logo {
+    width: min(15rem, 72vw);
+    height: auto;
+}
+
+.landing__copy {
+    max-width: 34rem;
 }
 
 .landing__card {
@@ -86,11 +92,10 @@ function track() {
 }
 
 .landing__login {
-    color: var(--p-text-color-secondary, var(--p-text-color));
     transition: color 150ms ease;
 }
 
 .landing__login:hover {
-    color: var(--p-primary-color);
+    color: var(--p-primary-hover-color, var(--p-primary-color));
 }
 </style>

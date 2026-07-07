@@ -83,6 +83,34 @@ const WoodRoute = definePreset(Aura, {
                     color:           '#FD4319',
                     focusColor:      '#E23415'
                 }
+            },
+            dark: {
+                surface: {
+                    0:   '#FFFFFF',
+                    50:  '#FAF7F2',
+                    100: '#F8F2EC',
+                    200: '#F0E4D8',
+                    300: '#EAE2D6',
+                    400: '#E6DDD1',
+                    500: '#D6C5B3',
+                    600: '#63523A',
+                    700: '#443218',
+                    800: '#2a1e0f',
+                    900: '#1A1715',
+                    950: '#0d0b09'
+                },
+                primary: {
+                    color:         '#FE7A5A',
+                    contrastColor: '#1A1715',
+                    hoverColor:    '#FD4319',
+                    activeColor:   '#E23415'
+                },
+                highlight: {
+                    background:      '#43231B',
+                    focusBackground: '#5B2E24',
+                    color:           '#FE7A5A',
+                    focusColor:      '#FD4319'
+                }
             }
         }
     },
@@ -106,7 +134,7 @@ createApp(App)
         theme: {
             preset: WoodRoute,
             options: {
-                darkModeSelector: false
+                darkModeSelector: '.app-dark'
             }
         },
         ripple: true

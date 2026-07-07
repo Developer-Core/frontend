@@ -3,20 +3,57 @@ import { useI18n } from 'vue-i18n';
 import { computed, onMounted, reactive, ref } from 'vue';
 import useOrdersStore from '../../../orders/application/orders.store.js';
 import useProductionStore from '../../application/production.store.js';
-import { OrderStatus, orderStatusKey, orderStatusSeverity } from '../../../orders/domain/order-status.js';
+import useIamStore from '../../../iam/application/iam.store.js';
+import { OrderStatus } from '../../../orders/domain/order-status.js';
 import { StageStatus, stageStatusKey, stageStatusSeverity } from '../../domain/stage-status.js';
 
 const { t }        = useI18n();
 const ordersStore  = useOrdersStore();
 const production   = useProductionStore();
+const iamStore     = useIamStore();
 
-/** Orders that are in the production pipeline (accepted through ready-for-delivery). */
+const isCarpenter = computed(() => iamStore.currentRole === 'Carpenter');
+
+/** Normalizes a quote status for case-insensitive comparison. */
+const normalizeQuoteStatus = (s) => String(s ?? '').trim().toLowerCase();
+/** Whether an order's quote has been accepted. */
+const quoteAccepted = (o) => normalizeQuoteStatus(o.quote?.status) === 'accepted';
+
+/**
+ * Orders that are actively in the production pipeline: an accepted order only
+ * enters once its quote is accepted, plus everything already in production.
+ */
 const productionOrders = computed(() => ordersStore.orders.filter(o =>
-    [OrderStatus.ACCEPTED, OrderStatus.IN_PROGRESS, OrderStatus.READY_FOR_DELIVERY].includes(o.status)));
+    (o.status === OrderStatus.ACCEPTED && quoteAccepted(o))
+    || o.status === OrderStatus.IN_PROGRESS
+    || o.status === OrderStatus.READY_FOR_DELIVERY));
+
+/** i18n key for the production phase label of an order status. */
+const productionPhaseKey = (status) => {
+    switch (status) {
+        case OrderStatus.ACCEPTED:           return 'production.phase-to-plan';
+        case OrderStatus.IN_PROGRESS:        return 'production.phase-in-production';
+        case OrderStatus.READY_FOR_DELIVERY: return 'production.phase-ready';
+        default:                             return 'production.phase-to-plan';
+    }
+};
+
+/** PrimeVue Tag severity for the production phase of an order status. */
+const productionPhaseSeverity = (status) => {
+    switch (status) {
+        case OrderStatus.ACCEPTED:           return 'warn';
+        case OrderStatus.IN_PROGRESS:        return 'info';
+        case OrderStatus.READY_FOR_DELIVERY: return 'success';
+        default:                             return 'info';
+    }
+};
 
 const selectedOrder = ref(null);
 
-/** Draft plan used when no stages exist yet. */
+/** Whether the plan form is shown to edit already-defined (but not started) stages. */
+const editing = ref(false);
+
+/** Draft plan used when no stages exist yet, or when editing the current plan. */
 const plan = reactive({ rows: [{ name: '', estimatedTimeInDays: 1 }] });
 
 onMounted(() => {
@@ -26,6 +63,7 @@ onMounted(() => {
 /** Selects an order and loads its stages. */
 function selectOrder(order) {
     selectedOrder.value = order;
+    editing.value = false;
     plan.rows = [{ name: '', estimatedTimeInDays: 1 }];
     production.fetchStages(order.id);
 }
@@ -35,11 +73,39 @@ const removeRow = (i) => plan.rows.splice(i, 1);
 
 const planValid = computed(() => plan.rows.length > 0 && plan.rows.every(r => r.name && r.estimatedTimeInDays > 0));
 
-/** Submits the stage plan for the selected order. */
-function submitPlan() {
+/**
+ * Whether the selected order's already-defined stages can still be edited: none of
+ * them has started and the order has not yet entered production.
+ */
+const canEditStages = computed(() =>
+    selectedOrder.value?.status === OrderStatus.ACCEPTED
+    && production.stages.length > 0
+    && production.stages.every(s => s.status === StageStatus.PENDING));
+
+/** Opens the plan form preloaded with the current stages, in edit mode. */
+function startEditing() {
+    plan.rows = production.stages.map(s => ({ name: s.name, estimatedTimeInDays: s.estimatedTimeInDays }));
+    editing.value = true;
+}
+
+/** Leaves edit mode without saving. */
+function cancelEditing() {
+    editing.value = false;
+}
+
+/** Submits the stage plan for the selected order (define, or redefine when editing). */
+async function submitPlan() {
     if (!planValid.value || !selectedOrder.value) return;
-    production.defineStages(selectedOrder.value.id,
-        plan.rows.map(r => ({ name: r.name, estimatedTimeInDays: Number(r.estimatedTimeInDays) })));
+    const stageList = plan.rows.map(r => ({ name: r.name, estimatedTimeInDays: Number(r.estimatedTimeInDays) }));
+    if (editing.value) {
+        const result = await production.updateStages(selectedOrder.value.id, stageList);
+        if (result) {
+            editing.value = false;
+            production.fetchStages(selectedOrder.value.id);
+        }
+        return;
+    }
+    production.defineStages(selectedOrder.value.id, stageList);
 }
 
 /** Advances a stage to the next status (Pending -> InProgress -> Completed). */
@@ -51,6 +117,42 @@ function advance(stage) {
 }
 
 const canAdvance = (stage) => stage.status !== StageStatus.COMPLETED;
+
+/** Re-reads the selected order from the store so its phase and controls refresh. */
+function refreshSelectedOrder() {
+    if (!selectedOrder.value) return;
+    const fresh = ordersStore.orders.find(o => o.id === selectedOrder.value.id);
+    if (fresh) selectedOrder.value = fresh;
+}
+
+/** Whether "Iniciar producción" can be shown: accepted order with stages already defined. */
+const canStartProduction = computed(() =>
+    !editing.value && selectedOrder.value?.status === OrderStatus.ACCEPTED && production.stages.length > 0);
+const canMarkReady = computed(() => selectedOrder.value?.status === OrderStatus.IN_PROGRESS);
+const canComplete  = computed(() => selectedOrder.value?.status === OrderStatus.READY_FOR_DELIVERY);
+
+/** Starts production of the selected order, then refreshes its phase/controls. */
+async function startProduction() {
+    if (!selectedOrder.value) return;
+    await ordersStore.startProduction(selectedOrder.value.id);
+    refreshSelectedOrder();
+}
+
+/** Marks the selected order ready for delivery, then refreshes its phase/controls. */
+async function markReady() {
+    if (!selectedOrder.value) return;
+    await ordersStore.markReady(selectedOrder.value.id);
+    refreshSelectedOrder();
+}
+
+/** Completes/delivers the selected order, then refreshes its phase/controls. */
+async function completeOrder() {
+    if (!selectedOrder.value) return;
+    await ordersStore.completeOrder(selectedOrder.value.id);
+    refreshSelectedOrder();
+}
+
+const progressStyle = computed(() => ({ width: `${production.completedPercent}%` }));
 </script>
 
 <template>
@@ -72,15 +174,13 @@ const canAdvance = (stage) => stage.status !== StageStatus.COMPLETED;
                                 :key="order.id"
                                 type="button"
                                 class="production-order-item flex justify-content-between align-items-center gap-3 p-3 border-round border-none cursor-pointer text-left w-full"
-                                :style="selectedOrder?.id === order.id
-                                    ? 'background: var(--p-primary-50);'
-                                    : 'background: var(--p-surface-100);'"
+                                :class="{ 'production-order-item--active': selectedOrder?.id === order.id }"
                                 @click="selectOrder(order)">
                                 <span class="production-order-item__content">
                                     <strong>#{{ order.id }}</strong>
                                     <span class="text-color-secondary ml-2">{{ order.details.furnitureType }}</span>
                                 </span>
-                                <pv-tag :value="t(orderStatusKey(order.status))" :severity="orderStatusSeverity(order.status)" />
+                                <pv-tag :value="t(productionPhaseKey(order.status))" :severity="productionPhaseSeverity(order.status)" />
                             </button>
                         </div>
                     </template>
@@ -94,22 +194,36 @@ const canAdvance = (stage) => stage.status !== StageStatus.COMPLETED;
                         {{ selectedOrder ? t('production.stages-of', { id: selectedOrder.id }) : t('production.select-order') }}
                     </template>
                     <template #content>
+                        <div
+                            v-if="selectedOrder && isCarpenter && (canStartProduction || canMarkReady || canComplete)"
+                            class="flex flex-wrap justify-content-end gap-2 mb-3">
+                            <pv-button v-if="canStartProduction" size="small" icon="pi pi-play"
+                                       :label="t('orders.actions-start')" @click="startProduction" />
+                            <pv-button v-if="canMarkReady" size="small" icon="pi pi-check" severity="success"
+                                       :label="t('orders.actions-ready')" @click="markReady" />
+                            <pv-button v-if="canComplete" size="small" icon="pi pi-flag-fill" severity="success"
+                                       :label="t('orders.actions-complete')" @click="completeOrder" />
+                        </div>
+
                         <div v-if="!selectedOrder" class="text-color-secondary">{{ t('production.select-order-hint') }}</div>
 
                         <!-- Existing stages timeline -->
-                        <div v-else-if="production.stages.length" class="flex flex-column gap-2">
+                        <div v-else-if="production.stages.length && !editing" class="flex flex-column gap-2">
                             <div class="flex justify-content-between align-items-center mb-2">
-                                <strong>{{ t('production.progress') }}</strong>
+                                <div class="flex align-items-center gap-2">
+                                    <strong>{{ t('production.progress') }}</strong>
+                                    <pv-button v-if="canEditStages" size="small" text icon="pi pi-pencil"
+                                               :label="t('production.edit-stages')" @click="startEditing" />
+                                </div>
                                 <span class="font-medium">{{ production.completedPercent }}%</span>
                             </div>
-                            <div class="border-round overflow-hidden mb-3" style="height: 0.5rem; background: var(--p-surface-200);">
-                                <div :style="{ width: `${production.completedPercent}%`, height: '100%', background: 'var(--p-primary-color)' }" />
+                            <div class="production-progress border-round overflow-hidden mb-3">
+                                <div class="production-progress__fill" :style="progressStyle" />
                             </div>
                             <div
                                 v-for="stage in production.stages"
                                 :key="stage.id"
-                                class="production-stage-item flex justify-content-between align-items-center gap-3 p-3 border-round"
-                                style="background: var(--p-surface-100);">
+                                class="production-stage-item flex justify-content-between align-items-center gap-3 p-3 border-round">
                                 <div class="production-stage-item__content">
                                     <span class="font-medium">{{ stage.orderIndex + 1 }}. {{ stage.name }}</span>
                                     <small class="text-color-secondary ml-2">{{ stage.estimatedTimeInDays }} {{ t('production.days') }}</small>
@@ -123,9 +237,9 @@ const canAdvance = (stage) => stage.status !== StageStatus.COMPLETED;
                             </div>
                         </div>
 
-                        <!-- Define plan (no stages yet) -->
+                        <!-- Define plan (no stages yet) or edit the existing plan -->
                         <form v-else class="flex flex-column gap-3" @submit.prevent="submitPlan">
-                            <p class="text-color-secondary m-0 mb-1">{{ t('production.no-stages') }}</p>
+                            <p class="text-color-secondary m-0 mb-1">{{ editing ? t('production.edit-stages-hint') : t('production.no-stages') }}</p>
                             <div
                                 v-for="(row, i) in plan.rows"
                                 :key="i"
@@ -152,8 +266,13 @@ const canAdvance = (stage) => stage.status !== StageStatus.COMPLETED;
                             <div class="flex flex-column-reverse sm:flex-row justify-content-between align-items-stretch sm:align-items-center gap-2 mt-1">
                                 <pv-button type="button" size="small" text icon="pi pi-plus"
                                            :label="t('production.add-stage')" @click="addRow" />
-                                <pv-button type="submit" size="small" icon="pi pi-check"
-                                           :label="t('production.define-stages')" :disabled="!planValid" />
+                                <div class="flex flex-column-reverse sm:flex-row gap-2">
+                                    <pv-button v-if="editing" type="button" size="small" text severity="secondary"
+                                               :label="t('common.cancel')" @click="cancelEditing" />
+                                    <pv-button type="submit" size="small" icon="pi pi-check"
+                                               :label="editing ? t('production.save-stages') : t('production.define-stages')"
+                                               :disabled="!planValid" />
+                                </div>
                             </div>
                         </form>
 
@@ -174,10 +293,33 @@ const canAdvance = (stage) => stage.status !== StageStatus.COMPLETED;
     min-width: 0;
 }
 
+.production-order-item {
+    background: var(--p-surface-100);
+}
+
+.production-order-item--active {
+    background: var(--p-primary-50);
+}
+
 .production-order-item__content,
 .production-stage-item__content {
     min-width: 0;
     flex: 1;
+}
+
+.production-progress {
+    height: 0.5rem;
+    background: var(--p-surface-200);
+}
+
+.production-progress__fill {
+    height: 100%;
+    background: var(--p-primary-color);
+    transition: width 0.3s ease;
+}
+
+.production-stage-item {
+    background: var(--p-surface-100);
 }
 
 .production-stage-item__actions {

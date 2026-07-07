@@ -22,10 +22,16 @@ watch(locale, (next) => {
 <template>
     <pv-select
         v-model="locale"
+        class="language-switcher"
         :options="options"
         option-label="label"
         option-value="value"
         :aria-label="t('shell.language-label')"
-        v-tooltip.bottom="t('shell.language-label')"
-        style="min-width: 8rem" />
+        v-tooltip.bottom="t('shell.language-label')" />
 </template>
+
+<style scoped>
+.language-switcher {
+    min-width: 8rem;
+}
+</style>
