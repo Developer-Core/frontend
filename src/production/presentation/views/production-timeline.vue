@@ -3,14 +3,12 @@ import { useI18n } from 'vue-i18n';
 import { computed, onMounted, reactive, ref } from 'vue';
 import useOrdersStore from '../../../orders/application/orders.store.js';
 import useProductionStore from '../../application/production.store.js';
-import useIamStore from '../../../iam/application/iam.store.js';
 import { OrderStatus, orderStatusKey, orderStatusSeverity } from '../../../orders/domain/order-status.js';
 import { StageStatus, stageStatusKey, stageStatusSeverity } from '../../domain/stage-status.js';
 
 const { t }        = useI18n();
 const ordersStore  = useOrdersStore();
 const production   = useProductionStore();
-const iamStore     = useIamStore();
 
 /** Orders that are in the production pipeline (accepted through ready-for-delivery). */
 const productionOrders = computed(() => ordersStore.orders.filter(o =>
@@ -37,16 +35,10 @@ const removeRow = (i) => plan.rows.splice(i, 1);
 
 const planValid = computed(() => plan.rows.length > 0 && plan.rows.every(r => r.name && r.estimatedTimeInDays > 0));
 
-// The backend authorizes stage actions against the order's own carpenterId
-// (it trusts the requestingUserId in the body). Since this project has no admin
-// role, we send the order's carpenterId so any signed-in user can manage the
-// production board — opening the feature without a backend change.
-const actingCarpenterId = (order) => order?.carpenterId ?? iamStore.currentUserId;
-
 /** Submits the stage plan for the selected order. */
 function submitPlan() {
     if (!planValid.value || !selectedOrder.value) return;
-    production.defineStages(selectedOrder.value.id, actingCarpenterId(selectedOrder.value),
+    production.defineStages(selectedOrder.value.id,
         plan.rows.map(r => ({ name: r.name, estimatedTimeInDays: Number(r.estimatedTimeInDays) })));
 }
 
@@ -55,7 +47,7 @@ function advance(stage) {
     const next = stage.status === StageStatus.PENDING ? StageStatus.IN_PROGRESS
         : stage.status === StageStatus.IN_PROGRESS ? StageStatus.COMPLETED : null;
     if (!next || !selectedOrder.value) return;
-    production.updateStageStatus(selectedOrder.value.id, stage.id, next, actingCarpenterId(selectedOrder.value));
+    production.updateStageStatus(selectedOrder.value.id, stage.id, next);
 }
 
 const canAdvance = (stage) => stage.status !== StageStatus.COMPLETED;
