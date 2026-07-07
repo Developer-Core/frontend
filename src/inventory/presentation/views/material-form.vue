@@ -20,11 +20,12 @@ const form = reactive({ materialType: '', unit: '', quantity: null, minStock: nu
 
 /** Measurement units offered by the unit picker. */
 const unitOptions = [
-    { label: 'm',     value: 'm' },
-    { label: 'm²',    value: 'm2' },
-    { label: 'kg',    value: 'kg' },
-    { label: 'l',     value: 'l' },
-    { label: 'units', value: 'units' }
+    { label: 'Tablón',  value: 'tablón' },
+    { label: 'Plancha', value: 'plancha' },
+    { label: 'Listón',  value: 'listón' },
+    { label: 'Metro',   value: 'metro' },
+    { label: 'Litro',   value: 'litro' },
+    { label: 'Unidad',  value: 'unidad' }
 ];
 
 onMounted(async () => {
