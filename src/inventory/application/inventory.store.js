@@ -8,6 +8,7 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { InventoryApi } from '../infrastructure/inventory-api.js';
 import { MaterialAssembler } from '../infrastructure/material.assembler.js';
+import { notifySuccess, notifyError } from '../../shared/presentation/app-toast.js';
 
 const inventoryApi = new InventoryApi();
 
@@ -53,8 +54,8 @@ const useInventoryStore = defineStore('inventory', () => {
      */
     function addMaterial(resource) {
         return inventoryApi.createMaterial(resource)
-            .then(response => { const m = MaterialAssembler.toEntityFromResource(response.data); upsert(m); return m; })
-            .catch(error => { errors.value.push(error); return null; });
+            .then(response => { const m = MaterialAssembler.toEntityFromResource(response.data); upsert(m); notifySuccess('toast.material-created'); return m; })
+            .catch(error => { errors.value.push(error); notifyError('toast.action-failed'); return null; });
     }
 
     /**
@@ -65,8 +66,8 @@ const useInventoryStore = defineStore('inventory', () => {
      */
     function updateMaterial(id, resource) {
         return inventoryApi.updateMaterial(id, resource)
-            .then(response => { const m = MaterialAssembler.toEntityFromResource(response.data); upsert(m); return m; })
-            .catch(error => { errors.value.push(error); return null; });
+            .then(response => { const m = MaterialAssembler.toEntityFromResource(response.data); upsert(m); notifySuccess('toast.material-updated'); return m; })
+            .catch(error => { errors.value.push(error); notifyError('toast.action-failed'); return null; });
     }
 
     return {

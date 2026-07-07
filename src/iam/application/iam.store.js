@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { IamApi } from '../infrastructure/iam-api.js';
 import { AuthenticatedUserAssembler } from '../infrastructure/authenticated-user.assembler.js';
 import { UserAssembler } from '../infrastructure/user.assembler.js';
+import { notifySuccess, notifyError } from '../../shared/presentation/app-toast.js';
 
 const iamApi = new IamApi();
 
@@ -51,11 +52,13 @@ const useIamStore = defineStore('iam', () => {
                 localStorage.setItem('role', user.role);
                 isSignedIn.value = true;
                 errors.value = [];
+                notifySuccess('toast.signed-in');
                 router.push({ name: 'orders-list' });
             })
             .catch(error => {
                 isSignedIn.value = false;
                 errors.value.push(error);
+                notifyError('toast.sign-in-failed');
             });
     }
 
@@ -71,10 +74,12 @@ const useIamStore = defineStore('iam', () => {
                 // The backend now persists the name at registration time, so there is
                 // no separate profile to create.
                 errors.value = [];
+                notifySuccess('toast.registered');
                 router.push({ name: 'login' });
             })
             .catch(error => {
                 errors.value.push(error);
+                notifyError('toast.register-failed');
             });
     }
 
@@ -92,10 +97,12 @@ const useIamStore = defineStore('iam', () => {
                 // The backend now persists the name at registration time, so there is
                 // no separate profile to create.
                 errors.value = [];
+                notifySuccess('toast.registered');
                 router.push({ name: 'login' });
             })
             .catch(error => {
                 errors.value.push(error);
+                notifyError('toast.register-failed');
             });
     }
 
@@ -138,6 +145,7 @@ const useIamStore = defineStore('iam', () => {
         localStorage.removeItem('role');
         isSignedIn.value = false;
         errors.value = [];
+        notifySuccess('toast.signed-out');
         if (router) router.push({ name: 'login' });
     }
 
