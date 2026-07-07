@@ -107,6 +107,7 @@
     "finish": "Acabado",
     "description": "Descripción",
     "status": "Estado",
+    "stages-progress": "Etapas",
     "actions": "Acciones",
     "actions-tracking": "Ver seguimiento",
     "actions-edit": "Editar pedido",
@@ -237,6 +238,9 @@
     "stage-name": "Nombre de la etapa",
     "add-stage": "Agregar etapa",
     "define-stages": "Definir etapas",
+    "edit-stages": "Editar etapas",
+    "edit-stages-hint": "Modifica las etapas antes de iniciar la producción.",
+    "save-stages": "Guardar etapas",
     "phase-to-plan": "Por planificar",
     "phase-in-production": "En producción",
     "phase-ready": "Listo para entrega"

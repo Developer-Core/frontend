@@ -107,6 +107,7 @@
     "finish": "Finish",
     "description": "Description",
     "status": "Status",
+    "stages-progress": "Stages",
     "actions": "Actions",
     "actions-tracking": "View tracking",
     "actions-edit": "Edit order",
@@ -237,6 +238,9 @@
     "stage-name": "Stage name",
     "add-stage": "Add stage",
     "define-stages": "Define stages",
+    "edit-stages": "Edit stages",
+    "edit-stages-hint": "Adjust the stages before starting production.",
+    "save-stages": "Save stages",
     "phase-to-plan": "To plan",
     "phase-in-production": "In production",
     "phase-ready": "Ready for delivery"
