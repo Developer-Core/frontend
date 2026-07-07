@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import LanguageSwitcher from '../components/language-switcher.vue';
+import ThemeToggle from '../components/theme-toggle.vue';
 
 const { t }  = useI18n();
 const router = useRouter();
@@ -20,13 +21,18 @@ function track() {
 <template>
     <div class="landing min-h-screen flex flex-column align-items-center justify-content-center p-4">
         <div class="landing__toolbar w-full flex justify-content-end mb-4">
-            <language-switcher />
+            <div class="flex align-items-center gap-2">
+                <ThemeToggle />
+                <language-switcher />
+            </div>
         </div>
 
         <div class="landing__inner w-full flex flex-column align-items-center">
-            <img src="/brand/logo-woodroute.png" alt="WoodRoute" class="landing__brand-logo mb-4" />
+            <div class="landing__brand-mark mb-4">
+                <img src="/brand/logo-woodroute.png" alt="WoodRoute" class="landing__brand-logo" />
+            </div>
 
-            <h1 class="text-4xl font-bold text-center m-0">{{ t('landing.title') }}</h1>
+            <h1 class="landing__title text-4xl font-bold text-center m-0">{{ t('landing.title') }}</h1>
             <p class="landing__copy text-color-secondary text-center mt-2 mb-5">
                 {{ t('landing.subtitle') }}
             </p>
@@ -81,6 +87,12 @@ function track() {
     height: auto;
 }
 
+.landing__brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .landing__copy {
     max-width: 34rem;
 }
@@ -97,5 +109,21 @@ function track() {
 
 .landing__login:hover {
     color: var(--p-primary-hover-color, var(--p-primary-color));
+}
+
+:global(.app-dark) .landing__brand-mark {
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(252, 248, 244, 0.08);
+    border-radius: 1rem;
+    background: rgba(252, 248, 244, 0.92);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
+}
+
+:global(.app-dark) .landing__title {
+    color: var(--color-foreground);
+}
+
+:global(.app-dark) .landing__copy {
+    color: var(--color-secondary-foreground) !important;
 }
 </style>
