@@ -8,6 +8,7 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { CustomersApi } from '../infrastructure/customers-api.js';
 import { CustomerAssembler } from '../infrastructure/customer.assembler.js';
+import { notifySuccess, notifyError } from '../../shared/presentation/app-toast.js';
 
 const customersApi = new CustomersApi();
 
@@ -52,8 +53,8 @@ const useCustomersStore = defineStore('customers', () => {
      */
     function createCustomer(cmd) {
         return customersApi.create(cmd)
-            .then(response => { const c = CustomerAssembler.toEntityFromResource(response.data); upsert(c); return c; })
-            .catch(error => { errors.value.push(error); return null; });
+            .then(response => { const c = CustomerAssembler.toEntityFromResource(response.data); upsert(c); notifySuccess('toast.customer-created'); return c; })
+            .catch(error => { errors.value.push(error); notifyError('toast.action-failed'); return null; });
     }
 
     /**
@@ -64,8 +65,8 @@ const useCustomersStore = defineStore('customers', () => {
      */
     function updateCustomer(id, cmd) {
         return customersApi.update(id, cmd)
-            .then(response => { const c = CustomerAssembler.toEntityFromResource(response.data); upsert(c); return c; })
-            .catch(error => { errors.value.push(error); return null; });
+            .then(response => { const c = CustomerAssembler.toEntityFromResource(response.data); upsert(c); notifySuccess('toast.customer-updated'); return c; })
+            .catch(error => { errors.value.push(error); notifyError('toast.action-failed'); return null; });
     }
 
     return {

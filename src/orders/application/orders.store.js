@@ -11,6 +11,7 @@ import { OrdersApi } from '../infrastructure/orders-api.js';
 import { OrderAssembler } from '../infrastructure/order.assembler.js';
 import { OrderStatus } from '../domain/order-status.js';
 import useIamStore from '../../iam/application/iam.store.js';
+import { notifySuccess, notifyError } from '../../shared/presentation/app-toast.js';
 
 const ordersApi = new OrdersApi();
 
@@ -110,7 +111,9 @@ const useOrdersStore = defineStore('orders', () => {
         const payload = iamStore.currentRole === 'Carpenter'
             ? { customerId: resource.customerId, ...details }
             : details;
-        return ordersApi.createOrder(payload).then(absorb).catch(error => { errors.value.push(error); return null; });
+        return ordersApi.createOrder(payload)
+            .then(response => { const order = absorb(response); notifySuccess('toast.order-created'); return order; })
+            .catch(error => { errors.value.push(error); notifyError('toast.action-failed'); return null; });
     }
 
     /**
@@ -129,21 +132,22 @@ const useOrdersStore = defineStore('orders', () => {
             .then(response => {
                 const order = absorb(response);
                 poolOrders.value = poolOrders.value.filter(o => o.id !== order.id);
+                notifySuccess('toast.order-accepted');
                 return order;
             })
-            .catch(error => { errors.value.push(error); });
+            .catch(error => { errors.value.push(error); notifyError('toast.action-failed'); });
     }
     /** Rejects a pending order. @param {number|string} id @returns {Promise} */
-    function rejectOrder(id) { return ordersApi.rejectOrder(id).then(absorb).catch(error => { errors.value.push(error); }); }
+    function rejectOrder(id) { return ordersApi.rejectOrder(id).then(response => { const o = absorb(response); notifySuccess('toast.order-rejected'); return o; }).catch(error => { errors.value.push(error); notifyError('toast.action-failed'); }); }
     /** Cancels an order. @param {number|string} id @returns {Promise} */
-    function cancelOrder(id) { return ordersApi.cancelOrder(id).then(absorb).catch(error => { errors.value.push(error); }); }
+    function cancelOrder(id) { return ordersApi.cancelOrder(id).then(response => { const o = absorb(response); notifySuccess('toast.order-cancelled'); return o; }).catch(error => { errors.value.push(error); notifyError('toast.action-failed'); }); }
 
     /** Starts production of an accepted order (carpenter). @param {number|string} id @returns {Promise} */
-    function startProduction(id) { return ordersApi.startProduction(id).then(absorb).catch(error => { errors.value.push(error); }); }
+    function startProduction(id) { return ordersApi.startProduction(id).then(response => { const o = absorb(response); notifySuccess('toast.production-started'); return o; }).catch(error => { errors.value.push(error); notifyError('toast.action-failed'); }); }
     /** Marks an in-progress order ready for delivery (carpenter). @param {number|string} id @returns {Promise} */
-    function markReady(id) { return ordersApi.markReady(id).then(absorb).catch(error => { errors.value.push(error); }); }
+    function markReady(id) { return ordersApi.markReady(id).then(response => { const o = absorb(response); notifySuccess('toast.order-ready'); return o; }).catch(error => { errors.value.push(error); notifyError('toast.action-failed'); }); }
     /** Completes/delivers a ready order (carpenter). @param {number|string} id @returns {Promise} */
-    function completeOrder(id) { return ordersApi.completeOrder(id).then(absorb).catch(error => { errors.value.push(error); }); }
+    function completeOrder(id) { return ordersApi.completeOrder(id).then(response => { const o = absorb(response); notifySuccess('toast.order-completed'); return o; }).catch(error => { errors.value.push(error); notifyError('toast.action-failed'); }); }
 
     /**
      * Generates the quote for a pending order.
@@ -152,10 +156,10 @@ const useOrdersStore = defineStore('orders', () => {
      * @returns {Promise}
      */
     function generateQuote(id, resource) {
-        return ordersApi.generateQuote(id, resource).then(absorb).catch(error => { errors.value.push(error); });
+        return ordersApi.generateQuote(id, resource).then(response => { const o = absorb(response); notifySuccess('toast.quote-generated'); return o; }).catch(error => { errors.value.push(error); notifyError('toast.action-failed'); });
     }
     /** Accepts the quote proposed for an order. @param {number|string} id @returns {Promise} */
-    function acceptQuote(id) { return ordersApi.acceptQuote(id).then(absorb).catch(error => { errors.value.push(error); }); }
+    function acceptQuote(id) { return ordersApi.acceptQuote(id).then(response => { const o = absorb(response); notifySuccess('toast.quote-accepted'); return o; }).catch(error => { errors.value.push(error); notifyError('toast.action-failed'); }); }
 
     /**
      * Registers a payment for an order.
@@ -164,7 +168,7 @@ const useOrdersStore = defineStore('orders', () => {
      * @returns {Promise}
      */
     function registerPayment(id, resource) {
-        return ordersApi.registerPayment(id, resource).then(absorb).catch(error => { errors.value.push(error); });
+        return ordersApi.registerPayment(id, resource).then(response => { const o = absorb(response); notifySuccess('toast.payment-registered'); return o; }).catch(error => { errors.value.push(error); notifyError('toast.action-failed'); });
     }
     /**
      * Validates a payment receipt.
@@ -174,7 +178,7 @@ const useOrdersStore = defineStore('orders', () => {
      * @returns {Promise}
      */
     function validatePayment(id, paymentId, isApproved) {
-        return ordersApi.validatePayment(id, paymentId, { isApproved }).then(absorb).catch(error => { errors.value.push(error); });
+        return ordersApi.validatePayment(id, paymentId, { isApproved }).then(response => { const o = absorb(response); notifySuccess('toast.payment-validated'); return o; }).catch(error => { errors.value.push(error); notifyError('toast.action-failed'); });
     }
 
     return {
