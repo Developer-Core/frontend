@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import useIamStore from '../../application/iam.store.js';
 import { SignUpCommand } from '../../domain/sign-up.command.js';
+import LanguageSwitcher from '../../../shared/presentation/components/language-switcher.vue';
 
 const { t }  = useI18n();
 const router = useRouter();
@@ -42,16 +43,16 @@ function performSignUp() {
 
 <template>
     <div class="auth-screen flex align-items-center justify-content-center p-4">
-        <pv-card class="auth-card w-full">
+        <div class="auth-shell w-full">
+            <div class="auth-shell__toolbar flex justify-content-end mb-4">
+                <language-switcher />
+            </div>
+
+            <pv-card class="auth-card w-full">
             <template #header>
-                <div class="flex align-items-center gap-3 px-4 pt-4">
-                    <span class="brand-badge flex align-items-center justify-content-center">
-                        <i class="pi pi-box text-xl" />
-                    </span>
-                    <div class="flex flex-column">
-                        <strong class="text-lg">{{ t('shell.brand') }}</strong>
-                        <small class="text-color-secondary">{{ t('iam.tagline') }}</small>
-                    </div>
+                <div class="auth-brand-header px-4 pt-4">
+                    <img src="/brand/logo-woodroute.png" alt="WoodRoute" class="auth-brand-logo" />
+                    <small class="auth-brand-tagline">{{ t('iam.tagline') }}</small>
                 </div>
             </template>
 
@@ -106,17 +107,22 @@ function performSignUp() {
 
                     <div class="text-center text-sm mt-2">
                         <span class="text-color-secondary">{{ t('iam.have-account') }}</span>
-                        <router-link :to="{ name: 'login' }" class="ml-1 font-medium no-underline"
-                                     style="color: var(--p-primary-color)">{{ t('iam.go-login') }}</router-link>
+                        <router-link :to="{ name: 'login' }" class="text-primary no-underline ml-1 font-medium">{{ t('iam.go-login') }}</router-link>
                     </div>
                     <div class="text-center text-sm">
                         <span class="text-color-secondary">{{ t('iam.are-you-carpenter') }}</span>
-                        <router-link :to="{ name: 'register-carpenter' }" class="ml-1 font-medium no-underline"
-                                     style="color: var(--p-primary-color)">{{ t('iam.go-register-carpenter') }}</router-link>
+                        <router-link :to="{ name: 'register-carpenter' }" class="text-primary no-underline ml-1 font-medium">{{ t('iam.go-register-carpenter') }}</router-link>
+                    </div>
+                    <div class="text-center text-sm">
+                        <span class="text-color-secondary">{{ t('iam.track-without-account') }}</span>
+                        <router-link :to="{ name: 'landing' }" class="text-primary no-underline ml-1 font-medium">
+                            {{ t('iam.go-track-public') }}
+                        </router-link>
                     </div>
                 </form>
             </template>
-        </pv-card>
+            </pv-card>
+        </div>
     </div>
 </template>
 
@@ -128,18 +134,32 @@ function performSignUp() {
         var(--p-surface-50);
 }
 
-.auth-card {
+.auth-shell {
     max-width: 26rem;
+}
+
+.auth-card {
     border: 1px solid var(--p-surface-200);
     box-shadow: 0 10px 30px rgba(67, 15, 5, 0.08);
 }
 
-.brand-badge {
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 0.75rem;
-    background: var(--p-primary-color);
-    color: var(--p-primary-contrast-color);
+.auth-brand-logo {
+    width: min(12rem, 100%);
+    height: auto;
+}
+
+.auth-brand-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+}
+
+.auth-brand-tagline {
+    display: block;
+    color: var(--p-text-muted-color);
+    line-height: 1.4;
 }
 
 .auth-error {

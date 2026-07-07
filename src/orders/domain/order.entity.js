@@ -21,6 +21,8 @@ export class Order {
      * @param {Object} [params.details] - Furniture details payload.
      * @param {?Object} [params.quote] - Quote payload, if any.
      * @param {Array<Object>} [params.payments] - Payment payloads.
+     * @param {number} [params.completedStages] - Number of production stages completed.
+     * @param {number} [params.totalStages] - Total number of production stages defined.
      */
     constructor({
         id               = null,
@@ -30,7 +32,9 @@ export class Order {
         status           = OrderStatus.PENDING,
         details          = {},
         quote            = null,
-        payments         = []
+        payments         = [],
+        completedStages  = 0,
+        totalStages      = 0
     } = {}) {
         this.id               = id;
         this.publicTrackingId = publicTrackingId;
@@ -40,6 +44,8 @@ export class Order {
         this.details          = new FurnitureDetails(details ?? {});
         this.quote            = quote ? new Quote(quote) : null;
         this.payments         = (payments ?? []).map(payment => new Payment(payment));
+        this.completedStages  = completedStages;
+        this.totalStages      = totalStages;
     }
 
     /** @returns {boolean} Whether the order is still pending review. */

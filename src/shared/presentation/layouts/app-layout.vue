@@ -2,24 +2,50 @@
 import AppSidebar from '../components/app-sidebar.vue';
 import AppBreadcrumb from '../components/app-breadcrumb.vue';
 import LanguageSwitcher from '../components/language-switcher.vue';
+import ThemeToggle from '../components/theme-toggle.vue';
 </script>
 
 <template>
-    <div style="min-height: 100vh; background: var(--p-surface-50);">
+    <div class="min-h-screen surface-ground">
+
         <pv-confirm-dialog class="app-confirm-dialog" />
-        <AppSidebar />
+        <div class="grid min-h-screen m-0">
+            <div class="col-12 md:col-fixed p-0 app-layout__sidebar-column">
+                <AppSidebar />
+            </div>
 
-        <div style="margin-left: 16rem;">
-            <header
-                class="flex justify-content-between align-items-center px-4 gap-3"
-                style="height: 3.5rem; background: var(--p-surface-0); border-bottom: 1px solid var(--p-surface-200); position: sticky; top: 0; z-index: 10;">
-                <AppBreadcrumb />
-                <LanguageSwitcher />
-            </header>
+            <div class="col p-0 min-w-0">
+                <header class="app-layout__header flex justify-content-between align-items-center gap-3 px-4 surface-card border-bottom-1 surface-border">
+                    <AppBreadcrumb />
+                    <div class="flex align-items-center gap-2">
+                        <ThemeToggle />
+                        <LanguageSwitcher />
+                    </div>
+                </header>
 
-            <main>
-                <router-view />
-            </main>
+                <main class="min-w-0">
+                    <router-view />
+                </main>
+            </div>
         </div>
     </div>
 </template>
+
+<style scoped>
+.app-layout__sidebar-column {
+    width: 16rem;
+}
+
+.app-layout__header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    min-height: 3.5rem;
+}
+
+@media (max-width: 960px) {
+    .app-layout__sidebar-column {
+        width: 100%;
+    }
+}
+</style>

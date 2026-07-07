@@ -33,8 +33,7 @@ const adjustStock = (material, delta) =>
             <pv-button :label="t('inventory.new')" icon="pi pi-plus" @click="navigateToNew" />
         </div>
 
-        <div v-if="lowStockMaterials.length" class="p-3 mb-3 border-round"
-             style="background: var(--p-yellow-50); border: 1px solid var(--p-yellow-300);">
+        <div v-if="lowStockMaterials.length" class="inventory-list__alert p-3 mb-3 border-round">
             <div class="flex align-items-center gap-2">
                 <i class="pi pi-exclamation-triangle" />
                 <strong>{{ t('inventory.low-stock-alert', { count: lowStockMaterials.length }) }}</strong>
@@ -49,6 +48,9 @@ const adjustStock = (material, delta) =>
             :rows="10"
             :rows-per-page-options="[10, 20, 50]"
             table-style="min-width: 50rem">
+            <template #empty>
+                <span class="text-color-secondary">{{ t('inventory.empty') }}</span>
+            </template>
             <pv-column field="id" :header="t('inventory.id')" sortable />
             <pv-column field="materialType" :header="t('inventory.material-type')" sortable />
             <pv-column field="unit" :header="t('inventory.unit')" />
@@ -81,3 +83,10 @@ const adjustStock = (material, delta) =>
         </div>
     </div>
 </template>
+
+<style scoped>
+.inventory-list__alert {
+    background: var(--p-yellow-50);
+    border: 1px solid var(--p-yellow-300);
+}
+</style>
