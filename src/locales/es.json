@@ -80,7 +80,9 @@
     "are-you-carpenter": "¿Eres carpintero?",
     "go-register-carpenter": "Regístrate con tu código",
     "not-carpenter": "¿No eres carpintero?",
-    "go-register-client": "Regístrate como cliente"
+    "go-register-client": "Regístrate como cliente",
+    "track-without-account": "¿Quieres ver tu pedido sin registrarte?",
+    "go-track-public": "Seguir pedido"
   },
   "common": {
     "save": "Guardar",
@@ -373,6 +375,7 @@
     "search-placeholder": "Pega aquí tu código de seguimiento",
     "search-button": "Buscar",
     "search-hint": "Ingresa el código de seguimiento de tu pedido para ver su estado.",
+    "search-another": "Buscar otro pedido",
     "stage-not-started": "Pedido recibido",
     "stage-material-preparation": "Preparación de materiales",
     "stage-cutting": "Corte",

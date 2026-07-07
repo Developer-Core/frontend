@@ -80,7 +80,9 @@
     "are-you-carpenter": "Are you a carpenter?",
     "go-register-carpenter": "Register with your code",
     "not-carpenter": "Not a carpenter?",
-    "go-register-client": "Register as a client"
+    "go-register-client": "Register as a client",
+    "track-without-account": "Want to check your order without signing up?",
+    "go-track-public": "Track order"
   },
   "common": {
     "save": "Save",
@@ -373,6 +375,7 @@
     "search-placeholder": "Paste your tracking code here",
     "search-button": "Track",
     "search-hint": "Enter your order's tracking code to see its status.",
+    "search-another": "Track another order",
     "stage-not-started": "Order received",
     "stage-material-preparation": "Material preparation",
     "stage-cutting": "Cutting",

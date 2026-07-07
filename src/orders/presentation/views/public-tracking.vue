@@ -10,16 +10,14 @@ const route  = useRoute();
 const router = useRouter();
 const trackingApi = new TrackingApi();
 
-const code     = ref(route.params.id || '');
 const status   = ref(null);
 const loading  = ref(false);
 const notFound = ref(false);
-const searched = ref(false);
 
 /** Looks up the public tracking status for a code. */
 async function load(id) {
-    if (!id) { status.value = null; notFound.value = false; searched.value = false; return; }
-    loading.value = true; notFound.value = false; searched.value = true;
+    if (!id) { status.value = null; notFound.value = false; return; }
+    loading.value = true; notFound.value = false;
     try {
         const { data } = await trackingApi.getStatus(id);
         status.value = data;
@@ -32,14 +30,7 @@ async function load(id) {
 }
 
 // React to the route code (also runs on first load).
-watch(() => route.params.id, (id) => { if (id) code.value = id; load(id); }, { immediate: true });
-
-/** Navigates to the tracking result for the typed code. */
-function search() {
-    const value = code.value.trim();
-    if (!value) return;
-    router.push({ name: 'public-tracking', params: { id: value } });
-}
+watch(() => route.params.id, (id) => { load(id); }, { immediate: true });
 
 const formatDate = (iso) => (iso ? new Date(iso).toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' }) : null);
 
@@ -67,16 +58,6 @@ const isCompleted = computed(() => progressPercent.value >= 100);
                 </div>
                 <language-switcher />
             </header>
-
-            <!-- Search -->
-            <form class="public-tracking-page__search flex gap-2 mb-4" @submit.prevent="search">
-                <pv-icon-field class="flex-1">
-                    <pv-input-icon class="pi pi-hashtag" />
-                    <pv-input-text v-model.trim="code" class="w-full"
-                                   :placeholder="t('public-tracking.search-placeholder')" />
-                </pv-icon-field>
-                <pv-button type="submit" icon="pi pi-search" :label="t('public-tracking.search-button')" :disabled="!code" />
-            </form>
 
             <div v-if="loading" class="text-color-secondary">{{ t('public-tracking.loading') }}</div>
 
@@ -133,22 +114,25 @@ const isCompleted = computed(() => progressPercent.value >= 100);
                         <span class="public-tracking-page__summary-label">{{ t('public-tracking.estimated-delivery') }}</span>
                         <strong>{{ formatDate(status.estimatedDeliveryDate) || t('public-tracking.to-be-confirmed') }}</strong>
                     </div>
-                </template>
-            </pv-card>
 
-            <pv-card v-else-if="searched && notFound">
-                <template #content>
-                    <div class="text-center py-4">
-                        <i class="pi pi-search text-3xl text-color-secondary mb-3" />
-                        <p class="public-tracking-page__muted m-0">{{ t('public-tracking.not-found') }}</p>
+                    <div class="public-tracking-page__actions mt-4">
+                        <pv-button text icon="pi pi-arrow-left" :label="t('public-tracking.search-another')" @click="router.push({ name: 'landing' })" />
+                        <pv-button outlined icon="pi pi-sign-in" :label="t('landing.workshop-access')" @click="router.push({ name: 'login' })" />
                     </div>
                 </template>
             </pv-card>
 
-            <div v-else class="text-center py-4">
-                <i class="pi pi-box text-3xl mb-3" />
-                <p class="public-tracking-page__muted m-0">{{ t('public-tracking.search-hint') }}</p>
-            </div>
+            <pv-card v-else-if="notFound">
+                <template #content>
+                    <div class="text-center py-4">
+                        <i class="pi pi-search text-3xl text-color-secondary mb-3" />
+                        <p class="public-tracking-page__muted m-0">{{ t('public-tracking.not-found') }}</p>
+                        <div class="mt-4">
+                            <pv-button text icon="pi pi-arrow-left" :label="t('public-tracking.search-another')" @click="router.push({ name: 'landing' })" />
+                        </div>
+                    </div>
+                </template>
+            </pv-card>
 
             <footer class="public-tracking-page__footer text-center mt-4">
                 <small>{{ t('public-tracking.footer') }}</small>
@@ -188,13 +172,17 @@ const isCompleted = computed(() => progressPercent.value >= 100);
     color: color-mix(in srgb, var(--p-text-color) 66%, white);
 }
 
-.public-tracking-page__search {
-    align-items: stretch;
-}
-
 .public-tracking-page__status-card {
     border: 1px solid var(--p-surface-200);
     box-shadow: 0 10px 30px rgba(67, 15, 5, 0.08);
+}
+
+.public-tracking-page__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
 }
 
 .public-tracking-page__completed {
@@ -256,7 +244,7 @@ const isCompleted = computed(() => progressPercent.value >= 100);
 
 @media (max-width: 640px) {
     .public-tracking-page__header,
-    .public-tracking-page__search {
+    .public-tracking-page__actions {
         flex-direction: column;
     }
 }
