@@ -2,10 +2,12 @@
 import AppSidebar from '../components/app-sidebar.vue';
 import AppBreadcrumb from '../components/app-breadcrumb.vue';
 import LanguageSwitcher from '../components/language-switcher.vue';
+import ThemeToggle from '../components/theme-toggle.vue';
 </script>
 
 <template>
     <div class="min-h-screen surface-ground">
+
         <pv-confirm-dialog class="app-confirm-dialog" />
         <div class="grid min-h-screen m-0">
             <div class="col-12 md:col-fixed p-0 app-layout__sidebar-column">
@@ -15,7 +17,10 @@ import LanguageSwitcher from '../components/language-switcher.vue';
             <div class="col p-0 min-w-0">
                 <header class="app-layout__header flex justify-content-between align-items-center gap-3 px-4 surface-card border-bottom-1 surface-border">
                     <AppBreadcrumb />
-                    <LanguageSwitcher />
+                    <div class="flex align-items-center gap-2">
+                        <ThemeToggle />
+                        <LanguageSwitcher />
+                    </div>
                 </header>
 
                 <main class="min-w-0">
