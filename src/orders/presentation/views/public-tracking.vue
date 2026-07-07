@@ -3,6 +3,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { computed, ref, watch } from 'vue';
 import { TrackingApi } from '../../infrastructure/tracking-api.js';
+import LanguageSwitcher from '../../../shared/presentation/components/language-switcher.vue';
 
 const { t }  = useI18n();
 const route  = useRoute();
@@ -52,18 +53,23 @@ const stageState = (stage) => {
 };
 
 const progressStyle = computed(() => ({ width: `${status.value?.progressPercent ?? 0}%` }));
+const progressPercent = computed(() => Number(status.value?.progressPercent ?? 0));
+const isCompleted = computed(() => progressPercent.value >= 100);
 </script>
 
 <template>
     <div class="public-tracking-page min-h-screen flex flex-column align-items-center justify-content-center p-4">
         <div class="public-tracking-page__container w-full">
-            <header class="mb-4">
-                <h1 class="text-xl font-semibold m-0">{{ t('public-tracking.brand') }}</h1>
-                <p class="text-color-secondary m-0">{{ t('public-tracking.subtitle') }}</p>
+            <header class="public-tracking-page__header mb-4">
+                <div>
+                    <h1 class="text-xl font-semibold m-0">{{ t('public-tracking.brand') }}</h1>
+                    <p class="public-tracking-page__subtitle m-0">{{ t('public-tracking.subtitle') }}</p>
+                </div>
+                <language-switcher />
             </header>
 
             <!-- Search -->
-            <form class="flex gap-2 mb-4" @submit.prevent="search">
+            <form class="public-tracking-page__search flex gap-2 mb-4" @submit.prevent="search">
                 <pv-icon-field class="flex-1">
                     <pv-input-icon class="pi pi-hashtag" />
                     <pv-input-text v-model.trim="code" class="w-full"
@@ -74,13 +80,31 @@ const progressStyle = computed(() => ({ width: `${status.value?.progressPercent 
 
             <div v-if="loading" class="text-color-secondary">{{ t('public-tracking.loading') }}</div>
 
-            <pv-card v-else-if="status">
-                <template #title>{{ t('public-tracking.status-title') }}</template>
+            <pv-card v-else-if="status" class="public-tracking-page__status-card">
+                <template #title>
+                    <div class="flex justify-content-between align-items-start gap-3 flex-wrap">
+                        <div>
+                            <div class="text-xl font-semibold">{{ t('public-tracking.status-title') }}</div>
+                            <small class="public-tracking-page__tracking-code">{{ t('public-tracking.tracking-code') }}: {{ route.params.id }}</small>
+                        </div>
+                        <pv-tag
+                            :value="isCompleted ? t('public-tracking.completed-badge') : t('public-tracking.in-progress')"
+                            :severity="isCompleted ? 'success' : 'info'" />
+                    </div>
+                </template>
                 <template #content>
+                    <div v-if="isCompleted" class="public-tracking-page__completed mb-4">
+                        <i class="pi pi-check-circle text-xl" />
+                        <div>
+                            <strong class="block mb-1">{{ t('public-tracking.completed-title') }}</strong>
+                            <span class="public-tracking-page__completed-copy">{{ t('public-tracking.completed-copy') }}</span>
+                        </div>
+                    </div>
+
                     <div class="mb-4">
                         <div class="flex justify-content-between align-items-center mb-2">
                             <strong>{{ t('public-tracking.progress') }}</strong>
-                            <span class="font-medium">{{ status.progressPercent ?? 0 }}%</span>
+                            <span class="font-medium">{{ progressPercent }}%</span>
                         </div>
                         <div class="public-tracking-page__progress border-round overflow-hidden">
                             <div class="public-tracking-page__progress-fill" :style="progressStyle" />
@@ -99,18 +123,15 @@ const progressStyle = computed(() => ({ width: `${status.value?.progressPercent 
                             <span :class="stageState(stage) === 'pending' ? 'text-color-secondary' : 'font-medium'">
                                 {{ stage.orderIndex + 1 }}. {{ stage.name }}
                             </span>
-                            <span class="text-color-secondary text-sm ml-auto">{{ stage.estimatedTimeInDays }} {{ t('production.days') }}</span>
+                            <span class="public-tracking-page__stage-meta text-sm ml-auto">{{ stage.estimatedTimeInDays }} {{ t('production.days') }}</span>
                             <pv-tag v-if="stageState(stage) === 'current'" :value="t('public-tracking.in-progress')" severity="info" />
                         </div>
                     </div>
-                    <p v-else class="text-color-secondary mb-3">{{ t('public-tracking.no-stages') }}</p>
+                    <p v-else class="public-tracking-page__muted mb-3">{{ t('public-tracking.no-stages') }}</p>
 
                     <div class="tracking-summary flex justify-content-between align-items-center p-3 border-round">
-                        <span class="text-color-secondary">{{ t('public-tracking.estimated-delivery') }}</span>
+                        <span class="public-tracking-page__summary-label">{{ t('public-tracking.estimated-delivery') }}</span>
                         <strong>{{ formatDate(status.estimatedDeliveryDate) || t('public-tracking.to-be-confirmed') }}</strong>
-                    </div>
-                    <div class="text-center text-color-secondary mt-3">
-                        <small>{{ t('public-tracking.tracking-code') }}: {{ route.params.id }}</small>
                     </div>
                 </template>
             </pv-card>
@@ -119,17 +140,17 @@ const progressStyle = computed(() => ({ width: `${status.value?.progressPercent 
                 <template #content>
                     <div class="text-center py-4">
                         <i class="pi pi-search text-3xl text-color-secondary mb-3" />
-                        <p class="text-color-secondary m-0">{{ t('public-tracking.not-found') }}</p>
+                        <p class="public-tracking-page__muted m-0">{{ t('public-tracking.not-found') }}</p>
                     </div>
                 </template>
             </pv-card>
 
-            <div v-else class="text-center text-color-secondary py-4">
+            <div v-else class="text-center py-4">
                 <i class="pi pi-box text-3xl mb-3" />
-                <p class="m-0">{{ t('public-tracking.search-hint') }}</p>
+                <p class="public-tracking-page__muted m-0">{{ t('public-tracking.search-hint') }}</p>
             </div>
 
-            <footer class="text-center text-color-secondary mt-4">
+            <footer class="public-tracking-page__footer text-center mt-4">
                 <small>{{ t('public-tracking.footer') }}</small>
             </footer>
         </div>
@@ -138,11 +159,56 @@ const progressStyle = computed(() => ({ width: `${status.value?.progressPercent 
 
 <style scoped>
 .public-tracking-page {
-    background: var(--p-surface-50);
+    background:
+        radial-gradient(1200px 600px at 100% 0%, var(--p-primary-100) 0%, transparent 55%),
+        radial-gradient(1000px 500px at 0% 100%, var(--p-primary-50) 0%, transparent 55%),
+        var(--p-surface-50);
 }
 
 .public-tracking-page__container {
     max-width: 40rem;
+}
+
+.public-tracking-page__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.public-tracking-page__subtitle,
+.public-tracking-page__muted,
+.public-tracking-page__stage-meta,
+.public-tracking-page__summary-label,
+.public-tracking-page__footer {
+    color: color-mix(in srgb, var(--p-text-color) 58%, white);
+}
+
+.public-tracking-page__tracking-code {
+    color: color-mix(in srgb, var(--p-text-color) 66%, white);
+}
+
+.public-tracking-page__search {
+    align-items: stretch;
+}
+
+.public-tracking-page__status-card {
+    border: 1px solid var(--p-surface-200);
+    box-shadow: 0 10px 30px rgba(67, 15, 5, 0.08);
+}
+
+.public-tracking-page__completed {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    color: var(--p-green-700);
+    background: var(--p-green-50);
+}
+
+.public-tracking-page__completed-copy {
+    color: color-mix(in srgb, var(--p-green-900) 58%, white);
 }
 
 .public-tracking-page__progress {
@@ -186,5 +252,12 @@ const progressStyle = computed(() => ({ width: `${status.value?.progressPercent 
 
 .tracking-summary {
     background: var(--p-surface-100);
+}
+
+@media (max-width: 640px) {
+    .public-tracking-page__header,
+    .public-tracking-page__search {
+        flex-direction: column;
+    }
 }
 </style>
