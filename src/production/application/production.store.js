@@ -10,6 +10,7 @@ import { computed, ref } from 'vue';
 import { ProductionApi } from '../infrastructure/production-api.js';
 import { StageAssembler } from '../infrastructure/stage.assembler.js';
 import { StageStatus } from '../domain/stage-status.js';
+import { notifySuccess, notifyError } from '../../shared/presentation/app-toast.js';
 
 const productionApi = new ProductionApi();
 
@@ -65,9 +66,29 @@ const useProductionStore = defineStore('production', () => {
             .then(response => {
                 stages.value = StageAssembler.toEntitiesFromResponse(response);
                 stagesLoaded.value = true;
+                notifySuccess('toast.stages-defined');
                 return stages.value;
             })
-            .catch(error => { errors.value.push(error); return null; });
+            .catch(error => { errors.value.push(error); notifyError('toast.action-failed'); return null; });
+    }
+
+    /**
+     * Re-defines the ordered production stages of an order while none has started.
+     * The acting carpenter is derived from the JWT server-side, so it is never sent
+     * from here.
+     * @param {number|string} orderId - Order identifier.
+     * @param {Array<{ name: string, estimatedTimeInDays: number }>} stageList - Ordered stages.
+     * @returns {Promise<?Array>}
+     */
+    function updateStages(orderId, stageList) {
+        return productionApi.updateStages(orderId, { stages: stageList })
+            .then(response => {
+                stages.value = StageAssembler.toEntitiesFromResponse(response);
+                stagesLoaded.value = true;
+                notifySuccess('toast.stages-defined');
+                return stages.value;
+            })
+            .catch(error => { errors.value.push(error); notifyError('toast.action-failed'); return null; });
     }
 
     /**
@@ -84,8 +105,9 @@ const useProductionStore = defineStore('production', () => {
                 const updated = StageAssembler.toEntityFromResource(response.data);
                 const index = stages.value.findIndex(s => s.id === updated.id);
                 if (index !== -1) stages.value[index] = updated;
+                notifySuccess('toast.stage-updated');
             })
-            .catch(error => { errors.value.push(error); });
+            .catch(error => { errors.value.push(error); notifyError('toast.action-failed'); });
     }
 
     return {
@@ -97,6 +119,7 @@ const useProductionStore = defineStore('production', () => {
         fetchStages,
         getStagesByOrderId,
         defineStages,
+        updateStages,
         updateStageStatus
     };
 });

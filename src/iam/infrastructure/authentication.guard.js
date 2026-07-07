@@ -33,13 +33,14 @@ const homeRouteForRole = (role) => {
  */
 export const authenticationGuard = (to, from, next) => {
     const store = useIamStore();
-    const isPublic = to.meta.public === true || to.path.startsWith('/track/');
+    const isTrackingRoute = to.path === '/track' || to.path.startsWith('/track/');
+    const isPublic = to.meta.public === true || isTrackingRoute;
 
     if (!store.isSignedIn && !isPublic) {
         return next({ name: 'login' });
     }
     // A signed-in user landing on an auth page is sent to the app home.
-    if (store.isSignedIn && to.meta.public === true) {
+    if (store.isSignedIn && to.meta.public === true && !isTrackingRoute) {
         return next(homeRouteForRole(store.currentRole));
     }
     // Role-based access: routes may restrict themselves via `meta.roles`. Match

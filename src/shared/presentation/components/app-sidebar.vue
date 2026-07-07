@@ -50,7 +50,7 @@ const roleLabel = computed(() => {
  */
 const isActive = (match) => route.path.startsWith(match);
 
-const userLabel = computed(() => iamStore.currentEmail || t('shell.profile-title'));
+const userLabel = computed(() => iamStore.currentName || iamStore.currentEmail || t('shell.profile-title'));
 const showProfileMenu = computed(() => iamStore.isSignedIn);
 
 const toggleProfileMenu = () => {
@@ -91,17 +91,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <aside
-        class="sidebar flex flex-column fixed left-0 top-0 surface-card">
+    <aside class="sidebar flex flex-column surface-card">
         <div class="sidebar__brand p-4">
-            <div class="flex align-items-center gap-3 min-w-0">
-                <div class="sidebar__brand-mark flex align-items-center justify-content-center flex-shrink-0">
-                    <i class="pi pi-box text-lg" />
-                </div>
-                <div class="min-w-0">
-                    <strong class="block text-lg text-color">{{ t('shell.brand') }}</strong>
-                    <small class="text-color-secondary">{{ t('shell.role-default') }}</small>
-                </div>
+            <div class="flex flex-column align-items-center min-w-0">
+                <img src="/brand/logo-woodroute.png" alt="WoodRoute" class="sidebar__brand-logo" />
             </div>
         </div>
 
@@ -147,8 +140,11 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .sidebar {
-    width: 16rem;
+    width: 100%;
     height: 100vh;
+    position: sticky;
+    top: 0;
+    align-self: start;
     z-index: 20;
     border-right: 1px solid var(--p-surface-200);
     overflow: visible;
@@ -158,13 +154,9 @@ onBeforeUnmount(() => {
     border-bottom: 1px solid var(--p-surface-200);
 }
 
-.sidebar__brand-mark {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 9999px;
-    background: linear-gradient(180deg, var(--p-primary-50), var(--p-primary-100));
-    color: var(--p-primary-color);
-    border: 1px solid var(--p-primary-100);
+.sidebar__brand-logo {
+    width: min(10rem, 100%);
+    height: auto;
 }
 
 .sidebar__nav {
@@ -248,5 +240,32 @@ onBeforeUnmount(() => {
 
 .sidebar__chevron--open {
     transform: rotate(90deg);
+}
+
+@media (max-width: 960px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        border-right: none;
+        border-bottom: 1px solid var(--p-surface-200);
+    }
+
+    .sidebar__nav {
+        flex: initial;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .sidebar__link {
+        flex: 1 1 10rem;
+    }
+
+    .sidebar__profile-menu {
+        left: auto;
+        right: 0;
+        top: calc(100% + 0.5rem);
+        transform: none;
+    }
 }
 </style>

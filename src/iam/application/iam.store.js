@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { IamApi } from '../infrastructure/iam-api.js';
 import { AuthenticatedUserAssembler } from '../infrastructure/authenticated-user.assembler.js';
 import { UserAssembler } from '../infrastructure/user.assembler.js';
+import { notifySuccess, notifyError } from '../../shared/presentation/app-toast.js';
 
 const iamApi = new IamApi();
 
@@ -22,6 +23,8 @@ const useIamStore = defineStore('iam', () => {
     const currentUserId = ref(Number(localStorage.getItem('userId')) || 0);
     /** @type {import('vue').Ref<string|null>} Current signed-in user email (seeded from storage). */
     const currentEmail = ref(localStorage.getItem('email'));
+    /** @type {import('vue').Ref<string|null>} Current signed-in user display name (seeded from storage). */
+    const currentName = ref(localStorage.getItem('name'));
     /** @type {import('vue').Ref<string|null>} Current signed-in user role (seeded from storage). */
     const currentRole = ref(localStorage.getItem('role'));
     /** @type {import('vue').Ref<Array<Error>>} Errors raised by IAM use-case execution. */
@@ -30,6 +33,7 @@ const useIamStore = defineStore('iam', () => {
     const users = ref([]);
     /** @type {import('vue').ComputedRef<string|null>} Bearer token persisted in local storage. */
     const currentToken = computed(() => (isSignedIn.value ? localStorage.getItem('token') : null));
+
 
     /**
      * Executes the sign-in use case and updates the authentication state.
@@ -44,18 +48,22 @@ const useIamStore = defineStore('iam', () => {
                 const user = UserAssembler.toEntityFromResource(resource);
                 currentUserId.value = user.id;
                 currentEmail.value  = user.email;
+                currentName.value   = user.fullName || user.email;
                 currentRole.value   = user.role;
                 localStorage.setItem('token', resource.token);
                 localStorage.setItem('userId', String(user.id));
                 localStorage.setItem('email', user.email);
+                localStorage.setItem('name', currentName.value);
                 localStorage.setItem('role', user.role);
                 isSignedIn.value = true;
                 errors.value = [];
+                notifySuccess('toast.signed-in');
                 router.push({ name: 'orders-list' });
             })
             .catch(error => {
                 isSignedIn.value = false;
                 errors.value.push(error);
+                notifyError('toast.sign-in-failed');
             });
     }
 
@@ -71,10 +79,12 @@ const useIamStore = defineStore('iam', () => {
                 // The backend now persists the name at registration time, so there is
                 // no separate profile to create.
                 errors.value = [];
+                notifySuccess('toast.registered');
                 router.push({ name: 'login' });
             })
             .catch(error => {
                 errors.value.push(error);
+                notifyError('toast.register-failed');
             });
     }
 
@@ -92,10 +102,12 @@ const useIamStore = defineStore('iam', () => {
                 // The backend now persists the name at registration time, so there is
                 // no separate profile to create.
                 errors.value = [];
+                notifySuccess('toast.registered');
                 router.push({ name: 'login' });
             })
             .catch(error => {
                 errors.value.push(error);
+                notifyError('toast.register-failed');
             });
     }
 
@@ -131,13 +143,16 @@ const useIamStore = defineStore('iam', () => {
     function signOut(router) {
         currentUserId.value = 0;
         currentEmail.value  = null;
+        currentName.value   = null;
         currentRole.value   = null;
         localStorage.removeItem('token');
         localStorage.removeItem('userId');
         localStorage.removeItem('email');
+        localStorage.removeItem('name');
         localStorage.removeItem('role');
         isSignedIn.value = false;
         errors.value = [];
+        notifySuccess('toast.signed-out');
         if (router) router.push({ name: 'login' });
     }
 
@@ -145,6 +160,7 @@ const useIamStore = defineStore('iam', () => {
         isSignedIn,
         currentUserId,
         currentEmail,
+        currentName,
         currentRole,
         currentToken,
         errors,
