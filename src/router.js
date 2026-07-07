@@ -14,6 +14,7 @@ const notFound       = () => import('./shared/presentation/views/not-found.vue')
 
 const routes = [
     { path: '/', name: 'landing', component: landing, meta: { titleKey: 'breadcrumb.landing', public: true } },
+    { path: '/track', redirect: { name: 'landing' }, meta: { public: true } },
     {
         path: '/',
         component: AppLayout,
@@ -26,7 +27,7 @@ const routes = [
         ]
     },
     ...iamRoutes,
-    { path: '/track/:id?', name: 'public-tracking', component: publicTracking, meta: { titleKey: 'breadcrumb.public-tracking', public: true } }
+    { path: '/track/:id', name: 'public-tracking', component: publicTracking, meta: { titleKey: 'breadcrumb.public-tracking', public: true } }
 ];
 
 const router = createRouter({

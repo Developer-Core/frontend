@@ -115,6 +115,9 @@ const confirmCancel = (order) => {
             :rows="10"
             :rows-per-page-options="[10, 20, 50]"
             table-style="min-width: 60rem">
+            <template #empty>
+                <span class="text-color-secondary">{{ t(isCarpenter ? 'orders.empty' : 'orders.empty-client') }}</span>
+            </template>
             <pv-column v-if="isCarpenter" field="customerId" :header="t('orders.customer')" sortable>
                 <template #body="{ data }">{{ customerName(data.customerId) }}</template>
             </pv-column>
@@ -136,6 +139,13 @@ const confirmCancel = (order) => {
             <pv-column :header="t('orders.status')" sortable field="status">
                 <template #body="{ data }">
                     <pv-tag :value="t(orderStatusKey(data.status))" :severity="orderStatusSeverity(data.status)" />
+                </template>
+            </pv-column>
+            <pv-column :header="t('orders.stages-progress')">
+                <template #body="{ data }">
+                    <pv-tag v-if="data.totalStages > 0" severity="info"
+                            :value="`${data.completedStages}/${data.totalStages}`" />
+                    <span v-else class="text-color-secondary">—</span>
                 </template>
             </pv-column>
             <pv-column :header="t('orders.actions')">

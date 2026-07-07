@@ -35,6 +35,17 @@ export class ProductionApi extends BaseApi {
     }
 
     /**
+     * Re-defines the stages of an order (only while none has started; the acting
+     * carpenter comes from the JWT).
+     * @param {number|string} orderId - Order identifier.
+     * @param {{ stages: Array<{ name: string, estimatedTimeInDays: number }> }} resource - New plan.
+     * @returns {Promise<import('axios').AxiosResponse>} Updated stages response.
+     */
+    updateStages(orderId, resource) {
+        return this.http.put(stagesPath(orderId), resource);
+    }
+
+    /**
      * Updates the status of a production stage.
      * @param {number|string} orderId - Order identifier.
      * @param {number|string} stageId - Stage identifier.

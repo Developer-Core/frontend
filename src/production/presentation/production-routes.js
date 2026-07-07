@@ -8,7 +8,7 @@ const productionTimeline = () => import('./views/production-timeline.vue');
  * @type {import('vue-router').RouteRecordRaw[]}
  */
 const productionRoutes = [
-    { path: '', name: 'production-timeline', component: productionTimeline, meta: { titleKey: 'breadcrumb.production' } }
+    { path: '', name: 'production-timeline', component: productionTimeline }
 ];
 
 export default productionRoutes;
