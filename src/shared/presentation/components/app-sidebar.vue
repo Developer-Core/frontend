@@ -24,7 +24,7 @@ const navItems = computed(() => [
     { label: t('shell.nav-orders'),        icon: 'pi pi-receipt',    to: '/orders',        match: '/orders',        roles: null },
     { label: t('shell.nav-production'),    icon: 'pi pi-calendar',   to: '/production',    match: '/production',    roles: ['Carpenter'] },
     { label: t('shell.nav-inventory'),     icon: 'pi pi-box',        to: '/inventory',     match: '/inventory',     roles: ['Carpenter'] },
-    { label: t('shell.nav-communication'), icon: 'pi pi-comments',   to: '/communication', match: '/communication', roles: null }
+    { label: t('shell.nav-customers'),     icon: 'pi pi-users',      to: '/customers',     match: '/customers',     roles: ['Carpenter'] }
 ]);
 
 /**

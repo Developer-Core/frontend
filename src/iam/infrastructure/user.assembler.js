@@ -11,6 +11,13 @@ export class UserAssembler {
      * @returns {User} User entity.
      */
     static toEntityFromResource(resource) {
-        return new User({ id: resource.id, email: resource.email, role: resource.role });
+        return new User({
+            id:        resource.id,
+            email:     resource.email,
+            role:      resource.role,
+            firstName: resource.firstName,
+            lastName:  resource.lastName,
+            fullName:  resource.fullName
+        });
     }
 }
