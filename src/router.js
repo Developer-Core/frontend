@@ -4,23 +4,24 @@ import i18n from './i18n.js';
 import ordersRoutes from './orders/presentation/orders-routes.js';
 import productionRoutes from './production/presentation/production-routes.js';
 import inventoryRoutes from './inventory/presentation/inventory-routes.js';
-import communicationRoutes from './communication/presentation/communication-routes.js';
+import customersRoutes from './customers/presentation/customers-routes.js';
 import iamRoutes from './iam/presentation/iam-routes.js';
 import { authenticationGuard } from './iam/infrastructure/authentication.guard.js';
 
+const landing        = () => import('./shared/presentation/views/landing.vue');
 const publicTracking = () => import('./orders/presentation/views/public-tracking.vue');
 const notFound       = () => import('./shared/presentation/views/not-found.vue');
 
 const routes = [
+    { path: '/', name: 'landing', component: landing, meta: { titleKey: 'breadcrumb.landing', public: true } },
     {
         path: '/',
         component: AppLayout,
         children: [
-            { path: '',                   redirect: { name: 'orders-list' } },
             { path: 'orders',             name: 'orders',        meta: { titleKey: 'breadcrumb.orders' },                                    children: ordersRoutes },
             { path: 'production',         name: 'production',    meta: { titleKey: 'breadcrumb.production', roles: ['Carpenter'] },          children: productionRoutes },
             { path: 'inventory',          name: 'inventory',     meta: { titleKey: 'breadcrumb.inventory',  roles: ['Carpenter'] },          children: inventoryRoutes },
-            { path: 'communication',      name: 'communication', meta: { titleKey: 'breadcrumb.communication' },                             children: communicationRoutes },
+            { path: 'customers',          name: 'customers',     meta: { titleKey: 'breadcrumb.customers',  roles: ['Carpenter'] },          children: customersRoutes },
             { path: ':pathMatch(.*)*',    name: 'not-found',     component: notFound,                            meta: { titleKey: 'breadcrumb.not-found' } }
         ]
     },
