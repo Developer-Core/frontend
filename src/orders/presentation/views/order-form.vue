@@ -39,12 +39,14 @@ const customerOptions = computed(() => customersStore.customers.map(customer => 
     id: customer.id, label: customer.fullName || customer.email
 })));
 
-/** Routes the carpenter to register a new customer. */
-const goToNewCustomer = () => router.push({ name: 'customers-new' });
+/** Routes the carpenter to register a new customer, flagged to return to this order form. */
+const goToNewCustomer = () => router.push({ name: 'customers-new', query: { returnTo: 'order' } });
 
 onMounted(async () => {
     if (!isEdit.value && isCarpenter.value) {
-        customersStore.fetchCustomers();
+        await customersStore.fetchCustomers();
+        // Preselect the customer just created via the "new customer" round-trip.
+        if (route.query.customerId) form.customerId = Number(route.query.customerId);
     }
     if (isEdit.value) {
         let order = store.getOrderById(route.params.id);

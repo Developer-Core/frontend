@@ -78,7 +78,12 @@ async function submit() {
         email:     form.email,
         phone:     form.phone
     });
-    if (result) router.push({ name: 'customers-list' });
+    if (!result) return;
+    if (route.query.returnTo === 'order') {
+        router.push({ name: 'orders-new', query: { customerId: result.id } });
+    } else {
+        router.push({ name: 'customers-list' });
+    }
 }
 
 const cancel = () => router.push({ name: 'customers-list' });
