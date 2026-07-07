@@ -5,6 +5,7 @@ import { computed, ref, watch } from 'vue';
 import { TrackingApi } from '../../infrastructure/tracking-api.js';
 import LanguageSwitcher from '../../../shared/presentation/components/language-switcher.vue';
 import ThemeToggle from '../../../shared/presentation/components/theme-toggle.vue';
+import BrandLogo from '../../../shared/presentation/components/brand-logo.vue';
 
 const { t }  = useI18n();
 const route  = useRoute();
@@ -54,9 +55,7 @@ const isCompleted = computed(() => progressPercent.value >= 100);
         <div class="public-tracking-page__container w-full">
             <header class="public-tracking-page__header mb-4">
                 <div>
-                    <div class="public-tracking-page__brand-mark mb-2">
-                        <img src="/brand/logo-woodroute.png" alt="WoodRoute" class="public-tracking-page__brand-logo" />
-                    </div>
+                    <BrandLogo class="public-tracking-page__brand-logo mb-2" />
                     <p class="public-tracking-page__subtitle m-0">{{ t('public-tracking.subtitle') }}</p>
                 </div>
                 <div class="flex align-items-center gap-2">
@@ -164,12 +163,6 @@ const isCompleted = computed(() => progressPercent.value >= 100);
     height: auto;
 }
 
-.public-tracking-page__brand-mark {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .public-tracking-page__header {
     display: flex;
     align-items: flex-start;
@@ -264,14 +257,6 @@ const isCompleted = computed(() => progressPercent.value >= 100);
     .public-tracking-page__actions {
         flex-direction: column;
     }
-}
-
-:global(.app-dark) .public-tracking-page__brand-mark {
-    padding: 0.625rem 0.875rem;
-    border: 1px solid rgba(252, 248, 244, 0.08);
-    border-radius: 1rem;
-    background: rgba(252, 248, 244, 0.92);
-    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
 }
 
 :global(.app-dark) .public-tracking-page__subtitle,

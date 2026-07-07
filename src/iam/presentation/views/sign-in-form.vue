@@ -6,6 +6,7 @@ import useIamStore from '../../application/iam.store.js';
 import { SignInCommand } from '../../domain/sign-in.command.js';
 import LanguageSwitcher from '../../../shared/presentation/components/language-switcher.vue';
 import ThemeToggle from '../../../shared/presentation/components/theme-toggle.vue';
+import BrandLogo from '../../../shared/presentation/components/brand-logo.vue';
 
 const { t }  = useI18n();
 const router = useRouter();
@@ -47,9 +48,7 @@ function performSignIn() {
             <pv-card class="auth-card w-full">
             <template #header>
                 <div class="auth-brand-header px-4 pt-4">
-                    <div class="auth-brand-mark">
-                        <img src="/brand/logo-woodroute.png" alt="WoodRoute" class="auth-brand-logo" />
-                    </div>
+                    <BrandLogo class="auth-brand-logo" />
                     <small class="auth-brand-tagline">{{ t('iam.tagline') }}</small>
                 </div>
             </template>
@@ -127,12 +126,6 @@ function performSignIn() {
     height: auto;
 }
 
-.auth-brand-mark {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .auth-brand-header {
     display: flex;
     flex-direction: column;
@@ -154,14 +147,6 @@ function performSignIn() {
     border-radius: 0.5rem;
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
-}
-
-:global(.app-dark) .auth-brand-mark {
-    padding: 0.625rem 0.875rem;
-    border: 1px solid rgba(252, 248, 244, 0.08);
-    border-radius: 1rem;
-    background: rgba(252, 248, 244, 0.92);
-    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
 }
 
 :global(.app-dark) .auth-brand-tagline {
