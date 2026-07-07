@@ -33,7 +33,7 @@ function performSignIn() {
 </script>
 
 <template>
-    <div class="auth-screen flex align-items-center justify-content-center p-4">
+    <div class="auth-screen min-h-screen flex align-items-center justify-content-center p-4">
         <pv-card class="auth-card w-full">
             <template #header>
                 <div class="flex align-items-center gap-3 px-4 pt-4">
@@ -83,8 +83,7 @@ function performSignIn() {
 
                     <div class="text-center text-sm mt-2">
                         <span class="text-color-secondary">{{ t('iam.no-account') }}</span>
-                        <router-link :to="{ name: 'register' }" class="ml-1 font-medium no-underline"
-                                     style="color: var(--p-primary-color)">{{ t('iam.go-register') }}</router-link>
+                        <router-link :to="{ name: 'register' }" class="text-primary no-underline ml-1 font-medium">{{ t('iam.go-register') }}</router-link>
                     </div>
                 </form>
             </template>
@@ -94,7 +93,6 @@ function performSignIn() {
 
 <style scoped>
 .auth-screen {
-    min-height: 100vh;
     background:
         radial-gradient(1200px 600px at 100% 0%, var(--p-primary-100) 0%, transparent 55%),
         var(--p-surface-50);

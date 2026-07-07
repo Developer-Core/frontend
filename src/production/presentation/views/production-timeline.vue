@@ -51,6 +51,8 @@ function advance(stage) {
 }
 
 const canAdvance = (stage) => stage.status !== StageStatus.COMPLETED;
+
+const progressStyle = computed(() => ({ width: `${production.completedPercent}%` }));
 </script>
 
 <template>
@@ -72,9 +74,7 @@ const canAdvance = (stage) => stage.status !== StageStatus.COMPLETED;
                                 :key="order.id"
                                 type="button"
                                 class="production-order-item flex justify-content-between align-items-center gap-3 p-3 border-round border-none cursor-pointer text-left w-full"
-                                :style="selectedOrder?.id === order.id
-                                    ? 'background: var(--p-primary-50);'
-                                    : 'background: var(--p-surface-100);'"
+                                :class="{ 'production-order-item--active': selectedOrder?.id === order.id }"
                                 @click="selectOrder(order)">
                                 <span class="production-order-item__content">
                                     <strong>#{{ order.id }}</strong>
@@ -102,14 +102,13 @@ const canAdvance = (stage) => stage.status !== StageStatus.COMPLETED;
                                 <strong>{{ t('production.progress') }}</strong>
                                 <span class="font-medium">{{ production.completedPercent }}%</span>
                             </div>
-                            <div class="border-round overflow-hidden mb-3" style="height: 0.5rem; background: var(--p-surface-200);">
-                                <div :style="{ width: `${production.completedPercent}%`, height: '100%', background: 'var(--p-primary-color)' }" />
+                            <div class="production-progress border-round overflow-hidden mb-3">
+                                <div class="production-progress__fill" :style="progressStyle" />
                             </div>
                             <div
                                 v-for="stage in production.stages"
                                 :key="stage.id"
-                                class="production-stage-item flex justify-content-between align-items-center gap-3 p-3 border-round"
-                                style="background: var(--p-surface-100);">
+                                class="production-stage-item flex justify-content-between align-items-center gap-3 p-3 border-round">
                                 <div class="production-stage-item__content">
                                     <span class="font-medium">{{ stage.orderIndex + 1 }}. {{ stage.name }}</span>
                                     <small class="text-color-secondary ml-2">{{ stage.estimatedTimeInDays }} {{ t('production.days') }}</small>
@@ -174,10 +173,33 @@ const canAdvance = (stage) => stage.status !== StageStatus.COMPLETED;
     min-width: 0;
 }
 
+.production-order-item {
+    background: var(--p-surface-100);
+}
+
+.production-order-item--active {
+    background: var(--p-primary-50);
+}
+
 .production-order-item__content,
 .production-stage-item__content {
     min-width: 0;
     flex: 1;
+}
+
+.production-progress {
+    height: 0.5rem;
+    background: var(--p-surface-200);
+}
+
+.production-progress__fill {
+    height: 100%;
+    background: var(--p-primary-color);
+    transition: width 0.3s ease;
+}
+
+.production-stage-item {
+    background: var(--p-surface-100);
 }
 
 .production-stage-item__actions {

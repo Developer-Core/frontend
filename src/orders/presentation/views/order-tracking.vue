@@ -104,6 +104,7 @@ const totalPaid     = computed(() => (order.value?.payments ?? [])
 const totalPending  = computed(() => (order.value?.payments ?? [])
     .filter(p => p.status === 'PendingValidation').reduce((sum, p) => sum + Number(p.amount || 0), 0));
 const remaining     = computed(() => Math.max(0, quoteTotal.value - totalPaid.value));
+const remainingClass = computed(() => remaining.value > 0 ? 'text-primary' : 'order-tracking__remaining--settled');
 
 /** Payments are only allowed once the quote is accepted and the order is in a payable state. */
 const isPayable = computed(() => !isTerminal.value && quoteAccepted.value &&
@@ -241,7 +242,7 @@ const back = () => router.push({ name: 'orders-list' });
                         <div class="col-4"><small class="text-color-secondary block">{{ t('orders.total') }}</small><strong>{{ money(quoteTotal) }}</strong></div>
                         <div class="col-4"><small class="text-color-secondary block">{{ t('orders.paid') }}</small>{{ money(totalPaid) }}</div>
                         <div class="col-4"><small class="text-color-secondary block">{{ t('orders.remaining') }}</small>
-                            <strong :style="remaining > 0 ? 'color: var(--p-primary-color);' : 'color: var(--p-green-600);'">{{ money(remaining) }}</strong>
+                            <strong :class="remainingClass">{{ money(remaining) }}</strong>
                         </div>
                         <div v-if="totalPending > 0" class="col-12">
                             <small class="text-color-secondary">{{ t('orders.pending-validation-amount', { amount: money(totalPending) }) }}</small>
@@ -326,5 +327,9 @@ const back = () => router.push({ name: 'orders-list' });
 
 .order-tracking__wrap {
     overflow-wrap: anywhere;
+}
+
+.order-tracking__remaining--settled {
+    color: var(--p-green-600);
 }
 </style>
