@@ -54,14 +54,14 @@ const useProductionStore = defineStore('production', () => {
     }
 
     /**
-     * Defines the ordered production stages for an accepted order.
+     * Defines the ordered production stages for an accepted order. The acting
+     * carpenter is derived from the JWT server-side, so it is never sent from here.
      * @param {number|string} orderId - Order identifier.
-     * @param {number} carpenterId - Id of the carpenter defining the plan.
      * @param {Array<{ name: string, estimatedTimeInDays: number }>} stageList - Ordered stages.
      * @returns {Promise<?Array>}
      */
-    function defineStages(orderId, carpenterId, stageList) {
-        return productionApi.defineStages(orderId, { carpenterId, stages: stageList })
+    function defineStages(orderId, stageList) {
+        return productionApi.defineStages(orderId, { stages: stageList })
             .then(response => {
                 stages.value = StageAssembler.toEntitiesFromResponse(response);
                 stagesLoaded.value = true;
@@ -71,15 +71,15 @@ const useProductionStore = defineStore('production', () => {
     }
 
     /**
-     * Advances a stage to a new status (carpenter action).
+     * Advances a stage to a new status (carpenter action). The acting carpenter is
+     * derived from the JWT server-side, so it is never sent from here.
      * @param {number|string} orderId - Order identifier.
      * @param {number|string} stageId - Stage identifier.
      * @param {string} status - New status (Pending | InProgress | Completed).
-     * @param {number} requestingUserId - Id of the acting carpenter (must own the order).
      * @returns {Promise<void>}
      */
-    function updateStageStatus(orderId, stageId, status, requestingUserId) {
-        return productionApi.updateStageStatus(orderId, stageId, { status, requestingUserId })
+    function updateStageStatus(orderId, stageId, status) {
+        return productionApi.updateStageStatus(orderId, stageId, { status })
             .then(response => {
                 const updated = StageAssembler.toEntityFromResource(response.data);
                 const index = stages.value.findIndex(s => s.id === updated.id);

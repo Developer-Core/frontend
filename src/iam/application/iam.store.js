@@ -28,8 +28,6 @@ const useIamStore = defineStore('iam', () => {
     const errors = ref([]);
     /** @type {import('vue').Ref<Array<import('../domain/user.entity.js').User>>} User directory (e.g. carpenters). */
     const users = ref([]);
-    /** @type {import('vue').Ref<Array<Object>>} Profile resources ({ id, firstName, lastName, fullName, email }). */
-    const profiles = ref([]);
     /** @type {import('vue').ComputedRef<string|null>} Bearer token persisted in local storage. */
     const currentToken = computed(() => (isSignedIn.value ? localStorage.getItem('token') : null));
 
@@ -69,21 +67,11 @@ const useIamStore = defineStore('iam', () => {
      */
     function signUp(signUpCommand, router) {
         return iamApi.signUp(signUpCommand)
-            .then(response => {
-                const resource = AuthenticatedUserAssembler.toResourceFromResponse(response);
-                const profile = {
-                    firstName: signUpCommand.firstName,
-                    lastName:  signUpCommand.lastName,
-                    email:     resource.email
-                };
-                // Create the personal profile with the just-issued token; registration
-                // still succeeds even if the profile call fails.
-                return iamApi.createProfile(profile, resource.token)
-                    .catch(error => { console.warn('Profile creation failed:', error); })
-                    .finally(() => {
-                        errors.value = [];
-                        router.push({ name: 'login' });
-                    });
+            .then(() => {
+                // The backend now persists the name at registration time, so there is
+                // no separate profile to create.
+                errors.value = [];
+                router.push({ name: 'login' });
             })
             .catch(error => {
                 errors.value.push(error);
@@ -100,21 +88,11 @@ const useIamStore = defineStore('iam', () => {
      */
     function signUpCarpenter(command, router) {
         return iamApi.signUpCarpenter(command)
-            .then(response => {
-                const resource = AuthenticatedUserAssembler.toResourceFromResponse(response);
-                const profile = {
-                    firstName: command.firstName,
-                    lastName:  command.lastName,
-                    email:     resource.email
-                };
-                // Create the personal profile with the just-issued token; registration
-                // still succeeds even if the profile call fails.
-                return iamApi.createProfile(profile, resource.token)
-                    .catch(error => { console.warn('Profile creation failed:', error); })
-                    .finally(() => {
-                        errors.value = [];
-                        router.push({ name: 'login' });
-                    });
+            .then(() => {
+                // The backend now persists the name at registration time, so there is
+                // no separate profile to create.
+                errors.value = [];
+                router.push({ name: 'login' });
             })
             .catch(error => {
                 errors.value.push(error);
@@ -136,18 +114,9 @@ const useIamStore = defineStore('iam', () => {
     }
 
     /**
-     * Loads all profiles into `profiles` (used to resolve display names by email).
-     * @returns {Promise<void>}
-     */
-    function fetchProfiles() {
-        return iamApi.getProfiles()
-            .then(response => { profiles.value = Array.isArray(response.data) ? response.data : []; })
-            .catch(error => { errors.value.push(error); });
-    }
-
-    /**
-     * Resolves a user id to a display name: the profile full name (matched by email),
-     * falling back to the email, then to `#id`. Requires `users` and `profiles` loaded.
+     * Resolves a user id to a display name: the user's full name (now carried on the
+     * user resource in the workshop-tool model), falling back to the email, then `#id`.
+     * Requires `users` loaded.
      * @param {?number} id - User identifier.
      * @returns {string} Display name.
      */
@@ -155,8 +124,7 @@ const useIamStore = defineStore('iam', () => {
         if (!id) return '';
         const user = users.value.find(u => u.id === id);
         if (!user) return `#${id}`;
-        const profile = profiles.value.find(p => p.email === user.email);
-        return profile?.fullName || user.email || `#${id}`;
+        return user.fullName || user.email || `#${id}`;
     }
 
     /** Clears the active IAM session and local auth artifacts. */
@@ -181,13 +149,11 @@ const useIamStore = defineStore('iam', () => {
         currentToken,
         errors,
         users,
-        profiles,
         signIn,
         signUp,
         signUpCarpenter,
         signOut,
         fetchUsers,
-        fetchProfiles,
         displayNameById
     };
 });
