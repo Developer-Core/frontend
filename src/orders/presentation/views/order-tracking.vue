@@ -30,7 +30,12 @@ const customerLabel = computed(() =>
 
 // --- Lifecycle action gating (carpenter only) ---
 const canAccept  = computed(() => isCarpenter.value && order.value?.status === OrderStatus.PENDING);
-const canStart   = computed(() => isCarpenter.value && order.value?.status === OrderStatus.ACCEPTED);
+// A carpenter proposes the quote only after claiming/accepting the order, and only once.
+const canGenerateQuote = computed(() =>
+    isCarpenter.value && order.value?.status === OrderStatus.ACCEPTED && !order.value?.quote);
+// Production starts once the order is accepted and its quote has been agreed.
+const canStart   = computed(() =>
+    isCarpenter.value && order.value?.status === OrderStatus.ACCEPTED && quoteAccepted.value);
 const canReady   = computed(() => isCarpenter.value && order.value?.status === OrderStatus.IN_PROGRESS);
 const canComplete = computed(() => isCarpenter.value && order.value?.status === OrderStatus.READY_FOR_DELIVERY);
 const hasLifecycleActions = computed(() =>
@@ -205,8 +210,8 @@ const back = () => router.push({ name: 'orders-list' });
                                        icon="pi pi-check" @click="store.acceptQuote(order.id)" />
                         </div>
                     </div>
-                    <p v-else-if="!isCarpenter && order.status === OrderStatus.PENDING" class="text-color-secondary m-0">{{ t('orders.no-quote') }}</p>
-                    <form v-else-if="isCarpenter && order.status === OrderStatus.PENDING" class="formgrid grid p-fluid" @submit.prevent="submitQuote">
+                    <p v-else-if="!isCarpenter && !isTerminal" class="text-color-secondary m-0">{{ t('orders.no-quote') }}</p>
+                    <form v-else-if="canGenerateQuote" class="formgrid grid p-fluid" @submit.prevent="submitQuote">
                         <p class="col-12 text-color-secondary m-0 mb-2">{{ t('orders.no-quote') }}</p>
                         <div class="field col-12 lg:col-4 order-tracking__field">
                             <label class="block mb-1 font-medium">{{ t('orders.materials-cost') }}</label>
