@@ -93,36 +93,43 @@ const cancel = () => router.push({ name: 'customers-list' });
                     <form class="p-fluid flex flex-column gap-3 mt-2" @submit.prevent="submit">
                         <div class="formgrid grid">
                             <div class="field col-12 md:col-6 mb-0">
-                                <label for="firstName" class="block mb-1 font-medium">{{ t('customers.first-name') }}</label>
+                                <label for="firstName" class="block mb-1 font-medium">{{ t('customers.first-name') }} <span class="text-red-500 ml-1">*</span></label>
                                 <pv-input-text id="firstName" v-model.trim="form.firstName"
-                                               class="w-full" :class="{ 'p-invalid': firstNameError }" />
+                                               class="w-full" :class="{ 'p-invalid': firstNameError }"
+                                               :placeholder="t('customers.first-name-placeholder')" />
                                 <small v-if="firstNameError" class="text-red-500">{{ firstNameError }}</small>
                             </div>
 
                             <div class="field col-12 md:col-6 mb-0">
-                                <label for="lastName" class="block mb-1 font-medium">{{ t('customers.last-name') }}</label>
+                                <label for="lastName" class="block mb-1 font-medium">{{ t('customers.last-name') }} <span class="text-red-500 ml-1">*</span></label>
                                 <pv-input-text id="lastName" v-model.trim="form.lastName"
-                                               class="w-full" :class="{ 'p-invalid': lastNameError }" />
+                                               class="w-full" :class="{ 'p-invalid': lastNameError }"
+                                               :placeholder="t('customers.last-name-placeholder')" />
                                 <small v-if="lastNameError" class="text-red-500">{{ lastNameError }}</small>
                             </div>
                         </div>
 
                         <div class="field">
-                            <label for="email" class="block mb-1 font-medium">{{ t('customers.email') }}</label>
+                            <label for="email" class="block mb-1 font-medium">{{ t('customers.email') }} <span class="text-red-500 ml-1">*</span></label>
                             <pv-input-text id="email" v-model.trim="form.email" type="email"
-                                           class="w-full" :class="{ 'p-invalid': emailError }" />
+                                           class="w-full" :class="{ 'p-invalid': emailError }"
+                                           :placeholder="t('customers.email-placeholder')" />
                             <small v-if="emailError" class="text-red-500">{{ emailError }}</small>
                         </div>
 
                         <div class="field">
-                            <label for="phone" class="block mb-1 font-medium">{{ t('customers.phone') }}</label>
-                            <pv-input-text id="phone" v-model.trim="form.phone" class="w-full" :class="{ 'p-invalid': phoneError }" />
+                            <label for="phone" class="block mb-1 font-medium">{{ t('customers.phone') }} <span class="text-red-500 ml-1">*</span></label>
+                            <pv-input-text id="phone" v-model.trim="form.phone" class="w-full" :class="{ 'p-invalid': phoneError }"
+                                           :placeholder="t('customers.phone-placeholder')" />
                             <small v-if="phoneError" class="text-red-500">{{ phoneError }}</small>
+                            <small v-else class="text-color-secondary">{{ t('customers.phone-hint') }}</small>
                         </div>
 
                         <div v-if="errors.length" class="text-red-500">
                             {{ t('errors.occurred') }}: {{ errors.map(e => e.message).join(', ') }}
                         </div>
+
+                        <small class="text-color-secondary">{{ t('common.required-fields') }}</small>
 
                         <div class="flex gap-2 justify-content-end mt-2">
                             <pv-button type="button" :label="t('common.cancel')" severity="secondary" text @click="cancel" />
