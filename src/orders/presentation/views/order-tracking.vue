@@ -28,18 +28,13 @@ const customer = computed(() => order.value ? customersStore.customerById(order.
 const customerLabel = computed(() =>
     customer.value?.fullName || (order.value ? `#${order.value.customerId}` : ''));
 
-// --- Lifecycle action gating (carpenter only) ---
+// --- Commercial action gating (carpenter only) ---
+// Tracking is the commercial space: claim the order and manage the quote/payments.
+// Production execution (start/ready/complete + stages) lives in the production board.
 const canAccept  = computed(() => isCarpenter.value && order.value?.status === OrderStatus.PENDING);
 // A carpenter proposes the quote only after claiming/accepting the order, and only once.
 const canGenerateQuote = computed(() =>
     isCarpenter.value && order.value?.status === OrderStatus.ACCEPTED && !order.value?.quote);
-// Production starts once the order is accepted and its quote has been agreed.
-const canStart   = computed(() =>
-    isCarpenter.value && order.value?.status === OrderStatus.ACCEPTED && quoteAccepted.value);
-const canReady   = computed(() => isCarpenter.value && order.value?.status === OrderStatus.IN_PROGRESS);
-const canComplete = computed(() => isCarpenter.value && order.value?.status === OrderStatus.READY_FOR_DELIVERY);
-const hasLifecycleActions = computed(() =>
-    canAccept.value || canStart.value || canReady.value || canComplete.value);
 
 // --- WhatsApp contact ---
 const workshopWhatsapp = import.meta.env.VITE_WORKSHOP_WHATSAPP || '51999999999';
@@ -57,8 +52,8 @@ const canWhatsapp = computed(() => isCarpenter.value ? !!customerPhone.value : t
 /** Opens WhatsApp: the carpenter contacts the customer; the client contacts the workshop. */
 function contactWhatsapp() {
     if (!order.value || !canWhatsapp.value) return;
-    const reference = order.value.publicTrackingId || `#${order.value.id}`;
-    const text = encodeURIComponent(t('orders.whatsapp-text', { reference }));
+    const furnitureType = order.value.details?.furnitureType || t('orders.furniture-type');
+    const text = encodeURIComponent(t('orders.whatsapp-text', { furnitureType }));
     const phone = isCarpenter.value ? customerPhone.value : workshopWhatsapp;
     window.open(`https://wa.me/${phone}?text=${text}`, '_blank', 'noopener');
 }
@@ -175,16 +170,11 @@ const back = () => router.push({ name: 'orders-list' });
                         </div>
                     </div>
 
-                    <div class="flex flex-wrap gap-2 mt-2 align-items-center">
-                        <pv-button v-if="canAccept" size="small" :label="t('orders.actions-accept')" icon="pi pi-check"
-                                   severity="success" @click="store.acceptOrder(order.id)" />
-                        <pv-button v-if="canStart" size="small" :label="t('orders.actions-start')" icon="pi pi-play"
-                                   @click="store.startProduction(order.id)" />
-                        <pv-button v-if="canReady" size="small" :label="t('orders.actions-ready')" icon="pi pi-box"
-                                   @click="store.markReady(order.id)" />
-                        <pv-button v-if="canComplete" size="small" :label="t('orders.actions-complete')" icon="pi pi-flag"
-                                   severity="success" @click="store.completeOrder(order.id)" />
-                        <span v-if="hasLifecycleActions" class="flex-1" />
+                    <div class="order-tracking__actions mt-3">
+                        <div v-if="canAccept" class="flex flex-wrap gap-2">
+                            <pv-button :label="t('orders.actions-accept')" icon="pi pi-check" size="small"
+                                       @click="store.acceptOrder(order.id)" />
+                        </div>
                         <span v-tooltip.top="!canWhatsapp ? t('orders.whatsapp-no-phone') : ''">
                             <pv-button size="small" severity="success" outlined icon="pi pi-whatsapp"
                                        :label="t('orders.contact-whatsapp')" :disabled="!canWhatsapp"
@@ -329,7 +319,25 @@ const back = () => router.push({ name: 'orders-list' });
     overflow-wrap: anywhere;
 }
 
+.order-tracking__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem;
+}
+
 .order-tracking__remaining--settled {
     color: var(--p-green-600);
+}
+
+@media (max-width: 768px) {
+    .order-tracking__actions {
+        align-items: stretch;
+    }
+
+    .order-tracking__actions > * {
+        width: 100%;
+    }
 }
 </style>
