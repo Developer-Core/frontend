@@ -115,6 +115,9 @@ const confirmCancel = (order) => {
             :rows="10"
             :rows-per-page-options="[10, 20, 50]"
             table-style="min-width: 60rem">
+            <template #empty>
+                <span class="text-color-secondary">{{ t(isCarpenter ? 'orders.empty' : 'orders.empty-client') }}</span>
+            </template>
             <pv-column v-if="isCarpenter" field="customerId" :header="t('orders.customer')" sortable>
                 <template #body="{ data }">{{ customerName(data.customerId) }}</template>
             </pv-column>

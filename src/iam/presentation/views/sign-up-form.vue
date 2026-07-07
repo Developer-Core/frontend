@@ -106,13 +106,11 @@ function performSignUp() {
 
                     <div class="text-center text-sm mt-2">
                         <span class="text-color-secondary">{{ t('iam.have-account') }}</span>
-                        <router-link :to="{ name: 'login' }" class="ml-1 font-medium no-underline"
-                                     style="color: var(--p-primary-color)">{{ t('iam.go-login') }}</router-link>
+                        <router-link :to="{ name: 'login' }" class="text-primary no-underline ml-1 font-medium">{{ t('iam.go-login') }}</router-link>
                     </div>
                     <div class="text-center text-sm">
                         <span class="text-color-secondary">{{ t('iam.are-you-carpenter') }}</span>
-                        <router-link :to="{ name: 'register-carpenter' }" class="ml-1 font-medium no-underline"
-                                     style="color: var(--p-primary-color)">{{ t('iam.go-register-carpenter') }}</router-link>
+                        <router-link :to="{ name: 'register-carpenter' }" class="text-primary no-underline ml-1 font-medium">{{ t('iam.go-register-carpenter') }}</router-link>
                     </div>
                 </form>
             </template>

@@ -50,11 +50,13 @@ const stageState = (stage) => {
     const s = String(stage.status || '').toLowerCase();
     return s === 'completed' ? 'done' : s === 'inprogress' ? 'current' : 'pending';
 };
+
+const progressStyle = computed(() => ({ width: `${status.value?.progressPercent ?? 0}%` }));
 </script>
 
 <template>
-    <div class="flex flex-column align-items-center p-4" style="min-height: 100vh; background: var(--p-surface-50);">
-        <div style="max-width: 40rem; width: 100%;">
+    <div class="public-tracking-page min-h-screen flex flex-column align-items-center justify-content-center p-4">
+        <div class="public-tracking-page__container w-full">
             <header class="mb-4">
                 <h1 class="text-xl font-semibold m-0">{{ t('public-tracking.brand') }}</h1>
                 <p class="text-color-secondary m-0">{{ t('public-tracking.subtitle') }}</p>
@@ -80,24 +82,19 @@ const stageState = (stage) => {
                             <strong>{{ t('public-tracking.progress') }}</strong>
                             <span class="font-medium">{{ status.progressPercent ?? 0 }}%</span>
                         </div>
-                        <div class="border-round overflow-hidden" style="height: 0.6rem; background: var(--p-surface-200);">
-                            <div :style="{ width: `${status.progressPercent ?? 0}%`, height: '100%', background: 'var(--p-primary-color)', transition: 'width .3s' }" />
+                        <div class="public-tracking-page__progress border-round overflow-hidden">
+                            <div class="public-tracking-page__progress-fill" :style="progressStyle" />
                         </div>
                     </div>
 
                     <!-- Real production stage timeline -->
                     <div v-if="stages.length" class="flex flex-column gap-2 mb-3">
                         <div v-for="stage in stages" :key="stage.orderIndex"
-                             class="flex align-items-center gap-3 p-2 border-round"
-                             :style="stageState(stage) === 'current' ? 'background: var(--p-primary-50);' : ''">
-                            <span class="flex align-items-center justify-content-center border-circle flex-shrink-0"
-                                  style="width: 1.75rem; height: 1.75rem;"
-                                  :style="stageState(stage) === 'done'
-                                      ? 'background: var(--p-green-500); color: #fff;'
-                                      : stageState(stage) === 'current'
-                                          ? 'background: var(--p-primary-color); color: #fff;'
-                                          : 'background: var(--p-surface-200); color: var(--p-text-muted-color);'">
-                                <i :class="stageState(stage) === 'done' ? 'pi pi-check' : 'pi pi-circle-fill'" style="font-size: .6rem;" />
+                             class="tracking-stage flex align-items-center gap-3 p-2 border-round"
+                             :class="{ 'tracking-stage--current': stageState(stage) === 'current' }">
+                            <span class="tracking-stage__icon flex align-items-center justify-content-center border-circle flex-shrink-0"
+                                  :class="`tracking-stage__icon--${stageState(stage)}`">
+                                <i :class="stageState(stage) === 'done' ? 'pi pi-check' : 'pi pi-circle-fill'" class="tracking-stage__icon-symbol" />
                             </span>
                             <span :class="stageState(stage) === 'pending' ? 'text-color-secondary' : 'font-medium'">
                                 {{ stage.orderIndex + 1 }}. {{ stage.name }}
@@ -108,7 +105,7 @@ const stageState = (stage) => {
                     </div>
                     <p v-else class="text-color-secondary mb-3">{{ t('public-tracking.no-stages') }}</p>
 
-                    <div class="flex justify-content-between align-items-center p-3 border-round" style="background: var(--p-surface-100);">
+                    <div class="tracking-summary flex justify-content-between align-items-center p-3 border-round">
                         <span class="text-color-secondary">{{ t('public-tracking.estimated-delivery') }}</span>
                         <strong>{{ formatDate(status.estimatedDeliveryDate) || t('public-tracking.to-be-confirmed') }}</strong>
                     </div>
@@ -138,3 +135,56 @@ const stageState = (stage) => {
         </div>
     </div>
 </template>
+
+<style scoped>
+.public-tracking-page {
+    background: var(--p-surface-50);
+}
+
+.public-tracking-page__container {
+    max-width: 40rem;
+}
+
+.public-tracking-page__progress {
+    height: 0.6rem;
+    background: var(--p-surface-200);
+}
+
+.public-tracking-page__progress-fill {
+    height: 100%;
+    background: var(--p-primary-color);
+    transition: width 0.3s ease;
+}
+
+.tracking-stage--current {
+    background: var(--p-primary-50);
+}
+
+.tracking-stage__icon {
+    width: 1.75rem;
+    height: 1.75rem;
+}
+
+.tracking-stage__icon--done {
+    background: var(--p-green-500);
+    color: #fff;
+}
+
+.tracking-stage__icon--current {
+    background: var(--p-primary-color);
+    color: #fff;
+}
+
+.tracking-stage__icon--pending {
+    background: var(--p-surface-200);
+    color: var(--p-text-muted-color);
+}
+
+.tracking-stage__icon-symbol {
+    font-size: 0.6rem;
+}
+
+.tracking-summary {
+    background: var(--p-surface-100);
+}
+</style>

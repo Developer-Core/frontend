@@ -85,48 +85,58 @@ const cancel = () => router.push({ name: 'customers-list' });
 </script>
 
 <template>
-    <div class="p-4">
-        <h1 class="text-2xl font-semibold mb-3">
-            {{ isEdit ? t('customers.edit-title') : t('customers.new-title') }}
-        </h1>
+    <div class="p-4 flex justify-content-center">
+        <div class="customer-form__shell w-full">
+            <pv-card>
+                <template #title>{{ isEdit ? t('customers.edit-title') : t('customers.new-title') }}</template>
+                <template #content>
+                    <form class="p-fluid flex flex-column gap-3 mt-2" @submit.prevent="submit">
+                        <div class="formgrid grid">
+                            <div class="field col-12 md:col-6 mb-0">
+                                <label for="firstName" class="block mb-1 font-medium">{{ t('customers.first-name') }}</label>
+                                <pv-input-text id="firstName" v-model.trim="form.firstName"
+                                               class="w-full" :class="{ 'p-invalid': firstNameError }" />
+                                <small v-if="firstNameError" class="text-red-500">{{ firstNameError }}</small>
+                            </div>
 
-        <form class="p-fluid" style="max-width: 40rem" @submit.prevent="submit">
-            <div class="field mb-3">
-                <label for="firstName" class="block mb-1 font-medium">{{ t('customers.first-name') }}</label>
-                <pv-input-text id="firstName" v-model.trim="form.firstName"
-                               class="w-full" :class="{ 'p-invalid': firstNameError }" />
-                <small v-if="firstNameError" class="text-red-500">{{ firstNameError }}</small>
-            </div>
+                            <div class="field col-12 md:col-6 mb-0">
+                                <label for="lastName" class="block mb-1 font-medium">{{ t('customers.last-name') }}</label>
+                                <pv-input-text id="lastName" v-model.trim="form.lastName"
+                                               class="w-full" :class="{ 'p-invalid': lastNameError }" />
+                                <small v-if="lastNameError" class="text-red-500">{{ lastNameError }}</small>
+                            </div>
+                        </div>
 
-            <div class="field mb-3">
-                <label for="lastName" class="block mb-1 font-medium">{{ t('customers.last-name') }}</label>
-                <pv-input-text id="lastName" v-model.trim="form.lastName"
-                               class="w-full" :class="{ 'p-invalid': lastNameError }" />
-                <small v-if="lastNameError" class="text-red-500">{{ lastNameError }}</small>
-            </div>
+                        <div class="field">
+                            <label for="email" class="block mb-1 font-medium">{{ t('customers.email') }}</label>
+                            <pv-input-text id="email" v-model.trim="form.email" type="email"
+                                           class="w-full" :class="{ 'p-invalid': emailError }" />
+                            <small v-if="emailError" class="text-red-500">{{ emailError }}</small>
+                        </div>
 
-            <div class="field mb-3">
-                <label for="email" class="block mb-1 font-medium">{{ t('customers.email') }}</label>
-                <pv-input-text id="email" v-model.trim="form.email" type="email"
-                               class="w-full" :class="{ 'p-invalid': emailError }" />
-                <small v-if="emailError" class="text-red-500">{{ emailError }}</small>
-            </div>
+                        <div class="field">
+                            <label for="phone" class="block mb-1 font-medium">{{ t('customers.phone') }}</label>
+                            <pv-input-text id="phone" v-model.trim="form.phone" class="w-full" :class="{ 'p-invalid': phoneError }" />
+                            <small v-if="phoneError" class="text-red-500">{{ phoneError }}</small>
+                        </div>
 
-            <div class="field mb-3">
-                <label for="phone" class="block mb-1 font-medium">{{ t('customers.phone') }}</label>
-                <pv-input-text id="phone" v-model.trim="form.phone"
-                               class="w-full" :class="{ 'p-invalid': phoneError }" />
-                <small v-if="phoneError" class="text-red-500">{{ phoneError }}</small>
-            </div>
+                        <div v-if="errors.length" class="text-red-500">
+                            {{ t('errors.occurred') }}: {{ errors.map(e => e.message).join(', ') }}
+                        </div>
 
-            <div class="flex gap-2 justify-content-end mt-4">
-                <pv-button type="button" :label="t('common.cancel')" severity="secondary" text @click="cancel" />
-                <pv-button type="submit" :label="t('common.save')" icon="pi pi-check" />
-            </div>
-        </form>
-
-        <div v-if="errors.length" class="text-red-500 mt-3">
-            {{ t('errors.occurred') }}: {{ errors.map(e => e.message).join(', ') }}
+                        <div class="flex gap-2 justify-content-end mt-2">
+                            <pv-button type="button" :label="t('common.cancel')" severity="secondary" text @click="cancel" />
+                            <pv-button type="submit" :label="t('common.save')" icon="pi pi-check" />
+                        </div>
+                    </form>
+                </template>
+            </pv-card>
         </div>
     </div>
 </template>
+
+<style scoped>
+.customer-form__shell {
+    max-width: 40rem;
+}
+</style>

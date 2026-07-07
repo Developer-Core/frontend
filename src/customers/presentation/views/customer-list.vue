@@ -33,6 +33,9 @@ const navigateToEdit = (id) => router.push({ name: 'customers-edit', params: { i
             :rows="10"
             :rows-per-page-options="[10, 20, 50]"
             table-style="min-width: 50rem">
+            <template #empty>
+                <span class="text-color-secondary">{{ t('customers.empty') }}</span>
+            </template>
             <pv-column field="id" :header="t('customers.id')" sortable />
             <pv-column field="fullName" :header="t('customers.name')" sortable>
                 <template #body="{ data }">

@@ -113,7 +113,7 @@ const cancel = () => router.push({ name: 'orders-list' });
 
 <template>
     <div class="p-4 flex justify-content-center">
-        <div class="w-full" style="max-width: 44rem;">
+        <div class="order-form__shell w-full">
             <pv-card>
                 <template #title>{{ isEdit ? t('orders.edit-title') : t('orders.new-title') }}</template>
                 <template #subtitle>{{ t('orders.form-subtitle') }}</template>
@@ -203,5 +203,9 @@ const cancel = () => router.push({ name: 'orders-list' });
 .dimensions-grid__item :deep(.p-inputnumber-input) {
     width: 100%;
     min-width: 0;
+}
+
+.order-form__shell {
+    max-width: 44rem;
 }
 </style>
