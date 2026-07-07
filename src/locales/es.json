@@ -234,7 +234,10 @@
     "no-stages": "Este pedido aún no tiene etapas definidas.",
     "stage-name": "Nombre de la etapa",
     "add-stage": "Agregar etapa",
-    "define-stages": "Definir etapas"
+    "define-stages": "Definir etapas",
+    "phase-to-plan": "Por planificar",
+    "phase-in-production": "En producción",
+    "phase-ready": "Listo para entrega"
   },
   "inventory": {
     "title": "Inventario",
@@ -361,6 +364,9 @@
     "footer": "Este enlace fue generado por el taller para tu uso privado.",
     "tracking-code": "Código de seguimiento",
     "status-title": "Estado de tu pedido",
+    "completed-badge": "Completado",
+    "completed-title": "Tu pedido ya está listo",
+    "completed-copy": "El proceso terminó correctamente. Si tienes alguna duda, contacta al taller.",
     "current-stage": "Etapa actual",
     "estimated-delivery": "Entrega estimada",
     "stage-n": "Etapa {n}",

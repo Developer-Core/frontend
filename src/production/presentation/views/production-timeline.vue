@@ -3,16 +3,50 @@ import { useI18n } from 'vue-i18n';
 import { computed, onMounted, reactive, ref } from 'vue';
 import useOrdersStore from '../../../orders/application/orders.store.js';
 import useProductionStore from '../../application/production.store.js';
-import { OrderStatus, orderStatusKey, orderStatusSeverity } from '../../../orders/domain/order-status.js';
+import useIamStore from '../../../iam/application/iam.store.js';
+import { OrderStatus } from '../../../orders/domain/order-status.js';
 import { StageStatus, stageStatusKey, stageStatusSeverity } from '../../domain/stage-status.js';
 
 const { t }        = useI18n();
 const ordersStore  = useOrdersStore();
 const production   = useProductionStore();
+const iamStore     = useIamStore();
 
-/** Orders that are in the production pipeline (accepted through ready-for-delivery). */
+const isCarpenter = computed(() => iamStore.currentRole === 'Carpenter');
+
+/** Normalizes a quote status for case-insensitive comparison. */
+const normalizeQuoteStatus = (s) => String(s ?? '').trim().toLowerCase();
+/** Whether an order's quote has been accepted. */
+const quoteAccepted = (o) => normalizeQuoteStatus(o.quote?.status) === 'accepted';
+
+/**
+ * Orders that are actively in the production pipeline: an accepted order only
+ * enters once its quote is accepted, plus everything already in production.
+ */
 const productionOrders = computed(() => ordersStore.orders.filter(o =>
-    [OrderStatus.ACCEPTED, OrderStatus.IN_PROGRESS, OrderStatus.READY_FOR_DELIVERY].includes(o.status)));
+    (o.status === OrderStatus.ACCEPTED && quoteAccepted(o))
+    || o.status === OrderStatus.IN_PROGRESS
+    || o.status === OrderStatus.READY_FOR_DELIVERY));
+
+/** i18n key for the production phase label of an order status. */
+const productionPhaseKey = (status) => {
+    switch (status) {
+        case OrderStatus.ACCEPTED:           return 'production.phase-to-plan';
+        case OrderStatus.IN_PROGRESS:        return 'production.phase-in-production';
+        case OrderStatus.READY_FOR_DELIVERY: return 'production.phase-ready';
+        default:                             return 'production.phase-to-plan';
+    }
+};
+
+/** PrimeVue Tag severity for the production phase of an order status. */
+const productionPhaseSeverity = (status) => {
+    switch (status) {
+        case OrderStatus.ACCEPTED:           return 'warn';
+        case OrderStatus.IN_PROGRESS:        return 'info';
+        case OrderStatus.READY_FOR_DELIVERY: return 'success';
+        default:                             return 'info';
+    }
+};
 
 const selectedOrder = ref(null);
 
@@ -52,6 +86,40 @@ function advance(stage) {
 
 const canAdvance = (stage) => stage.status !== StageStatus.COMPLETED;
 
+/** Re-reads the selected order from the store so its phase and controls refresh. */
+function refreshSelectedOrder() {
+    if (!selectedOrder.value) return;
+    const fresh = ordersStore.orders.find(o => o.id === selectedOrder.value.id);
+    if (fresh) selectedOrder.value = fresh;
+}
+
+/** Whether "Iniciar producción" can be shown: accepted order with stages already defined. */
+const canStartProduction = computed(() =>
+    selectedOrder.value?.status === OrderStatus.ACCEPTED && production.stages.length > 0);
+const canMarkReady = computed(() => selectedOrder.value?.status === OrderStatus.IN_PROGRESS);
+const canComplete  = computed(() => selectedOrder.value?.status === OrderStatus.READY_FOR_DELIVERY);
+
+/** Starts production of the selected order, then refreshes its phase/controls. */
+async function startProduction() {
+    if (!selectedOrder.value) return;
+    await ordersStore.startProduction(selectedOrder.value.id);
+    refreshSelectedOrder();
+}
+
+/** Marks the selected order ready for delivery, then refreshes its phase/controls. */
+async function markReady() {
+    if (!selectedOrder.value) return;
+    await ordersStore.markReady(selectedOrder.value.id);
+    refreshSelectedOrder();
+}
+
+/** Completes/delivers the selected order, then refreshes its phase/controls. */
+async function completeOrder() {
+    if (!selectedOrder.value) return;
+    await ordersStore.completeOrder(selectedOrder.value.id);
+    refreshSelectedOrder();
+}
+
 const progressStyle = computed(() => ({ width: `${production.completedPercent}%` }));
 </script>
 
@@ -80,7 +148,7 @@ const progressStyle = computed(() => ({ width: `${production.completedPercent}%`
                                     <strong>#{{ order.id }}</strong>
                                     <span class="text-color-secondary ml-2">{{ order.details.furnitureType }}</span>
                                 </span>
-                                <pv-tag :value="t(orderStatusKey(order.status))" :severity="orderStatusSeverity(order.status)" />
+                                <pv-tag :value="t(productionPhaseKey(order.status))" :severity="productionPhaseSeverity(order.status)" />
                             </button>
                         </div>
                     </template>
@@ -94,6 +162,17 @@ const progressStyle = computed(() => ({ width: `${production.completedPercent}%`
                         {{ selectedOrder ? t('production.stages-of', { id: selectedOrder.id }) : t('production.select-order') }}
                     </template>
                     <template #content>
+                        <div
+                            v-if="selectedOrder && isCarpenter && (canStartProduction || canMarkReady || canComplete)"
+                            class="flex flex-wrap justify-content-end gap-2 mb-3">
+                            <pv-button v-if="canStartProduction" size="small" icon="pi pi-play"
+                                       :label="t('orders.actions-start')" @click="startProduction" />
+                            <pv-button v-if="canMarkReady" size="small" icon="pi pi-check" severity="success"
+                                       :label="t('orders.actions-ready')" @click="markReady" />
+                            <pv-button v-if="canComplete" size="small" icon="pi pi-flag-fill" severity="success"
+                                       :label="t('orders.actions-complete')" @click="completeOrder" />
+                        </div>
+
                         <div v-if="!selectedOrder" class="text-color-secondary">{{ t('production.select-order-hint') }}</div>
 
                         <!-- Existing stages timeline -->
