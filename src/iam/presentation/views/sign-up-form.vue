@@ -50,14 +50,9 @@ function performSignUp() {
 
             <pv-card class="auth-card w-full">
             <template #header>
-                <div class="flex align-items-center gap-3 px-4 pt-4">
-                    <span class="brand-badge flex align-items-center justify-content-center">
-                        <i class="pi pi-box text-xl" />
-                    </span>
-                    <div class="flex flex-column">
-                        <strong class="text-lg">{{ t('shell.brand') }}</strong>
-                        <small class="text-color-secondary">{{ t('iam.tagline') }}</small>
-                    </div>
+                <div class="auth-brand-header px-4 pt-4">
+                    <img src="/brand/logo-woodroute.png" alt="WoodRoute" class="auth-brand-logo" />
+                    <small class="auth-brand-tagline">{{ t('iam.tagline') }}</small>
                 </div>
             </template>
 
@@ -148,12 +143,23 @@ function performSignUp() {
     box-shadow: 0 10px 30px rgba(67, 15, 5, 0.08);
 }
 
-.brand-badge {
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 0.75rem;
-    background: var(--p-primary-color);
-    color: var(--p-primary-contrast-color);
+.auth-brand-logo {
+    width: min(12rem, 100%);
+    height: auto;
+}
+
+.auth-brand-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+}
+
+.auth-brand-tagline {
+    display: block;
+    color: var(--p-text-muted-color);
+    line-height: 1.4;
 }
 
 .auth-error {
