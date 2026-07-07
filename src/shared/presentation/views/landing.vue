@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+import LanguageSwitcher from '../components/language-switcher.vue';
 
 const { t }  = useI18n();
 const router = useRouter();
@@ -18,6 +19,10 @@ function track() {
 
 <template>
     <div class="landing min-h-screen flex flex-column align-items-center justify-content-center p-4">
+        <div class="landing__toolbar w-full flex justify-content-end mb-4">
+            <language-switcher />
+        </div>
+
         <div class="landing__inner w-full flex flex-column align-items-center">
             <span class="landing__brand-badge flex align-items-center justify-content-center mb-4">
                 <i class="pi pi-box text-2xl" />
@@ -66,6 +71,10 @@ function track() {
 }
 
 .landing__inner {
+    max-width: 40rem;
+}
+
+.landing__toolbar {
     max-width: 40rem;
 }
 
