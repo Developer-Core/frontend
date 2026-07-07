@@ -40,7 +40,9 @@
     "language-es": "Español",
     "logout": "Cerrar sesión",
     "logout-confirm-title": "Cerrar sesión",
-    "logout-confirm-message": "¿Seguro que quieres cerrar sesión?"
+    "logout-confirm-message": "¿Seguro que quieres cerrar sesión?",
+    "theme-light": "Cambiar a modo claro",
+    "theme-dark": "Cambiar a modo oscuro"
   },
   "iam": {
     "login-title": "Iniciar sesión",

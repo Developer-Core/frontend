@@ -63,6 +63,41 @@
     rgba(26, 23, 21, 0.05) 0px 23px 52px 0px;
 }
 
+.app-dark {
+  --color-background:          #1A1715;
+  --color-foreground:          #FAF8F7;
+  --color-primary:             #FE7A5A;
+  --color-primary-hover:       #FD4319;
+  --color-primary-foreground:  #1A1715;
+  --color-brand-light:         #423A35;
+  --color-brand-subtle:        #322B27;
+
+  --color-card:                #25201C;
+  --color-card-foreground:     #FAF8F7;
+  --color-secondary:           #322B27;
+  --color-secondary-foreground:#C9BEB6;
+  --color-muted:               #423A35;
+  --color-muted-foreground:    #AA998E;
+  --color-accent:              #423A35;
+  --color-accent-foreground:   #C9BEB6;
+  --color-border:              #544A43;
+  --color-ring:                #FE7A5A;
+
+  --surface-canvas:  #1A1715;
+  --surface-wash:    #322B27;
+  --surface-brand:   #423A35;
+  --surface-card:    #25201C;
+}
+
+.app-dark .app-confirm-dialog .p-dialog-footer {
+  background: rgba(50, 43, 39, 0.45);
+}
+
+.app-dark .surface-card {
+  background-color: var(--surface-card) !important;
+  color: var(--color-foreground) !important;
+}
+
 body {
   font-family: var(--font-body);
   font-size: var(--font-size-base);

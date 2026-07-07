@@ -92,6 +92,7 @@ onBeforeUnmount(() => {
 
 <template>
     <aside class="sidebar flex flex-column surface-card">
+
         <div class="sidebar__brand p-4">
             <div class="flex flex-column align-items-center min-w-0">
                 <img src="/brand/logo-woodroute.png" alt="WoodRoute" class="sidebar__brand-logo" />
