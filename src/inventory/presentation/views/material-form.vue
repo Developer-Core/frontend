@@ -40,6 +40,11 @@ onMounted(async () => {
     }
 });
 
+const materialTypeError = computed(() => (submitted.value && !isEdit.value && !form.materialType ? t('inventory.material-type-required') : ''));
+const unitError = computed(() => (submitted.value && !isEdit.value && !form.unit ? t('inventory.unit-required') : ''));
+const stockError = computed(() => (submitted.value && !(form.quantity >= 0) ? t('inventory.stock-required') : ''));
+const minError = computed(() => (submitted.value && !(form.minStock >= 0) ? t('inventory.min-required') : ''));
+
 const valid = computed(() =>
     isEdit.value
         ? form.quantity >= 0 && form.minStock >= 0
@@ -88,34 +93,44 @@ const cancel = () => router.push({ name: 'inventory-list' });
                     <form class="p-fluid flex flex-column gap-3 mt-2" @submit.prevent="submit">
                         <div class="formgrid grid">
                             <div class="field col-12 md:col-6 mb-0">
-                                <label for="materialType" class="block mb-1 font-medium">{{ t('inventory.material-type') }}</label>
+                                <label for="materialType" class="block mb-1 font-medium">{{ t('inventory.material-type') }} <span class="text-red-500 ml-1">*</span></label>
                                 <pv-input-text id="materialType" v-model="form.materialType" :disabled="isEdit"
-                                               class="w-full" :class="{ 'p-invalid': submitted && !isEdit && !form.materialType }" />
+                                               class="w-full" :class="{ 'p-invalid': materialTypeError }"
+                                               :placeholder="t('inventory.material-type-placeholder')" />
+                                <small v-if="materialTypeError" class="text-red-500">{{ materialTypeError }}</small>
                             </div>
 
                             <div class="field col-12 md:col-6 mb-0">
-                                <label for="unit" class="block mb-1 font-medium">{{ t('inventory.unit') }}</label>
+                                <label for="unit" class="block mb-1 font-medium">{{ t('inventory.unit') }} <span class="text-red-500 ml-1">*</span></label>
                                 <pv-select id="unit" v-model="form.unit" :options="unitOptions" option-label="label" option-value="value"
                                            :disabled="isEdit" :placeholder="t('inventory.select-unit')" class="w-full"
-                                           :class="{ 'p-invalid': submitted && !isEdit && !form.unit }" />
+                                           :class="{ 'p-invalid': unitError }" />
+                                <small v-if="unitError" class="text-red-500">{{ unitError }}</small>
                             </div>
                         </div>
 
                         <div class="formgrid grid">
                             <div class="field col-12 md:col-6 mb-0">
-                                <label for="quantity" class="block mb-1 font-medium">{{ t('inventory.stock') }}</label>
-                                <pv-input-number id="quantity" v-model="form.quantity" :min="0" :max-fraction-digits="2" class="w-full" />
+                                <label for="quantity" class="block mb-1 font-medium">{{ t('inventory.stock') }} <span class="text-red-500 ml-1">*</span></label>
+                                <pv-input-number id="quantity" v-model="form.quantity" :min="0" :max-fraction-digits="2" class="w-full"
+                                                 :class="{ 'p-invalid': stockError }" :placeholder="t('inventory.stock-placeholder')" />
+                                <small v-if="stockError" class="text-red-500">{{ stockError }}</small>
                             </div>
 
                             <div class="field col-12 md:col-6 mb-0">
-                                <label for="minStock" class="block mb-1 font-medium">{{ t('inventory.min') }}</label>
-                                <pv-input-number id="minStock" v-model="form.minStock" :min="0" :max-fraction-digits="2" class="w-full" />
+                                <label for="minStock" class="block mb-1 font-medium">{{ t('inventory.min') }} <span class="text-red-500 ml-1">*</span></label>
+                                <pv-input-number id="minStock" v-model="form.minStock" :min="0" :max-fraction-digits="2" class="w-full"
+                                                 :class="{ 'p-invalid': minError }" :placeholder="t('inventory.min-placeholder')" />
+                                <small v-if="minError" class="text-red-500">{{ minError }}</small>
+                                <small v-else class="text-color-secondary">{{ t('inventory.min-hint') }}</small>
                             </div>
                         </div>
 
                         <div v-if="errors.length" class="text-red-500">
                             {{ t('errors.occurred') }}: {{ errors.map(e => e.message).join(', ') }}
                         </div>
+
+                        <small class="text-color-secondary">{{ t('common.required-fields') }}</small>
 
                         <div class="flex gap-2 justify-content-end mt-2">
                             <pv-button type="button" :label="t('common.cancel')" severity="secondary" text @click="cancel" />

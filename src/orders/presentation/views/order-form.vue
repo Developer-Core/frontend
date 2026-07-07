@@ -121,7 +121,7 @@ const cancel = () => router.push({ name: 'orders-list' });
                     <form class="p-fluid flex flex-column gap-3 mt-2" novalidate @submit.prevent="submit">
                         <div v-if="!isEdit && isCarpenter" class="field">
                             <div class="flex justify-content-between align-items-center mb-1">
-                                <label for="customerId" class="font-medium">{{ t('orders.customer') }}</label>
+                                <label for="customerId" class="font-medium">{{ t('orders.customer') }} <span class="text-red-500 ml-1">*</span></label>
                                 <pv-button type="button" :label="t('orders.new-customer')" icon="pi pi-plus"
                                            size="small" text @click="goToNewCustomer" />
                             </div>
@@ -135,14 +135,14 @@ const cancel = () => router.push({ name: 'orders-list' });
                         </div>
 
                         <div class="field">
-                            <label for="furnitureType" class="block mb-1 font-medium">{{ t('orders.furniture-type') }}</label>
+                            <label for="furnitureType" class="block mb-1 font-medium">{{ t('orders.furniture-type') }} <span class="text-red-500 ml-1">*</span></label>
                             <pv-input-text id="furnitureType" v-model="form.furnitureType" class="w-full"
                                            :class="{ 'p-invalid': submitted && !form.furnitureType }"
                                            :placeholder="t('orders.furniture-type-placeholder')" />
                         </div>
 
                         <div class="field">
-                            <label class="block mb-1 font-medium">{{ t('orders.dimensions') }}</label>
+                            <label class="block mb-1 font-medium">{{ t('orders.dimensions') }} <span class="text-red-500 ml-1">*</span></label>
                             <div class="formgrid grid dimensions-grid">
                                 <div class="field col-12 md:col-4 mb-0 dimensions-grid__item">
                                     <pv-input-number v-model="form.width" :min="0" suffix=" cm" :max-fraction-digits="2"
@@ -164,7 +164,7 @@ const cancel = () => router.push({ name: 'orders-list' });
                         </div>
 
                         <div class="field">
-                            <label for="material" class="block mb-1 font-medium">{{ t('orders.material') }}</label>
+                            <label for="material" class="block mb-1 font-medium">{{ t('orders.material') }} <span class="text-red-500 ml-1">*</span></label>
                             <pv-input-text id="material" v-model="form.material" class="w-full"
                                            :class="{ 'p-invalid': submitted && !form.material }"
                                            :placeholder="t('orders.material-placeholder')" />
@@ -179,6 +179,8 @@ const cancel = () => router.push({ name: 'orders-list' });
                         <div v-if="errors.length" class="text-red-500">
                             {{ t('errors.occurred') }}: {{ errors.map(e => e.message).join(', ') }}
                         </div>
+
+                        <small class="text-color-secondary">{{ t('common.required-fields') }}</small>
 
                         <div class="flex gap-2 justify-content-end mt-2">
                             <pv-button type="button" :label="t('common.cancel')" severity="secondary" text @click="cancel" />
