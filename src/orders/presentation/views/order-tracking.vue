@@ -3,6 +3,8 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { computed, onMounted, reactive, ref, toRefs } from 'vue';
 import useOrdersStore from '../../application/orders.store.js';
+import useIamStore from '../../../iam/application/iam.store.js';
+import useCustomersStore from '../../../customers/application/customers.store.js';
 import { OrderStatus, orderStatusKey, orderStatusSeverity } from '../../domain/order-status.js';
 import { PaymentType, paymentStatusKey, paymentStatusSeverity, paymentTypeKey } from '../../domain/payment.entity.js';
 
@@ -10,10 +12,51 @@ const { t }  = useI18n();
 const route  = useRoute();
 const router = useRouter();
 const store  = useOrdersStore();
+const iamStore = useIamStore();
+const customersStore = useCustomersStore();
 const { errors } = toRefs(store);
 
 /** @type {import('vue').ComputedRef<?import('../../domain/order.entity.js').Order>} */
 const order = computed(() => store.currentOrder);
+
+const isCarpenter = computed(() => iamStore.currentRole === 'Carpenter');
+
+/** The customer record for this order (carpenter view resolves it from the store). */
+const customer = computed(() => order.value ? customersStore.customerById(order.value.customerId) : null);
+
+/** Display name for the order's customer. */
+const customerLabel = computed(() =>
+    customer.value?.fullName || (order.value ? `#${order.value.customerId}` : ''));
+
+// --- Lifecycle action gating (carpenter only) ---
+const canAccept  = computed(() => isCarpenter.value && order.value?.status === OrderStatus.PENDING);
+const canStart   = computed(() => isCarpenter.value && order.value?.status === OrderStatus.ACCEPTED);
+const canReady   = computed(() => isCarpenter.value && order.value?.status === OrderStatus.IN_PROGRESS);
+const canComplete = computed(() => isCarpenter.value && order.value?.status === OrderStatus.READY_FOR_DELIVERY);
+const hasLifecycleActions = computed(() =>
+    canAccept.value || canStart.value || canReady.value || canComplete.value);
+
+// --- WhatsApp contact ---
+const workshopWhatsapp = import.meta.env.VITE_WORKSHOP_WHATSAPP || '51999999999';
+
+/** Digits-only phone for a wa.me link, or null when unavailable. */
+const customerPhone = computed(() => {
+    const raw = customer.value?.phone ?? '';
+    const digits = String(raw).replace(/\D/g, '');
+    return digits || null;
+});
+
+/** Whether the WhatsApp button can be used (carpenter needs a customer phone). */
+const canWhatsapp = computed(() => isCarpenter.value ? !!customerPhone.value : true);
+
+/** Opens WhatsApp: the carpenter contacts the customer; the client contacts the workshop. */
+function contactWhatsapp() {
+    if (!order.value || !canWhatsapp.value) return;
+    const reference = order.value.publicTrackingId || `#${order.value.id}`;
+    const text = encodeURIComponent(t('orders.whatsapp-text', { reference }));
+    const phone = isCarpenter.value ? customerPhone.value : workshopWhatsapp;
+    window.open(`https://wa.me/${phone}?text=${text}`, '_blank', 'noopener');
+}
 
 const quoteForm   = reactive({ materialsCost: null, laborCost: null, estimatedProductionDays: null });
 const paymentForm = reactive({ type: PaymentType.DEPOSIT, amount: null, receiptReference: '' });
@@ -35,7 +78,11 @@ const quoteSeverity = (status) => {
     }
 };
 
-onMounted(() => store.fetchOrderById(route.params.id));
+onMounted(() => {
+    store.fetchOrderById(route.params.id);
+    // The carpenter needs the customers directory to resolve the name and phone.
+    if (isCarpenter.value) customersStore.fetchCustomers();
+});
 
 /** A terminal order accepts no more quote/payment actions. */
 const isTerminal = computed(() => !!order.value &&
@@ -107,8 +154,7 @@ const back = () => router.push({ name: 'orders-list' });
                 <template #content>
                     <div class="grid">
                         <div class="col-12 md:col-6">
-                            <p><strong>{{ t('orders.customer') }}:</strong> {{ order.customerId }}</p>
-                            <p><strong>{{ t('orders.carpenter') }}:</strong> {{ order.carpenterId }}</p>
+                            <p v-if="isCarpenter"><strong>{{ t('orders.customer') }}:</strong> {{ customerLabel }}</p>
                             <p><strong>{{ t('orders.furniture-type') }}:</strong> {{ order.details.furnitureType }}</p>
                             <p><strong>{{ t('orders.material') }}:</strong> {{ order.details.material }}</p>
                         </div>
@@ -121,6 +167,23 @@ const back = () => router.push({ name: 'orders-list' });
                             <p><strong>{{ t('orders.design-notes') }}:</strong></p>
                             <p class="text-color-secondary">{{ order.details.designNotes || '—' }}</p>
                         </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 mt-2 align-items-center">
+                        <pv-button v-if="canAccept" size="small" :label="t('orders.actions-accept')" icon="pi pi-check"
+                                   severity="success" @click="store.acceptOrder(order.id)" />
+                        <pv-button v-if="canStart" size="small" :label="t('orders.actions-start')" icon="pi pi-play"
+                                   @click="store.startProduction(order.id)" />
+                        <pv-button v-if="canReady" size="small" :label="t('orders.actions-ready')" icon="pi pi-box"
+                                   @click="store.markReady(order.id)" />
+                        <pv-button v-if="canComplete" size="small" :label="t('orders.actions-complete')" icon="pi pi-flag"
+                                   severity="success" @click="store.completeOrder(order.id)" />
+                        <span v-if="hasLifecycleActions" class="flex-1" />
+                        <span v-tooltip.top="!canWhatsapp ? t('orders.whatsapp-no-phone') : ''">
+                            <pv-button size="small" severity="success" outlined icon="pi pi-whatsapp"
+                                       :label="t('orders.contact-whatsapp')" :disabled="!canWhatsapp"
+                                       @click="contactWhatsapp" />
+                        </span>
                     </div>
                 </template>
             </pv-card>
@@ -142,7 +205,8 @@ const back = () => router.push({ name: 'orders-list' });
                                        icon="pi pi-check" @click="store.acceptQuote(order.id)" />
                         </div>
                     </div>
-                    <form v-else-if="order.status === OrderStatus.PENDING" class="formgrid grid p-fluid" @submit.prevent="submitQuote">
+                    <p v-else-if="!isCarpenter && order.status === OrderStatus.PENDING" class="text-color-secondary m-0">{{ t('orders.no-quote') }}</p>
+                    <form v-else-if="isCarpenter && order.status === OrderStatus.PENDING" class="formgrid grid p-fluid" @submit.prevent="submitQuote">
                         <p class="col-12 text-color-secondary m-0 mb-2">{{ t('orders.no-quote') }}</p>
                         <div class="field col-12 lg:col-4 order-tracking__field">
                             <label class="block mb-1 font-medium">{{ t('orders.materials-cost') }}</label>
@@ -195,7 +259,7 @@ const back = () => router.push({ name: 'orders-list' });
                         </pv-column>
                         <pv-column :header="t('orders.actions')">
                             <template #body="{ data }">
-                                <template v-if="data.status === 'PendingValidation'">
+                                <template v-if="isCarpenter && data.status === 'PendingValidation'">
                                     <pv-button icon="pi pi-check" text rounded severity="success"
                                                v-tooltip.top="t('orders.approve')"
                                                @click="store.validatePayment(order.id, data.id, true)" />
