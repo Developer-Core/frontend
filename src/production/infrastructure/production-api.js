@@ -24,9 +24,10 @@ export class ProductionApi extends BaseApi {
     }
 
     /**
-     * Defines the ordered production stages for an accepted order.
+     * Defines the ordered production stages for an accepted order. The acting
+     * carpenter is derived from the JWT server-side (never sent in the body).
      * @param {number|string} orderId - Order identifier.
-     * @param {{ carpenterId: number, stages: Array<{ name: string, estimatedTimeInDays: number }> }} resource - Plan.
+     * @param {{ stages: Array<{ name: string, estimatedTimeInDays: number }> }} resource - Plan.
      * @returns {Promise<import('axios').AxiosResponse>} Created stages response.
      */
     defineStages(orderId, resource) {
@@ -37,7 +38,7 @@ export class ProductionApi extends BaseApi {
      * Updates the status of a production stage.
      * @param {number|string} orderId - Order identifier.
      * @param {number|string} stageId - Stage identifier.
-     * @param {{ status: string, requestingUserId: number }} resource - New status + acting carpenter id.
+     * @param {{ status: string }} resource - New status (the acting carpenter comes from the JWT).
      * @returns {Promise<import('axios').AxiosResponse>} Updated stage response.
      */
     updateStageStatus(orderId, stageId, resource) {

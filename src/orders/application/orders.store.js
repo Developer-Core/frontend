@@ -10,12 +10,15 @@ import { computed, ref } from 'vue';
 import { OrdersApi } from '../infrastructure/orders-api.js';
 import { OrderAssembler } from '../infrastructure/order.assembler.js';
 import { OrderStatus } from '../domain/order-status.js';
+import useIamStore from '../../iam/application/iam.store.js';
 
 const ordersApi = new OrdersApi();
 
 const useOrdersStore = defineStore('orders', () => {
-    /** @type {import('vue').Ref<Array<import('../domain/order.entity.js').Order>>} Loaded orders. */
+    /** @type {import('vue').Ref<Array<import('../domain/order.entity.js').Order>>} Loaded orders (role-scoped by the backend). */
     const orders = ref([]);
+    /** @type {import('vue').Ref<Array<import('../domain/order.entity.js').Order>>} Unassigned pool orders (carpenter). */
+    const poolOrders = ref([]);
     /** @type {import('vue').Ref<?import('../domain/order.entity.js').Order>} Order under detailed view. */
     const currentOrder = ref(null);
     /** @type {import('vue').Ref<Array<Error>>} Errors raised by Orders use-case execution. */
@@ -75,12 +78,39 @@ const useOrdersStore = defineStore('orders', () => {
     }
 
     /**
-     * Creates an order from a flat CreateOrderResource payload.
-     * @param {Object} resource - { customerId, carpenterId, furnitureType, width, height, depth, material, designNotes }.
+     * Loads the unassigned order pool (carpenter-only) into `poolOrders`.
+     * @returns {Promise<void>}
+     */
+    function fetchPool() {
+        return ordersApi.getPool()
+            .then(response => {
+                poolOrders.value = OrderAssembler.toEntitiesFromResponse(response);
+                errors.value = [];
+            })
+            .catch(error => { errors.value.push(error); });
+    }
+
+    /**
+     * Creates an order, arming the payload according to the signed-in role:
+     * a Client sends only the furniture fields (the backend derives their customer
+     * and leaves the order unassigned); a Carpenter also sends the chosen `customerId`.
+     * @param {Object} resource - { customerId?, furnitureType, width, height, depth, material, designNotes }.
      * @returns {Promise<?import('../domain/order.entity.js').Order>}
      */
     function createOrder(resource) {
-        return ordersApi.createOrder(resource).then(absorb).catch(error => { errors.value.push(error); return null; });
+        const iamStore = useIamStore();
+        const details = {
+            furnitureType: resource.furnitureType,
+            width:         resource.width,
+            height:        resource.height,
+            depth:         resource.depth,
+            material:      resource.material,
+            designNotes:   resource.designNotes
+        };
+        const payload = iamStore.currentRole === 'Carpenter'
+            ? { customerId: resource.customerId, ...details }
+            : details;
+        return ordersApi.createOrder(payload).then(absorb).catch(error => { errors.value.push(error); return null; });
     }
 
     /**
@@ -93,12 +123,27 @@ const useOrdersStore = defineStore('orders', () => {
         return ordersApi.modifyOrder(id, resource).then(absorb).catch(error => { errors.value.push(error); return null; });
     }
 
-    /** Accepts a pending order. @param {number|string} id @returns {Promise} */
-    function acceptOrder(id) { return ordersApi.acceptOrder(id).then(absorb).catch(error => { errors.value.push(error); }); }
+    /** Claims a pool order and accepts it. Also drops it from `poolOrders`. @param {number|string} id @returns {Promise} */
+    function acceptOrder(id) {
+        return ordersApi.acceptOrder(id)
+            .then(response => {
+                const order = absorb(response);
+                poolOrders.value = poolOrders.value.filter(o => o.id !== order.id);
+                return order;
+            })
+            .catch(error => { errors.value.push(error); });
+    }
     /** Rejects a pending order. @param {number|string} id @returns {Promise} */
     function rejectOrder(id) { return ordersApi.rejectOrder(id).then(absorb).catch(error => { errors.value.push(error); }); }
     /** Cancels an order. @param {number|string} id @returns {Promise} */
     function cancelOrder(id) { return ordersApi.cancelOrder(id).then(absorb).catch(error => { errors.value.push(error); }); }
+
+    /** Starts production of an accepted order (carpenter). @param {number|string} id @returns {Promise} */
+    function startProduction(id) { return ordersApi.startProduction(id).then(absorb).catch(error => { errors.value.push(error); }); }
+    /** Marks an in-progress order ready for delivery (carpenter). @param {number|string} id @returns {Promise} */
+    function markReady(id) { return ordersApi.markReady(id).then(absorb).catch(error => { errors.value.push(error); }); }
+    /** Completes/delivers a ready order (carpenter). @param {number|string} id @returns {Promise} */
+    function completeOrder(id) { return ordersApi.completeOrder(id).then(absorb).catch(error => { errors.value.push(error); }); }
 
     /**
      * Generates the quote for a pending order.
@@ -133,11 +178,12 @@ const useOrdersStore = defineStore('orders', () => {
     }
 
     return {
-        orders, currentOrder, errors, ordersLoaded,
+        orders, poolOrders, currentOrder, errors, ordersLoaded,
         ordersCount, pendingOrders, inProgressOrders,
-        fetchOrders, fetchOrderById, getOrderById,
+        fetchOrders, fetchPool, fetchOrderById, getOrderById,
         createOrder, modifyOrder,
         acceptOrder, rejectOrder, cancelOrder,
+        startProduction, markReady, completeOrder,
         generateQuote, acceptQuote,
         registerPayment, validatePayment
     };

@@ -5,6 +5,7 @@ import { computed, onMounted, reactive, ref, toRefs } from 'vue';
 import { useConfirm } from 'primevue';
 import useOrdersStore from '../../application/orders.store.js';
 import useIamStore from '../../../iam/application/iam.store.js';
+import useCustomersStore from '../../../customers/application/customers.store.js';
 
 const { t }    = useI18n();
 const route    = useRoute();
@@ -12,17 +13,19 @@ const router   = useRouter();
 const confirm  = useConfirm();
 const store    = useOrdersStore();
 const iamStore = useIamStore();
+const customersStore = useCustomersStore();
 const { errors } = toRefs(store);
 
-const isEdit    = computed(() => Boolean(route.params.id));
-const submitted = ref(false);
+const isEdit     = computed(() => Boolean(route.params.id));
+const isCarpenter = computed(() => iamStore.currentRole === 'Carpenter');
+const submitted  = ref(false);
 
 /**
- * Flat form model matching the backend Create/Update order resources.
- * On create it also carries carpenterId; customerId comes from the signed-in user.
+ * Flat form model matching the backend furniture fields. On create, a carpenter
+ * also picks the target `customerId`; a client sends only the furniture fields.
  */
 const form = reactive({
-    carpenterId:   null,
+    customerId:    null,
     furnitureType: '',
     width:         null,
     height:        null,
@@ -31,19 +34,17 @@ const form = reactive({
     designNotes:   ''
 });
 
-/**
- * Carpenter options for the selector: each registered carpenter shown by full
- * name (resolved from their profile by email), falling back to the email.
- */
-const carpenterOptions = computed(() => iamStore.users.map(user => {
-    const profile = iamStore.profiles.find(p => p.email === user.email);
-    return { id: user.id, label: profile?.fullName || user.email };
-}));
+/** Customer options for the carpenter's selector, shown by full name. */
+const customerOptions = computed(() => customersStore.customers.map(customer => ({
+    id: customer.id, label: customer.fullName || customer.email
+})));
+
+/** Routes the carpenter to register a new customer. */
+const goToNewCustomer = () => router.push({ name: 'customers-new' });
 
 onMounted(async () => {
-    if (!isEdit.value) {
-        iamStore.fetchUsers('Carpenter');
-        iamStore.fetchProfiles();
+    if (!isEdit.value && isCarpenter.value) {
+        customersStore.fetchCustomers();
     }
     if (isEdit.value) {
         let order = store.getOrderById(route.params.id);
@@ -52,7 +53,7 @@ onMounted(async () => {
             order = store.currentOrder;
         }
         if (order) {
-            form.carpenterId   = order.carpenterId;
+            form.customerId    = order.customerId;
             form.furnitureType = order.details.furnitureType;
             form.width         = order.details.width;
             form.height        = order.details.height;
@@ -97,10 +98,9 @@ async function submit() {
             accept: persist
         });
     } else {
-        if (!form.carpenterId) return;
+        if (isCarpenter.value && !form.customerId) return;
         const created = await store.createOrder({
-            customerId:  iamStore.currentUserId,
-            carpenterId: Number(form.carpenterId),
+            ...(isCarpenter.value ? { customerId: Number(form.customerId) } : {}),
             ...detailsPayload()
         });
         if (created) router.push({ name: 'orders-list' });
@@ -119,15 +119,19 @@ const cancel = () => router.push({ name: 'orders-list' });
                 <template #subtitle>{{ t('orders.form-subtitle') }}</template>
                 <template #content>
                     <form class="p-fluid flex flex-column gap-3 mt-2" novalidate @submit.prevent="submit">
-                        <div v-if="!isEdit" class="field">
-                            <label for="carpenterId" class="block mb-1 font-medium">{{ t('orders.carpenter') }}</label>
-                            <pv-select id="carpenterId" v-model="form.carpenterId" :options="carpenterOptions"
+                        <div v-if="!isEdit && isCarpenter" class="field">
+                            <div class="flex justify-content-between align-items-center mb-1">
+                                <label for="customerId" class="font-medium">{{ t('orders.customer') }}</label>
+                                <pv-button type="button" :label="t('orders.new-customer')" icon="pi pi-plus"
+                                           size="small" text @click="goToNewCustomer" />
+                            </div>
+                            <pv-select id="customerId" v-model="form.customerId" :options="customerOptions"
                                        option-label="label" option-value="id" filter
-                                       :placeholder="t('orders.carpenter-placeholder')"
-                                       :empty-message="t('orders.carpenter-empty')"
-                                       class="w-full" :class="{ 'p-invalid': submitted && !form.carpenterId }" />
-                            <small v-if="submitted && !form.carpenterId" class="text-red-500">{{ t('orders.carpenter-required') }}</small>
-                            <small v-else class="text-color-secondary">{{ t('orders.carpenter-hint') }}</small>
+                                       :placeholder="t('orders.customer-placeholder')"
+                                       :empty-message="t('orders.customer-empty')"
+                                       class="w-full" :class="{ 'p-invalid': submitted && !form.customerId }" />
+                            <small v-if="submitted && !form.customerId" class="text-red-500">{{ t('orders.customer-required') }}</small>
+                            <small v-else class="text-color-secondary">{{ t('orders.customer-hint') }}</small>
                         </div>
 
                         <div class="field">
