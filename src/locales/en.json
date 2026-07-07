@@ -245,7 +245,9 @@
     "save-stages": "Save stages",
     "phase-to-plan": "To plan",
     "phase-in-production": "In production",
-    "phase-ready": "Ready for delivery"
+    "phase-ready": "Ready for delivery",
+    "start-to-advance": "Start production to advance the stages.",
+    "awaiting-final-payment": "The final payment is pending before the order can be closed."
   },
   "inventory": {
     "title": "Inventory",

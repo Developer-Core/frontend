@@ -98,6 +98,118 @@
   color: var(--color-foreground) !important;
 }
 
+.app-dark body,
+.app-dark #app,
+.app-dark .surface-ground {
+  background-color: var(--surface-canvas) !important;
+  color: var(--color-foreground);
+}
+
+.app-dark .surface-border,
+.app-dark .border-bottom-1,
+.app-dark .border-top-1,
+.app-dark .border-1 {
+  border-color: var(--color-border) !important;
+}
+
+.app-dark .text-color-secondary {
+  color: var(--color-muted-foreground) !important;
+}
+
+.app-dark .surface-0 {
+  background-color: var(--surface-card) !important;
+}
+
+.app-dark .p-card,
+.app-dark .p-drawer,
+.app-dark .p-dialog,
+.app-dark .p-menu {
+  background: var(--surface-card) !important;
+  color: var(--color-foreground) !important;
+  border-color: var(--color-border) !important;
+}
+
+.app-dark .p-card .p-card-subtitle,
+.app-dark .p-card .p-card-caption,
+.app-dark .p-dialog .p-dialog-header,
+.app-dark .p-dialog .p-dialog-content,
+.app-dark .p-drawer {
+  color: var(--color-foreground) !important;
+}
+
+.app-dark .p-inputtext,
+.app-dark .p-inputnumber-input,
+.app-dark .p-textarea,
+.app-dark .p-select,
+.app-dark .p-multiselect,
+.app-dark .p-password-input {
+  background: var(--color-secondary) !important;
+  color: var(--color-foreground) !important;
+  border-color: var(--color-border) !important;
+}
+
+.app-dark .p-inputtext::placeholder,
+.app-dark .p-inputnumber-input::placeholder,
+.app-dark .p-textarea::placeholder {
+  color: var(--color-muted-foreground) !important;
+}
+
+.app-dark .p-select-label,
+.app-dark .p-select-dropdown,
+.app-dark .p-inputicon {
+  color: var(--color-muted-foreground) !important;
+}
+
+.app-dark .p-select-overlay,
+.app-dark .p-select-list-container,
+.app-dark .p-select-list,
+.app-dark .p-select-option,
+.app-dark .p-overlay,
+.app-dark .p-overlay-content {
+  background: var(--surface-card) !important;
+  color: var(--color-foreground) !important;
+  border-color: var(--color-border) !important;
+}
+
+.app-dark .p-select-option.p-select-option-selected,
+.app-dark .p-select-option:hover {
+  background: var(--color-brand-light) !important;
+  color: var(--color-foreground) !important;
+}
+
+.app-dark .p-datatable,
+.app-dark .p-datatable-table,
+.app-dark .p-datatable-table-container,
+.app-dark .p-datatable-thead,
+.app-dark .p-datatable-tbody > tr,
+.app-dark .p-datatable-header,
+.app-dark .p-datatable-thead > tr > th,
+.app-dark .p-datatable-tbody > tr > td,
+.app-dark .p-datatable-footer,
+.app-dark .p-paginator,
+.app-dark .p-paginator .p-paginator-page,
+.app-dark .p-paginator .p-paginator-next,
+.app-dark .p-paginator .p-paginator-prev,
+.app-dark .p-paginator .p-paginator-first,
+.app-dark .p-paginator .p-paginator-last,
+.app-dark .p-paginator .p-select {
+  background: var(--surface-card) !important;
+  color: var(--color-foreground) !important;
+  border-color: var(--color-border) !important;
+}
+
+.app-dark .p-datatable-tbody > tr:not(.p-highlight):hover > td {
+  background: var(--color-secondary) !important;
+}
+
+.app-dark .sidebar__link,
+.app-dark .sidebar__profile-toggle,
+.app-dark .sidebar__profile-toggle .text-color,
+.app-dark .sidebar__profile-toggle .text-color-secondary,
+.app-dark .account-summary__text {
+  color: var(--color-secondary-foreground) !important;
+}
+
 body {
   font-family: var(--font-body);
   font-size: var(--font-size-base);
