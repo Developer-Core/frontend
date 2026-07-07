@@ -53,7 +53,7 @@ const isCompleted = computed(() => progressPercent.value >= 100);
         <div class="public-tracking-page__container w-full">
             <header class="public-tracking-page__header mb-4">
                 <div>
-                    <h1 class="text-xl font-semibold m-0">{{ t('public-tracking.brand') }}</h1>
+                    <img src="/brand/logo-woodroute.png" alt="WoodRoute" class="public-tracking-page__brand-logo mb-2" />
                     <p class="public-tracking-page__subtitle m-0">{{ t('public-tracking.subtitle') }}</p>
                 </div>
                 <language-switcher />
@@ -151,6 +151,11 @@ const isCompleted = computed(() => progressPercent.value >= 100);
 
 .public-tracking-page__container {
     max-width: 40rem;
+}
+
+.public-tracking-page__brand-logo {
+    width: min(11rem, 60vw);
+    height: auto;
 }
 
 .public-tracking-page__header {

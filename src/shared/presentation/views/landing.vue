@@ -24,9 +24,7 @@ function track() {
         </div>
 
         <div class="landing__inner w-full flex flex-column align-items-center">
-            <span class="landing__brand-badge flex align-items-center justify-content-center mb-4">
-                <i class="pi pi-box text-2xl" />
-            </span>
+            <img src="/brand/logo-woodroute.png" alt="WoodRoute" class="landing__brand-logo mb-4" />
 
             <h1 class="text-4xl font-bold text-center m-0">{{ t('landing.title') }}</h1>
             <p class="landing__copy text-color-secondary text-center mt-2 mb-5">
@@ -78,13 +76,9 @@ function track() {
     max-width: 40rem;
 }
 
-.landing__brand-badge {
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 1rem;
-    background: var(--p-primary-color);
-    color: var(--p-primary-contrast-color);
-    box-shadow: 0 10px 30px rgba(67, 15, 5, 0.18);
+.landing__brand-logo {
+    width: min(15rem, 72vw);
+    height: auto;
 }
 
 .landing__copy {
