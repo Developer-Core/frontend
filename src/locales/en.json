@@ -303,7 +303,7 @@
     "phone": "Phone",
     "first-name-placeholder": "e.g. Rosa",
     "last-name-placeholder": "e.g. Delgado",
-    "email-placeholder": "client@email.com",
+    "email-placeholder": "client{'@'}email.com",
     "phone-placeholder": "51987654321",
     "phone-hint": "WhatsApp number; you'll send the order tracking link there.",
     "actions": "Actions",
